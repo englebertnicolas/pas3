@@ -5,8 +5,8 @@ using PAS.Persistence.Rebus;
 namespace PAS.Persistence;
 
 public abstract class DbContextBase(
-    DbContextOptions options, 
-    string schemaName, 
+    DbContextOptions options,
+    string schemaName,
     IDomainEventDispatcher? domainEventDispatcher
 ) : DbContext(options) {
 

@@ -6,8 +6,8 @@ namespace PAS.Persistence;
 
 public class DomainEventDispatcher(IServiceProvider serviceProvider) : IDomainEventDispatcher {
     private delegate Task DomainEventHandlerDelegate(
-        IServiceProvider provider, 
-        IDomainEvent domainEvent, 
+        IServiceProvider provider,
+        IDomainEvent domainEvent,
         CancellationToken ct
     );
     private static readonly ConcurrentDictionary<Type, DomainEventHandlerDelegate> handlerCache = new();

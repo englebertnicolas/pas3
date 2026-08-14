@@ -11,7 +11,7 @@ public class FluentValidationFilterFactory {
     /// to Minimal API endpoints based on their request DTO types.
     /// </summary>
     public static EndpointFilterDelegate CreateFactory(
-        EndpointFilterFactoryContext filterContext, 
+        EndpointFilterFactoryContext filterContext,
         EndpointFilterDelegate next
     ) {
         var parameters = filterContext.MethodInfo.GetParameters();

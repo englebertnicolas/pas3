@@ -26,7 +26,7 @@ public class CreateProductTests(AppFixture f) : IntegrationTestBase(f) {
         result.Should().NotBeNull();
         response.StatusCode.Should().Be(System.Net.HttpStatusCode.Created);
 
-        var fund = await Fixture.ExecuteDbContextAsync(db => 
+        var fund = await Fixture.ExecuteDbContextAsync(db =>
             db.Funds.SingleOrDefaultAsync(x => x.Id == FundId.Hydrate(result.Id), TestContext.Current.CancellationToken));
 
         fund.Should().NotBeNull();

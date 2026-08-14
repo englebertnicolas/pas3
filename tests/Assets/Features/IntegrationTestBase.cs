@@ -10,9 +10,9 @@ public abstract class IntegrationTestBase(AppFixture fixture) : IAsyncLifetime {
         await fixture.ResetDatabaseAsync();
     }
 
-    public ValueTask DisposeAsync() { 
-        GC.SuppressFinalize(this); 
-        return ValueTask.CompletedTask; 
+    public ValueTask DisposeAsync() {
+        GC.SuppressFinalize(this);
+        return ValueTask.CompletedTask;
     }
 
     protected static void Log(string message) {

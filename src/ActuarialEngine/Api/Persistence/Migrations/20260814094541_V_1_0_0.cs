@@ -1,30 +1,24 @@
-﻿using System;
-using Microsoft.EntityFrameworkCore.Migrations;
+﻿using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 
-namespace PAS.ActuarialEngine.Persistence.Migrations
-{
+namespace PAS.ActuarialEngine.Persistence.Migrations {
     /// <inheritdoc />
-    public partial class V_1_0_0 : Migration
-    {
+    public partial class V_1_0_0 : Migration {
         /// <inheritdoc />
-        protected override void Up(MigrationBuilder migrationBuilder)
-        {
+        protected override void Up(MigrationBuilder migrationBuilder) {
             migrationBuilder.EnsureSchema(
                 name: "Actu");
 
             migrationBuilder.CreateTable(
                 name: "__RebusInbox",
                 schema: "Actu",
-                columns: table => new
-                {
+                columns: table => new {
                     MessageId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     MessageType = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: false),
                     ProcessedAt = table.Column<DateTime>(type: "datetime2", nullable: false)
                 },
-                constraints: table =>
-                {
+                constraints: table => {
                     table.PrimaryKey("PK___RebusInbox", x => x.MessageId);
                 });
 
@@ -36,8 +30,7 @@ namespace PAS.ActuarialEngine.Persistence.Migrations
         }
 
         /// <inheritdoc />
-        protected override void Down(MigrationBuilder migrationBuilder)
-        {
+        protected override void Down(MigrationBuilder migrationBuilder) {
             migrationBuilder.DropTable(
                 name: "__RebusInbox",
                 schema: "Actu");

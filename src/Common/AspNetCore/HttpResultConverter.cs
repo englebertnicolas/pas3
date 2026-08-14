@@ -9,7 +9,7 @@ namespace PAS.AspNetCore;
 
 public static class HttpResultConverter {
     private static IHttpContextAccessor? httpContextAccessor;
-    
+
     public static void Configure(IHttpContextAccessor httpAccessor) => httpContextAccessor = httpAccessor;
 
     public static IResult ToHttpResult<T>(this ErrorOr<T> errorOr, Func<T, IResult> successFunc) {
@@ -22,7 +22,7 @@ public static class HttpResultConverter {
     public static ProblemHttpResult ToHttpResult(this ErrorInfo error)
         => ToHttpResult([error]);
 
-    public static ProblemHttpResult ToHttpResult(this IEnumerable<ErrorInfo> errors) 
+    public static ProblemHttpResult ToHttpResult(this IEnumerable<ErrorInfo> errors)
         => ToHttpResult(errors is ErrorInfo[] array ? array.AsSpan() : [.. errors]);
 
     public static ProblemHttpResult ToHttpResult(this ReadOnlySpan<ErrorInfo> errors) {

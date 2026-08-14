@@ -1,16 +1,12 @@
-﻿using System;
-using Microsoft.EntityFrameworkCore.Migrations;
+﻿using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 
-namespace PAS.Assets.Persistence.Migrations
-{
+namespace PAS.Assets.Persistence.Migrations {
     /// <inheritdoc />
-    public partial class V_1_0_0 : Migration
-    {
+    public partial class V_1_0_0 : Migration {
         /// <inheritdoc />
-        protected override void Up(MigrationBuilder migrationBuilder)
-        {
+        protected override void Up(MigrationBuilder migrationBuilder) {
             migrationBuilder.EnsureSchema(
                 name: "Asset");
 
@@ -22,36 +18,31 @@ namespace PAS.Assets.Persistence.Migrations
             migrationBuilder.CreateTable(
                 name: "__RebusInbox",
                 schema: "Asset",
-                columns: table => new
-                {
+                columns: table => new {
                     MessageId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     MessageType = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: false),
                     ProcessedAt = table.Column<DateTime>(type: "datetime2", nullable: false)
                 },
-                constraints: table =>
-                {
+                constraints: table => {
                     table.PrimaryKey("PK___RebusInbox", x => x.MessageId);
                 });
 
             migrationBuilder.CreateTable(
                 name: "Currencies",
                 schema: "Asset",
-                columns: table => new
-                {
+                columns: table => new {
                     Id = table.Column<string>(type: "nvarchar(3)", maxLength: 3, nullable: false),
                     EnglishName = table.Column<string>(type: "nvarchar(128)", maxLength: 128, nullable: false),
                     Symbol = table.Column<string>(type: "nvarchar(3)", maxLength: 3, nullable: false)
                 },
-                constraints: table =>
-                {
+                constraints: table => {
                     table.PrimaryKey("PK_Currencies", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
                 name: "Funds",
                 schema: "Asset",
-                columns: table => new
-                {
+                columns: table => new {
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     Type = table.Column<string>(type: "nvarchar(128)", maxLength: 128, nullable: false),
                     Status = table.Column<string>(type: "nvarchar(128)", maxLength: 128, nullable: false),
@@ -59,8 +50,7 @@ namespace PAS.Assets.Persistence.Migrations
                     CurrencyId = table.Column<string>(type: "nvarchar(3)", maxLength: 3, nullable: false),
                     Isin = table.Column<string>(type: "nvarchar(12)", maxLength: 12, nullable: false)
                 },
-                constraints: table =>
-                {
+                constraints: table => {
                     table.PrimaryKey("PK_Funds", x => x.Id)
                         .Annotation("SqlServer:Clustered", false);
                     table.ForeignKey(
@@ -75,15 +65,13 @@ namespace PAS.Assets.Persistence.Migrations
             migrationBuilder.CreateTable(
                 name: "FundNavs",
                 schema: "Asset",
-                columns: table => new
-                {
+                columns: table => new {
                     Id = table.Column<long>(type: "bigint", nullable: false),
                     Date = table.Column<DateTime>(type: "datetime2", nullable: false),
                     Value = table.Column<double>(type: "float", nullable: false),
                     FundId = table.Column<Guid>(type: "uniqueidentifier", nullable: false)
                 },
-                constraints: table =>
-                {
+                constraints: table => {
                     table.PrimaryKey("PK_FundNavs", x => x.Id);
                     table.ForeignKey(
                         name: "FK_FundNavs_Funds_FundId",
@@ -147,8 +135,7 @@ namespace PAS.Assets.Persistence.Migrations
         }
 
         /// <inheritdoc />
-        protected override void Down(MigrationBuilder migrationBuilder)
-        {
+        protected override void Down(MigrationBuilder migrationBuilder) {
             migrationBuilder.DropTable(
                 name: "__RebusInbox",
                 schema: "Asset");

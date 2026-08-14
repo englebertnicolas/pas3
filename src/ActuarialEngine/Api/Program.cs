@@ -30,9 +30,9 @@ app.ConfigureHttpResultConverter();
 app.UseExceptionHandler();
 app.UseDefaultOpenApi("PAS.ActuarialEngine API Reference");
 app.UseHttpsRedirection();
+app.AutoSubscribeRebusHandlersFromAssembly(thisAssembly);
 
 app.MapDefaultEndpoints();
 app.MapEndpointFromAssembly(thisAssembly);
 
-app.AutoSubscribeRebusHandlersFromAssembly(thisAssembly);
 app.Run();

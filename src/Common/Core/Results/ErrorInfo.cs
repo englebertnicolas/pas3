@@ -1,8 +1,8 @@
 ﻿namespace PAS.Core.Results;
 
 public readonly record struct ErrorInfo(
-    ErrorType Type, 
-    string Message, 
+    ErrorType Type,
+    string Message,
     string? Code = null
 ) {
     public static ErrorInfo Unknown(string message, string? code = null) => new(ErrorType.Unknown, message, code);

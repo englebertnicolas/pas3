@@ -6,7 +6,7 @@ using Microsoft.Extensions.Logging;
 namespace PAS.Persistence.Rebus;
 
 public partial class RebusInboxCleanerWorker<TDbContext>(
-    IServiceProvider serviceProvider, 
+    IServiceProvider serviceProvider,
     ILogger<RebusInboxCleanerWorker<TDbContext>> logger
 ) : BackgroundService where TDbContext : DbContextBase {
 

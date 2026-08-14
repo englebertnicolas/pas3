@@ -5,9 +5,9 @@ using Rebus.Handlers;
 
 namespace PAS.AspNetCore.Rebus;
 
-internal static class IdempotentMessageHandlerDecoratorActivator<TDbContext> where TDbContext : DbContextBase {
+internal static class IdempotentMessageHandlerDecoratorActivator {
 
-    public static IHandleMessages CreateInstance(IHandleMessages handler, IServiceProvider serviceProvider) {
+    public static IHandleMessages CreateInstance<TDbContext>(IHandleMessages handler, IServiceProvider serviceProvider) where TDbContext : DbContextBase {
         var messageType = handler.GetType()
             .GetInterfaces()
             .First(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(IHandleMessages<>))
@@ -24,8 +24,8 @@ internal static class IdempotentMessageHandlerDecoratorActivator<TDbContext> whe
         return (IHandleMessages)ActivatorUtilities.CreateInstance(serviceProvider, closedDecoratorType, handler);
     }
 
-    public static IHandleMessages CreateInstance(object handler, IServiceProvider serviceProvider) {
+    public static IHandleMessages CreateInstance<TDbContext>(object handler, IServiceProvider serviceProvider) where TDbContext : DbContextBase {
         var h = handler as IHandleMessages ?? throw new ArgumentException("Unexpected type", nameof(handler));
-        return CreateInstance(h, serviceProvider);
+        return CreateInstance<TDbContext>(h, serviceProvider);
     }
 }

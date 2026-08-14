@@ -25,12 +25,12 @@ public static partial class RebusExtensions {
     ) where TDbContext : DbContextBase {
         var dbSchemaName = DbContextBase.GetSchemaNameOf<TDbContext>();
 
-        // Registration of essage handlers (+ decorators related to inbox pattern)
+        // Registration of message handlers (+ decorators related to inbox pattern)
         foreach (var assembly in handlerAssemblies ?? []) {
             services.AutoRegisterHandlersFromAssembly(assembly);
             services.TryDecorate(
-                typeof(IHandleMessages<>), 
-                IdempotentMessageHandlerDecoratorActivator<TDbContext>.CreateInstance // Passing "typeof(IdempotentMessageHandlerDecorator<>))" here would not work because IdempotentMessageHandlerDecorator has a second generic parameter (TDbContext)
+                typeof(IHandleMessages<>),
+                IdempotentMessageHandlerDecoratorActivator.CreateInstance<TDbContext> // Passing "typeof(IdempotentMessageHandlerDecorator<>))" here would not work because IdempotentMessageHandlerDecorator has a second generic parameter (TDbContext)
             );
         }
 

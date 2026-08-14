@@ -1,7 +1,7 @@
-﻿using Rebus.Retry;
+﻿using Rebus.Bus;
 using Rebus.Messages;
+using Rebus.Retry;
 using Rebus.Transport;
-using Rebus.Bus;
 
 namespace PAS.AspNetCore.Rebus;
 

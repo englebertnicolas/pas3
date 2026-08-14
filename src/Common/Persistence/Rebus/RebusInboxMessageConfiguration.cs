@@ -7,7 +7,7 @@ internal class RebusInboxMessageConfiguration : IEntityTypeConfiguration<RebusIn
 
     public void Configure(EntityTypeBuilder<RebusInboxMessage> builder) {
         builder.ToTable("__RebusInbox");
-        
+
         builder.HasKey(m => m.MessageId);
         builder.Property(m => m.MessageType).HasMaxLength(255);
         builder.HasIndex(m => m.ProcessedAt);

@@ -45,7 +45,7 @@ public sealed class AppFixture : WebApplicationFactory<Program>, IAsyncLifetime 
     public async ValueTask InitializeAsync() {
         Log($"AppFixture: Initializing containers...");
         await Task.WhenAll(
-            dbContainer.StartAsync(), 
+            dbContainer.StartAsync(),
             rabbitContainer?.StartAsync() ?? Task.CompletedTask
         );
 
@@ -93,7 +93,7 @@ public sealed class AppFixture : WebApplicationFactory<Program>, IAsyncLifetime 
         Log($"AppFixture: Disposing...");
         await base.DisposeAsync();
         await Task.WhenAll(
-            dbContainer.DisposeAsync().AsTask(), 
+            dbContainer.DisposeAsync().AsTask(),
             rabbitContainer?.DisposeAsync().AsTask() ?? Task.CompletedTask
         );
     }
