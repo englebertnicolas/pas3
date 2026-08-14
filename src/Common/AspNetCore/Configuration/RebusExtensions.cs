@@ -1,5 +1,7 @@
 ﻿using System.Reflection;
 using Microsoft.AspNetCore.Builder;
+using Microsoft.Data.SqlClient;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using PAS.AspNetCore.Rebus;
 using PAS.Persistence;
@@ -8,7 +10,8 @@ using Rebus.Bus;
 using Rebus.Config;
 using Rebus.Config.Outbox;
 using Rebus.Handlers;
-using Rebus.Retry;
+using Rebus.Retry.FailFast;
+using Rebus.Retry.Simple;
 using Rebus.Serialization;
 using Rebus.Topic;
 
@@ -40,9 +43,16 @@ public static partial class RebusExtensions {
             config
                 .Transport(x => x.UseRabbitMq(rabbitMqCnc, inputQueueName))
                 .Options(o => {
-                    // Retry strategy
-                    o.Decorate<IErrorHandler>(ctx =>
-                        new ProgressiveRetryStrategy(ctx.Get<IErrorHandler>(), ctx.Get<IBus>()));
+                    o.SetMaxParallelism(5);
+
+                    // Retry strategy for message handler errors
+                    // -> 4 immediate retry tentative (0.1s, 0.2s, 0.4s, 0.8s),
+                    // -> then 5 deferred retry tentative (10s, 20s, 40s, 80s, 160s)
+                    o.RetryStrategy(
+                        maxDeliveryAttempts: 4,
+                        secondLevelRetriesEnabled: true
+                    );
+                    o.FailFastOn<Exception>(ex => !IsTransientException(ex));
 
                     // Message naming conventions
                     var customNaming = new MessageTypeNameConvention(handlerAssemblies ?? []);
@@ -57,6 +67,17 @@ public static partial class RebusExtensions {
 
         services.AddHostedService<RebusInboxCleanerWorker<TDbContext>>();
         return services;
+    }
+
+    private static bool IsTransientException(Exception exception) {
+        var ex = exception.GetBaseException();
+        return ex switch {
+            TimeoutException => true,
+            HttpRequestException => true,
+            DbUpdateConcurrencyException => true,
+            SqlException sqlEx when sqlEx.Number is 1205 or 1222 => true,
+            _ => false
+        };
     }
 
     /// <summary>

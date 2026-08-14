@@ -17,7 +17,7 @@ public abstract class DbContextBase(
         return "dbo";
     }
 
-    public DbSet<RebusInboxMessage> RebusInboxMessages => Set<RebusInboxMessage>();
+    internal DbSet<RebusInboxMessage> RebusInboxMessages => Set<RebusInboxMessage>();
 
     protected override void OnModelCreating(ModelBuilder builder) {
         builder.HasDefaultSchema(schemaName);

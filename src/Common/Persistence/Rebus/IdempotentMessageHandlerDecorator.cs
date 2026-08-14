@@ -19,27 +19,29 @@ public class IdempotentMessageHandlerDecorator<TMessage, TDbContext>(
 ) : IHandleMessages<TMessage> where TDbContext : DbContextBase {
 
     public async Task Handle(TMessage message) {
-        // Get the Rebus message unique ID
+        // Get the Rebus message type and ID
+        var messageType = messageContext.Headers.GetValueOrDefault(Headers.Type) ?? "Unknown";
         if (!Guid.TryParse(messageContext.Headers.GetValueOrDefault(Headers.MessageId), out var messageId))
             throw new InvalidOperationException("Incoming Rebus message does not have a valid ID.");
 
-        var messageType = messageContext.Headers.GetValueOrDefault(Headers.Type) ?? "Unknown";
-
         using var transaction = await dbContext.Database.BeginTransactionAsync();
-        try {
-            if (await dbContext.RebusInboxMessages.AnyAsync(m => m.MessageId == messageId)) {
-                // Message was alread processed, do not call next() here
-                await transaction.RollbackAsync();
-                return;
-            }
 
+        // Try to insert the incomming message to the Inbox
+        try {
             dbContext.RebusInboxMessages.Add(new RebusInboxMessage {
                 MessageId = messageId,
                 MessageType = messageType.Truncate(255),
                 ProcessedAt = DateTime.Now
             });
+            await dbContext.SaveChangesAsync();
 
-            // Execute the initial handler
+        } catch (DbUpdateException) {
+            await transaction.RollbackAsync();
+            return; // Silent ACK, the message was already processed
+        }
+
+        // Execute the message handler
+        try {
             await decorated.Handle(message);
 
             await dbContext.SaveChangesAsync();
@@ -47,7 +49,7 @@ public class IdempotentMessageHandlerDecorator<TMessage, TDbContext>(
 
         } catch {
             await transaction.RollbackAsync();
-            throw;
+            throw; // Rebus will capture the exeception and apply the retry policy
         }
     }
 }
