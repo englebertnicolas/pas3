@@ -50,5 +50,22 @@ public class UpsertFundNav : IEndpoint {
         await dbContext.SaveChangesAsync(ct);
 
         return upsertResult == UpsertResult.Created ? TypedResults.Created() : TypedResults.NoContent();
+
+        /*
+         * This method does not publish a message directly to the broker. Instead, the domain 
+         * raises a domain event FundNavChangedDomainEvent, which is handled by HandleFundNavChanged, 
+         * which in turn publishes an integration event to the broker.
+         * 
+         * If we wanted to send a command message (rather than an event) directly to a queue, 
+         * we would do the following (prior to calling SaveChangesAsync) with the injected Rebus.IBus bus:
+         *     await bus.Send(
+         *         new PAS.Contracts.FundNavChangedCommand(fundId.Value, command.Nav.Date, command.Nav.Value)
+         *     );
+         * or (if the Rebus routing queue of the FundNavChangedCommand is not configured)
+         *     await bus.Advanced.Routing.Send(
+         *         "PAS.ActuarialEngine.Api",
+         *         new PAS.Contracts.FundNavChangedCommand(fundId.Value, command.Nav.Date, command.Nav.Value)
+         *     );
+         */
     }
 }

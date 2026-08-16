@@ -81,9 +81,9 @@ public static partial class RebusExtensions {
     }
 
     /// <summary>
-    /// Subscribes to all Rebus message handlers <c>IHandlerMessages</c>.
+    /// Subscribes to all Rebus message handlers that handle <see cref="IIntegrationEvent"/>.
     /// </summary>
-    public static void AutoSubscribeRebusHandlersFromAssembly(this WebApplication app, Assembly assembly) {
+    public static async Task AutoSubscribeRebusHandlersFromAssemblyAsync(this WebApplication app, Assembly assembly) {
         using var scope = app.Services.CreateScope();
         var bus = scope.ServiceProvider.GetRequiredService<IBus>();
 
@@ -91,19 +91,20 @@ public static partial class RebusExtensions {
             .SelectMany(t => t.GetInterfaces())
             .Where(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(IHandleMessages<>))
             .Select(i => i.GetGenericArguments()[0])
+            .Where(messageType => typeof(IIntegrationEvent).IsAssignableFrom(messageType))
             .Distinct();
 
         foreach (var eventType in eventTypes) {
-            bus.Subscribe(eventType).GetAwaiter().GetResult();
+            await bus.Subscribe(eventType);
         }
     }
 
     /// <summary>
-    /// Subscribes to all Rebus message handlers <c>IHandlerMessages</c>.
+    /// Subscribes to all Rebus message handlers that handle <see cref="IIntegrationEvent"/>.
     /// </summary>
-    public static void AutoSubscribeRebusHandlersFromAssemblies(this WebApplication app, params Assembly[] assemblies) {
+    public static async Task AutoSubscribeRebusHandlersFromAssembliesAsync(this WebApplication app, params Assembly[] assemblies) {
         foreach (var assembly in assemblies) {
-            app.AutoSubscribeRebusHandlersFromAssembly(assembly);
+            await app.AutoSubscribeRebusHandlersFromAssemblyAsync(assembly);
         }
     }
 }

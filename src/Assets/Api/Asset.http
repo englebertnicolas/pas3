@@ -6,6 +6,9 @@ GET {{Api_HostAddress}}/health/
 ### OpenApi
 GET {{Api_HostAddress}}/openapi/v1.json
 
+### Get fund list
+GET {{Api_HostAddress}}/funds
+
 ### Create fund
 POST {{Api_HostAddress}}/funds/collective
 Content-Type: application/json
@@ -18,6 +21,9 @@ Content-Type: application/json
 
 ### Get fund
 GET {{Api_HostAddress}}/funds/b2f38c76-9811-46d8-b23e-094716fc8bba
+
+### Get fund navs
+GET {{Api_HostAddress}}/funds/b2f38c76-9811-46d8-b23e-094716fc8bba/navs
 
 ### Upsert fund NAV
 POST {{Api_HostAddress}}/funds/b2f38c76-9811-46d8-b23e-094716fc8bba/navs
