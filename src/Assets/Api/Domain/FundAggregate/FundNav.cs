@@ -1,25 +1,28 @@
-﻿using PAS.Domain;
+﻿namespace PAS.Assets.Domain.FundAggregate;
 
-namespace PAS.Assets.Domain.FundAggregate;
-
-public record FundNav : ValueObject {
-    public DateTime Date { get; private set; }
-    public double Value { get; private set; }
+public record FundNav {
+    public DateOnly Date { get; private set; }
+    public decimal Value { get; private set; }
 
     private FundNav() {
         // For EF hydration
     }
 
-    private FundNav(DateTime date, double value) {
+    private FundNav(DateOnly date, decimal value) {
         Date = date;
         Value = value;
     }
 
-    public static ErrorOr<FundNav> Create(DateTime date, double value) {
-        if (date < new DateTime(1900, 1, 1))
+    public static ErrorOr<FundNav> Create(DateOnly date, decimal value, int roundDecimals) {
+        Guard.ThrowIfLessThan(roundDecimals, 0);
+        Guard.ThrowIfGreaterThan(roundDecimals, 10);
+
+        value = Math.Round(value, roundDecimals);
+
+        if (date < new DateOnly(1900, 1, 1))
             return ErrorInfo.Unprocessable("Invalid NAV date.");
 
-        if (date > DateTime.Now)
+        if (date > DateOnly.FromDateTime(DateTime.Now))
             return ErrorInfo.Unprocessable("Fund NAV date cannot be in the future.");
 
         if (value <= 0)

@@ -24,9 +24,6 @@ namespace PAS.Assets.Persistence.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
-            modelBuilder.HasSequence("FundNavSeq")
-                .IncrementsBy(10);
-
             modelBuilder.Entity("PAS.Assets.Domain.CurrencyAggregate.Currency", b =>
                 {
                     b.Property<string>("Id")
@@ -54,10 +51,37 @@ namespace PAS.Assets.Persistence.Migrations
                     b.ToTable("Currencies", "Asset");
                 });
 
-            modelBuilder.Entity("PAS.Assets.Domain.FundAggregate.Fund", b =>
+            modelBuilder.Entity("PAS.Assets.Domain.CurrencyPairAggregate.CurrencyPair", b =>
                 {
                     b.Property<Guid>("Id")
                         .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("BaseCurrencyId")
+                        .IsRequired()
+                        .HasMaxLength(3)
+                        .HasColumnType("nvarchar(3)");
+
+                    b.Property<string>("QuoteCurrencyId")
+                        .IsRequired()
+                        .HasMaxLength(3)
+                        .HasColumnType("nvarchar(3)");
+
+                    b.HasKey("Id");
+
+                    SqlServerKeyBuilderExtensions.IsClustered(b.HasKey("Id"), false);
+
+                    b.HasIndex("BaseCurrencyId");
+
+                    b.HasIndex("QuoteCurrencyId");
+
+                    b.ToTable("CurrencyPairs", "Asset");
+                });
+
+            modelBuilder.Entity("PAS.Assets.Domain.FundAggregate.Fund", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uniqueidentifier")
+                        .HasColumnOrder(0);
 
                     b.Property<string>("CurrencyId")
                         .IsRequired()
@@ -67,17 +91,35 @@ namespace PAS.Assets.Persistence.Migrations
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasMaxLength(128)
-                        .HasColumnType("nvarchar(128)");
+                        .HasColumnType("nvarchar(128)")
+                        .HasColumnOrder(3);
+
+                    b.Property<int>("NavDecimals")
+                        .HasColumnType("int");
+
+                    b.Property<int>("NavPricingLag")
+                        .HasColumnType("int");
+
+                    b.Property<int>("NavStalenessTolerance")
+                        .HasColumnType("int");
 
                     b.Property<string>("Status")
                         .IsRequired()
                         .HasMaxLength(128)
-                        .HasColumnType("nvarchar(128)");
+                        .HasColumnType("nvarchar(128)")
+                        .HasColumnOrder(2);
 
                     b.Property<string>("Type")
                         .IsRequired()
                         .HasMaxLength(128)
-                        .HasColumnType("nvarchar(128)");
+                        .HasColumnType("nvarchar(128)")
+                        .HasColumnOrder(1);
+
+                    b.Property<int>("UnitDecimals")
+                        .HasColumnType("int");
+
+                    b.Property<int>("ValuationPeriodicity")
+                        .HasColumnType("int");
 
                     b.ComplexProperty(typeof(Dictionary<string, object>), "Isin", "PAS.Assets.Domain.FundAggregate.Fund.Isin#Isin", b1 =>
                         {
@@ -87,7 +129,8 @@ namespace PAS.Assets.Persistence.Migrations
                                 .IsRequired()
                                 .HasMaxLength(12)
                                 .HasColumnType("nvarchar(12)")
-                                .HasColumnName("Isin");
+                                .HasColumnName("Isin")
+                                .HasColumnOrder(4);
                         });
 
                     b.HasKey("Id");
@@ -104,7 +147,7 @@ namespace PAS.Assets.Persistence.Migrations
                     b.ToTable("Funds", "Asset");
                 });
 
-            modelBuilder.Entity("PAS.Persistence.Rebus.RebusInboxMessage", b =>
+            modelBuilder.Entity("PAS.Rebus.Inbox.RebusInboxMessage", b =>
                 {
                     b.Property<Guid>("MessageId")
                         .ValueGeneratedOnAdd()
@@ -125,6 +168,56 @@ namespace PAS.Assets.Persistence.Migrations
                     b.ToTable("__RebusInbox", "Asset");
                 });
 
+            modelBuilder.Entity("PAS.Assets.Domain.CurrencyPairAggregate.CurrencyPair", b =>
+                {
+                    b.HasOne("PAS.Assets.Domain.CurrencyAggregate.Currency", null)
+                        .WithMany()
+                        .HasForeignKey("BaseCurrencyId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("PAS.Assets.Domain.CurrencyAggregate.Currency", null)
+                        .WithMany()
+                        .HasForeignKey("QuoteCurrencyId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.OwnsMany("PAS.Assets.Domain.CurrencyPairAggregate.CurrencyExchangeRate", "ExchangeRates", b1 =>
+                        {
+                            b1.Property<long>("Id")
+                                .ValueGeneratedOnAdd()
+                                .HasColumnType("bigint")
+                                .HasColumnOrder(0);
+
+                            SqlServerPropertyBuilderExtensions.UseIdentityColumn(b1.Property<long>("Id"));
+
+                            b1.Property<Guid>("CurrencyPairId")
+                                .HasColumnType("uniqueidentifier")
+                                .HasColumnOrder(1);
+
+                            b1.Property<DateOnly>("Date")
+                                .HasColumnType("date");
+
+                            b1.Property<decimal>("Value")
+                                .HasPrecision(28, 10)
+                                .HasColumnType("decimal(28,10)");
+
+                            b1.HasKey("Id");
+
+                            b1.HasIndex("CurrencyPairId");
+
+                            b1.HasIndex("Date")
+                                .IsUnique();
+
+                            b1.ToTable("CurrencyExchangeRates", "Asset");
+
+                            b1.WithOwner()
+                                .HasForeignKey("CurrencyPairId");
+                        });
+
+                    b.Navigation("ExchangeRates");
+                });
+
             modelBuilder.Entity("PAS.Assets.Domain.FundAggregate.Fund", b =>
                 {
                     b.HasOne("PAS.Assets.Domain.CurrencyAggregate.Currency", null)
@@ -137,18 +230,21 @@ namespace PAS.Assets.Persistence.Migrations
                         {
                             b1.Property<long>("Id")
                                 .ValueGeneratedOnAdd()
-                                .HasColumnType("bigint");
+                                .HasColumnType("bigint")
+                                .HasColumnOrder(0);
 
-                            SqlServerPropertyBuilderExtensions.UseHiLo(b1.Property<long>("Id"), "FundNavSeq");
+                            SqlServerPropertyBuilderExtensions.UseIdentityColumn(b1.Property<long>("Id"));
 
-                            b1.Property<DateTime>("Date")
-                                .HasColumnType("datetime2");
+                            b1.Property<DateOnly>("Date")
+                                .HasColumnType("date");
 
                             b1.Property<Guid>("FundId")
-                                .HasColumnType("uniqueidentifier");
+                                .HasColumnType("uniqueidentifier")
+                                .HasColumnOrder(1);
 
-                            b1.Property<double>("Value")
-                                .HasColumnType("float");
+                            b1.Property<decimal>("Value")
+                                .HasPrecision(28, 10)
+                                .HasColumnType("decimal(28,10)");
 
                             b1.HasKey("Id");
 

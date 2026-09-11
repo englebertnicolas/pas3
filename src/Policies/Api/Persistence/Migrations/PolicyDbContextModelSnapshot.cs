@@ -23,7 +23,60 @@ namespace PAS.Policies.Persistence.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
-            modelBuilder.Entity("PAS.Persistence.Rebus.RebusInboxMessage", b =>
+            modelBuilder.Entity("PAS.Policies.Domain.PolicyAggregate.Policy", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("CurrencyId")
+                        .IsRequired()
+                        .HasMaxLength(3)
+                        .HasColumnType("nvarchar(3)");
+
+                    b.Property<DateOnly>("EffectiveDate")
+                        .HasColumnType("date");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(128)
+                        .HasColumnType("nvarchar(128)");
+
+                    b.HasKey("Id");
+
+                    SqlServerKeyBuilderExtensions.IsClustered(b.HasKey("Id"), false);
+
+                    b.HasIndex("Status");
+
+                    b.ToTable("Policies", "Policy");
+                });
+
+            modelBuilder.Entity("PAS.Policies.Domain.PolicyAggregate.PolicyOperation", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Details")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<Guid>("PolicyId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Type")
+                        .IsRequired()
+                        .HasMaxLength(128)
+                        .HasColumnType("nvarchar(128)");
+
+                    b.HasKey("Id");
+
+                    SqlServerKeyBuilderExtensions.IsClustered(b.HasKey("Id"), false);
+
+                    b.HasIndex("PolicyId");
+
+                    b.ToTable("PolicyOperations", "Policy");
+                });
+
+            modelBuilder.Entity("PAS.Rebus.Inbox.RebusInboxMessage", b =>
                 {
                     b.Property<Guid>("MessageId")
                         .ValueGeneratedOnAdd()
@@ -42,6 +95,20 @@ namespace PAS.Policies.Persistence.Migrations
                     b.HasIndex("ProcessedAt");
 
                     b.ToTable("__RebusInbox", "Policy");
+                });
+
+            modelBuilder.Entity("PAS.Policies.Domain.PolicyAggregate.PolicyOperation", b =>
+                {
+                    b.HasOne("PAS.Policies.Domain.PolicyAggregate.Policy", null)
+                        .WithMany("Operations")
+                        .HasForeignKey("PolicyId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("PAS.Policies.Domain.PolicyAggregate.Policy", b =>
+                {
+                    b.Navigation("Operations");
                 });
 #pragma warning restore 612, 618
         }

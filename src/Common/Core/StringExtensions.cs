@@ -10,6 +10,14 @@ public static class StringExtensions {
         return value.Length <= maxLength ? value : value[..maxLength];
     }
 
+    public static string TrimStart(this string source, string target) {
+        return source.StartsWith(target) ? source[target.Length..] : source;
+    }
+
+    public static string TrimEnd(this string source, string target) {
+        return source.EndsWith(target) ? source[..^target.Length] : source;
+    }
+
     public static string ToSentenceCase(this string? input) {
         if (string.IsNullOrEmpty(input))
             return input ?? string.Empty;

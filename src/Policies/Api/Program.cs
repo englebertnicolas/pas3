@@ -1,14 +1,17 @@
 using FluentValidation;
 using Microsoft.EntityFrameworkCore;
 using PAS.AspireServiceDefaults;
-using PAS.AspNetCore.Configuration;
 using PAS.AspNetCore.Diagnostics;
+using PAS.AspNetCore.Endpoints;
+using PAS.AspNetCore.OpenApi;
+using PAS.Mediator;
 using PAS.Policies.Persistence;
+using PAS.Rebus;
 
 var builder = WebApplication.CreateBuilder(args);
 var thisAssembly = typeof(Program).Assembly;
-var rabbitMqCnc = builder.Configuration.GetConnectionString("RabbitMq") ?? throw new InvalidOperationException("RabbitMq connection string not found.");
 var dbCnc = builder.Configuration.GetConnectionString("Database") ?? throw new InvalidOperationException("Database connection string not found.");
+var rabbitMqCnc = builder.Configuration.GetConnectionString("RabbitMq");
 
 builder
     .AddAspireServiceDefaults()
@@ -19,14 +22,19 @@ builder.Services
     .AddExceptionHandler<GlobalExceptionHandler>()
     .AddHttpContextAccessor()
     .AddValidatorsFromAssembly(thisAssembly)
+    .AddMediator(thisAssembly)
     .AddDefaultOpenApi()
-    .AddDbContext<PolicyDbContext>(options => options.UseSqlServer(dbCnc), ServiceLifetime.Scoped, ServiceLifetime.Singleton)
-    .AddDefaultRebus<PolicyDbContext>(dbCnc, rabbitMqCnc, [thisAssembly])
     .AddDomainEventHandlersFromAssembly(thisAssembly)
-    .AddDomainEventDispatcher();
+    .AddDomainEventDispatcher()
+    .AddDbContext<PolicyDbContext>(options => options.UseSqlServer(dbCnc))
+    .AddDefaultRebus<PolicyDbContext>(options => {
+        options.AppDbConnectionString = dbCnc;
+        options.RabbitMqConnectionString = rabbitMqCnc;
+        options.HandlerAssemblies = [thisAssembly];
+    });
 
 var app = builder.Build();
-app.ConfigureHttpResultConverter();
+app.ConfigureHttpOperationResultConverters();
 app.UseExceptionHandler();
 app.UseDefaultOpenApi("PAS.Policies API Reference");
 app.UseHttpsRedirection();

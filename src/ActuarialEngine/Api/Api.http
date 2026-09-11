@@ -5,3 +5,9 @@ GET {{Api_HostAddress}}/health/
 
 ### OpenApi
 GET {{Api_HostAddress}}/openapi/v1.json
+
+### Perform valuation of policy
+POST {{Api_HostAddress}}/policies/00000000-0000-0000-0010-000000000001/valuation
+
+### Get policy
+GET {{Api_HostAddress}}/policies/00000000-0000-0000-0010-000000000001

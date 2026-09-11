@@ -16,18 +16,20 @@ public class Currency : Entity<CurrencyId>, IAggregateRoot {
         Symbol = symbol;
     }
 
-    public static ErrorOr<Currency> Create(string id, string englishName, string? symbol) {
-        var eoCurrencyId = CurrencyId.From(id);
-        if (eoCurrencyId.IsFailure)
-            return eoCurrencyId.Errors;
+    public static ErrorOr<Currency> Create(CurrencyId id, string englishName, string? symbol) {
+        if (string.IsNullOrWhiteSpace(id.Value))
+            return ErrorInfo.Unprocessable("Invalid currency code.");
 
-        var eoCurrencySymbol = CurrencySymbol.Create(symbol ?? id);
+        if (id.Value.Length != 3)
+            return ErrorInfo.Unprocessable("Currency ID must be exactly 3 characters long.");
+
+        var eoCurrencySymbol = CurrencySymbol.Create(symbol ?? id.Value);
         if (eoCurrencySymbol.IsFailure)
             return eoCurrencySymbol.Errors;
 
         if (string.IsNullOrWhiteSpace(englishName))
             return ErrorInfo.Unprocessable("Invalid currency name.");
 
-        return new Currency(eoCurrencyId.Value, englishName, eoCurrencySymbol.Value);
+        return new Currency(id, englishName, eoCurrencySymbol.Value);
     }
 }

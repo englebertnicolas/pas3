@@ -8,7 +8,7 @@ namespace PAS.AspNetCore.OpenApi;
 /// </summary>
 internal class OperationParameterCamelCaseTransformer : IOpenApiOperationTransformer {
 
-    public Task TransformAsync(OpenApiOperation operation, OpenApiOperationTransformerContext context, CancellationToken ct) {
+    public Task TransformAsync(OpenApiOperation operation, OpenApiOperationTransformerContext context, CancellationToken cancellationToken) {
         if (operation.Parameters != null) {
             foreach (var parameter in operation.Parameters) {
                 if (parameter is OpenApiParameter concreteParameter && concreteParameter.Name != null) {

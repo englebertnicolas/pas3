@@ -1,9 +1,7 @@
-﻿using PAS.Domain;
+﻿namespace PAS.Assets.Domain.CurrencyAggregate;
 
-namespace PAS.Assets.Domain.CurrencyAggregate;
-
-public record CurrencySymbol : ValueObject {
-    public string Value { get; }
+public record CurrencySymbol {
+    public string Value { get; private set; }
 
     private CurrencySymbol(string value) {
         Value = value;
@@ -12,7 +10,7 @@ public record CurrencySymbol : ValueObject {
     public static ErrorOr<CurrencySymbol?> CreateOrNull(string? value) {
         if (value == null) return (CurrencySymbol?)null;
         return Create(value)
-            .Bind(cs => ErrorOr<CurrencySymbol?>.Success(cs));
+            .Then(cs => ErrorOr<CurrencySymbol?>.Success(cs));
     }
 
     public static ErrorOr<CurrencySymbol> Create(string value) {

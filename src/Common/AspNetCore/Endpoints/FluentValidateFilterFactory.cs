@@ -1,6 +1,5 @@
 ﻿using FluentValidation;
 using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.DependencyInjection;
 
 namespace PAS.AspNetCore.Endpoints;
 
@@ -20,27 +19,19 @@ public class FluentValidationFilterFactory {
             var parameterType = parameters[i].ParameterType;
             var validatorType = typeof(IValidator<>).MakeGenericType(parameterType);
 
-            var hasValidator = filterContext.ApplicationServices
-                .GetServices<ServiceDescriptor>()
-                .Any(d => d.ServiceType == validatorType);
-
-            if (hasValidator) {
-                int parameterIndex = i;
-
-                return async (invocationContext) => {
-                    var validator = invocationContext.HttpContext.RequestServices.GetRequiredService(validatorType) as IValidator;
-
-                    var argument = invocationContext.Arguments[parameterIndex]!;
+            return async (invocationContext) => {
+                if (invocationContext.HttpContext.RequestServices.GetService(validatorType) is IValidator validator) {
+                    var argument = invocationContext.Arguments[i]!;
                     var validationContext = new ValidationContext<object>(argument);
                     var validationResult = await validator!.ValidateAsync(validationContext, invocationContext.HttpContext.RequestAborted);
 
                     if (!validationResult.IsValid) {
                         return Results.ValidationProblem(validationResult.ToDictionary());
                     }
+                }
 
-                    return await next(invocationContext);
-                };
-            }
+                return await next(invocationContext);
+            };
         }
 
         return next;

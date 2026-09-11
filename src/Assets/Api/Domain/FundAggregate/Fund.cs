@@ -1,8 +1,14 @@
-﻿using PAS.Assets.Domain.CurrencyAggregate;
-using PAS.Assets.Domain.FundAggregate.Events;
+﻿using System.Text.Json.Serialization;
+using PAS.Assets.Domain.CurrencyAggregate;
 using PAS.Domain;
 
 namespace PAS.Assets.Domain.FundAggregate;
+
+[JsonConverter(typeof(JsonStringEnumConverter))]
+public enum FundType { Collective, Dedicated }
+
+[JsonConverter(typeof(JsonStringEnumConverter))]
+public enum FundStatus { Active, Suspended, Closed }
 
 public class Fund : Entity<FundId>, IAggregateRoot {
     public FundType Type { get; private set; }
@@ -10,6 +16,12 @@ public class Fund : Entity<FundId>, IAggregateRoot {
     public string Name { get; private set; } = null!;
     public Isin Isin { get; private set; } = null!;
     public CurrencyId CurrencyId { get; private set; }
+    public FundValuationPeriodicity ValuationPeriodicity { get; private set; }
+
+    public int UnitDecimals { get; private set; }
+    public int NavDecimals { get; private set; }
+    public int NavPricingLag { get; private set; }
+    public int NavStalenessTolerance { get; private set; }
 
     private readonly List<FundNav> navs = [];
     public IReadOnlyCollection<FundNav> Navs => navs.AsReadOnly();
@@ -18,24 +30,27 @@ public class Fund : Entity<FundId>, IAggregateRoot {
         // For EF hydration
     }
 
-    private Fund(FundId id, FundType type, FundStatus status, string name, Isin isin, CurrencyId currencyId, IEnumerable<FundNav>? navs = null) {
+    private Fund(FundId id, FundType type, FundStatus status, string name, Isin isin, CurrencyId currencyId, 
+        FundValuationPeriodicity valuationPeriodicity, int unitDecimals, int navDecimals, int navPricingLag, int navStalenessTolerance
+    ) {
         Id = id;
         Type = type;
         Status = status;
         Name = name;
         Isin = isin;
         CurrencyId = currencyId;
-        if (navs != null) this.navs = [.. navs];
+        ValuationPeriodicity = valuationPeriodicity;
+        UnitDecimals = unitDecimals;
+        NavDecimals = navDecimals;
+        NavPricingLag = navPricingLag;
+        NavStalenessTolerance = navStalenessTolerance;
     }
 
-    public static ErrorOr<Fund> CreateCollectiveFund(Guid? id, FundStatus status, string name, string isin, string currencyId, IEnumerable<FundNav>? navs = null) {
-        var eoFundId = FundId.FromOrNew(id);
-        if (eoFundId.IsFailure)
-            return eoFundId.Errors;
-
-        var eoCurrencyId = CurrencyId.From(currencyId);
-        if (eoCurrencyId.IsFailure)
-            return eoCurrencyId.Errors;
+    public static ErrorOr<Fund> CreateCollectiveFund(FundId? id, FundStatus status, string name, string isin, CurrencyId currencyId, 
+        FundValuationPeriodicity valuationPeriodicity, int unitDecimals = 0, int navDecimals = 0, int navPricingLag = 0, int navStalenessTolerance = 0
+    ) {
+        if (id.HasValue && id.Value.Value == Guid.Empty)
+            return ErrorInfo.Unprocessable("Invalid fund ID.");
 
         var eoIsin = Isin.Create(isin);
         if (eoIsin.IsFailure)
@@ -44,22 +59,33 @@ public class Fund : Entity<FundId>, IAggregateRoot {
         if (string.IsNullOrWhiteSpace(name))
             return ErrorInfo.Unprocessable("Invalid fund name.");
 
-        return new Fund(eoFundId.Value, FundType.Collective, status, name, eoIsin.Value, eoCurrencyId.Value, navs);
+        if (unitDecimals < 0 || unitDecimals > 10)
+            return ErrorInfo.Unprocessable("Unit decimal places is out of acceptable range.");
+
+        if (navDecimals < 0 || navDecimals > 10)
+            return ErrorInfo.Unprocessable("NAV decimal places is out of acceptable range.");
+
+        if (navStalenessTolerance < 0)
+            return ErrorInfo.Unprocessable("Invalid NAV staleness tolerance.");
+
+        return new Fund(id ?? FundId.New(), FundType.Collective, status, name, eoIsin.Value, currencyId, valuationPeriodicity, navDecimals, navDecimals, navPricingLag, navStalenessTolerance);
     }
 
-    public static ErrorOr<Fund> CreateDedicatedFund(Guid? id, FundStatus status, string name, string isin, string currencyId, IEnumerable<FundNav>? navs = null) {
+    public static ErrorOr<Fund> CreateDedicatedFund(Guid? id, FundStatus status, string name, string isin, string currencyId, 
+        FundValuationPeriodicity valuationPeriodicity
+    ) {
         throw new NotImplementedException();
     }
 
     /// <summary>
-    /// Add or update a fund NAV for the given date.
+    /// Add or update a fund NAV at the given date.
     /// </summary>
     /// <remarks>
     /// Precondition: The Fund aggregate should be loaded with navs filtered 
     /// to include at least the nav at the given date (if it exists).
     /// </remarks>
-    public ErrorOr<UpsertResult> UpsertNav(DateTime navDate, double navValue) {
-        var eoNav = FundNav.Create(navDate, navValue);
+    public ErrorOr<UpsertResult> UpsertNav(DateOnly navDate, decimal navValue) {
+        var eoNav = FundNav.Create(navDate, navValue, NavDecimals);
         if (eoNav.IsFailure) return eoNav.Errors;
         var nav = eoNav.Value;
 

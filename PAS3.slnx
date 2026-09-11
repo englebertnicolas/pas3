@@ -12,9 +12,13 @@
   </Folder>
   <Folder Name="/src/ActuarialEngine/">
     <Project Path="src/ActuarialEngine/Api/PAS.ActuarialEngine.Api.csproj" />
+    <Project Path="tests/ActuarialEngine/PAS.ActuarialEngine.Tests.csproj" />
   </Folder>
   <Folder Name="/src/Assets/">
     <Project Path="src/Assets/Api/PAS.Assets.Api.csproj" Id="43ced1cc-e7cd-4aec-9179-2da5c855089d" />
+    <Project Path="src/Assets/Client/PAS.Assets.Client.csproj" Id="ce416fc5-be4b-410e-82fc-08b5f16b1b67">
+      <BuildDependency Project="src/Assets/Api/PAS.Assets.Api.csproj" />
+    </Project>
     <Project Path="src/Assets/Contracts/PAS.Assets.Contracts.csproj" Id="211a5354-248a-41e2-b3fa-61d5219eb4ad" />
     <Project Path="tests/Assets/PAS.Assets.Tests.csproj" Id="f92336a9-96c7-44d3-98c3-c67c2fa87fb1" />
   </Folder>
@@ -23,9 +27,19 @@
     <Project Path="src/Common/AspNetCore/PAS.AspNetCore.csproj" Id="22de0e46-27cc-48ab-bd3a-787994371493" />
     <Project Path="src/Common/Core/PAS.Core.csproj" />
     <Project Path="src/Common/Domain/PAS.Domain.csproj" Id="1cafb59e-b86e-4691-a4ce-abe9dcde8625" />
-    <Project Path="src/Common/Persistence/PAS.Persistence.csproj" />
+    <Project Path="src/Common/EntityFramework/PAS.EntityFramework.csproj" />
+    <Project Path="src/Common/Mediator/PAS.Mediator.csproj" Id="6a308e0c-cd2e-4cf6-a4d3-7610e6bd18f1" />
+    <Project Path="src/Common/OperationResults/PAS.OperationResults.csproj" Id="7fcc72da-8dff-4a6c-a61f-c45411a4492f" />
+    <Project Path="src/Common/Rebus/PAS.Rebus.csproj" Id="50bec626-2527-4efb-b164-a89aacae5918" />
+  </Folder>
+  <Folder Name="/src/Messaging/">
+    <Project Path="src/Messaging/Api/PAS.Messaging.Api.csproj" />
   </Folder>
   <Folder Name="/src/Policies/">
     <Project Path="src/Policies/Api/PAS.Policies.Api.csproj" Id="89c710f4-65c7-4e2a-a698-107c95cdc193" />
+    <Project Path="src/Policies/Client/PAS.Policies.Client.csproj">
+      <BuildDependency Project="src/Policies/Api/PAS.Policies.Api.csproj" />
+    </Project>
+    <Project Path="src/Policies/Contracts/PAS.Policies.Contracts.csproj" Id="ae0f0eab-01d6-4d5e-917c-bd1401a9a718" />
   </Folder>
 </Solution>

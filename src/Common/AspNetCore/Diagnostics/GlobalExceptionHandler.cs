@@ -14,7 +14,7 @@ public class GlobalExceptionHandler(ILogger<GlobalExceptionHandler> logger, IWeb
     public async ValueTask<bool> TryHandleAsync(
         HttpContext httpContext,
         Exception exception,
-        CancellationToken ct) {
+        CancellationToken cancellationToken) {
 
         var traceId = Activity.Current?.Id ?? httpContext.TraceIdentifier; // TraceId (standard RFC 7807)
 
@@ -33,7 +33,7 @@ public class GlobalExceptionHandler(ILogger<GlobalExceptionHandler> logger, IWeb
                 badReqProblem.Extensions["traceId"] = traceId;
 
                 httpContext.Response.StatusCode = StatusCodes.Status400BadRequest;
-                await httpContext.Response.WriteAsJsonAsync(badReqProblem, ct);
+                await httpContext.Response.WriteAsJsonAsync(badReqProblem, cancellationToken);
                 return true;
 
             case FluentValidation.ValidationException validationEx:
@@ -49,7 +49,7 @@ public class GlobalExceptionHandler(ILogger<GlobalExceptionHandler> logger, IWeb
                 validationProblem.Extensions["traceId"] = traceId;
 
                 httpContext.Response.StatusCode = StatusCodes.Status400BadRequest;
-                await httpContext.Response.WriteAsJsonAsync(validationProblem, ct);
+                await httpContext.Response.WriteAsJsonAsync(validationProblem, cancellationToken);
                 return true;
 
             case HttpRequestException httpException when httpException.StatusCode.HasValue:
@@ -62,7 +62,7 @@ public class GlobalExceptionHandler(ILogger<GlobalExceptionHandler> logger, IWeb
                 httpProblem.Extensions["traceId"] = traceId;
 
                 httpContext.Response.StatusCode = (int)httpException.StatusCode;
-                await httpContext.Response.WriteAsJsonAsync(httpProblem, ct);
+                await httpContext.Response.WriteAsJsonAsync(httpProblem, cancellationToken);
                 return true;
 
             default:
@@ -77,7 +77,7 @@ public class GlobalExceptionHandler(ILogger<GlobalExceptionHandler> logger, IWeb
                 internalProblem.Extensions["traceId"] = traceId;
 
                 httpContext.Response.StatusCode = StatusCodes.Status500InternalServerError;
-                await httpContext.Response.WriteAsJsonAsync(internalProblem, ct);
+                await httpContext.Response.WriteAsJsonAsync(internalProblem, cancellationToken);
                 return true;
         }
     }

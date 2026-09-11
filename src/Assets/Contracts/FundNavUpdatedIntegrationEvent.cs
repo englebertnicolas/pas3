@@ -1,9 +1,11 @@
-﻿namespace PAS.Assets.Contracts;
+﻿using PAS.Core.Amqp;
+
+namespace PAS.Assets.Contracts;
 
 [Topic("PAS.Assets.FundNavChanged")]
 public record FundNavChangedIntegrationEvent(
     Guid FundId,
-    DateTime Date,
-    double? OldValue,
-    double NewValue
+    DateOnly Date,
+    decimal? OldValue,
+    decimal NewValue
 ) : IIntegrationEvent;

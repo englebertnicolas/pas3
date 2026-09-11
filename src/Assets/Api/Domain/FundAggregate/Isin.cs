@@ -1,9 +1,7 @@
-﻿using PAS.Domain;
+﻿namespace PAS.Assets.Domain.FundAggregate;
 
-namespace PAS.Assets.Domain.FundAggregate;
-
-public record Isin : ValueObject {
-    public string Value { get; }
+public record Isin {
+    public string Value { get; private set; }
 
     private Isin(string value) {
         Value = value;

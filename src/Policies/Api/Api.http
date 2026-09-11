@@ -5,3 +5,26 @@ GET {{Api_HostAddress}}/health/
 
 ### OpenApi
 GET {{Api_HostAddress}}/openapi/v1.json
+
+### Create policy
+POST {{Api_HostAddress}}/policies
+Content-Type: application/json
+{
+  "id": "00000000-0000-0000-0010-000000000001",
+  "premiumDate": "2026-08-02",
+  "currencyId": "EUR",
+  "premiumAmount": 100000,
+  "premiumAllocations": [
+    { 
+      "fundId": "00000000-0000-0000-0001-000000000001", 
+      "ratio": 1 
+    }
+  ]
+}
+
+### Issue policy
+POST {{Api_HostAddress}}/policies/00000000-0000-0000-0010-000000000001/issue
+Content-Type: application/json
+{
+  "date": null
+}

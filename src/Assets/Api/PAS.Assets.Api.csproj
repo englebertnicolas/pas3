@@ -5,13 +5,17 @@
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <RootNamespace>PAS.Assets</RootNamespace>
+    <Authors>Switch IT</Authors>
   </PropertyGroup>
-  
+
+  <ItemGroup>
+    <Using Include="PAS.Core" />
+  </ItemGroup>
+
   <ItemGroup>
     <Using Include="PAS.AspNetCore" />
-    <Using Include="PAS.Core" />
-    <Using Include="PAS.Core.Results" />
-    <Using Include="PAS.Persistence.Linq" />
+    <Using Include="PAS.EntityFramework.Linq" />
+    <Using Include="PAS.OperationResults" />
   </ItemGroup>
 
   <ItemGroup>
@@ -19,7 +23,10 @@
     <ProjectReference Include="..\..\Common\AspNetCore\PAS.AspNetCore.csproj" />
     <ProjectReference Include="..\..\Common\Core\PAS.Core.csproj" />
     <ProjectReference Include="..\..\Common\Domain\PAS.Domain.csproj" />
-    <ProjectReference Include="..\..\Common\Persistence\PAS.Persistence.csproj" />
+    <ProjectReference Include="..\..\Common\EntityFramework\PAS.EntityFramework.csproj" />
+    <ProjectReference Include="..\..\Common\Mediator\PAS.Mediator.csproj" />
+    <ProjectReference Include="..\..\Common\OperationResults\PAS.OperationResults.csproj" />
+    <ProjectReference Include="..\..\Common\Rebus\PAS.Rebus.csproj" />
     <ProjectReference Include="..\Contracts\PAS.Assets.Contracts.csproj" />
   </ItemGroup>
 
@@ -28,6 +35,16 @@
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
+    <PackageReference Include="Microsoft.Extensions.ApiDescription.Server" Version="10.0.11">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
   </ItemGroup>
 
+  <PropertyGroup>
+    <OpenApiGenerateDocumentsOnBuild>true</OpenApiGenerateDocumentsOnBuild>
+    <OpenApiDocumentsDirectory>.</OpenApiDocumentsDirectory>
+    <OpenApiGenerateDocumentsOptions>--file-name openapi</OpenApiGenerateDocumentsOptions>
+  </PropertyGroup>
+  
 </Project>

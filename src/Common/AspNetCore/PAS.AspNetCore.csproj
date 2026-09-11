@@ -4,6 +4,7 @@
     <TargetFramework>net10.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
+    <Authors>Switch IT</Authors>
   </PropertyGroup>
 
   <ItemGroup>
@@ -15,6 +16,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="Cronos" Version="0.13.0" />
     <PackageReference Include="FluentValidation.DependencyInjectionExtensions" Version="12.1.1" />
     <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="10.0.9" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="10.0.9" />
@@ -28,7 +30,8 @@
   <ItemGroup>
     <ProjectReference Include="..\Core\PAS.Core.csproj" />
     <ProjectReference Include="..\Domain\PAS.Domain.csproj" />
-    <ProjectReference Include="..\Persistence\PAS.Persistence.csproj" />
+    <ProjectReference Include="..\EntityFramework\PAS.EntityFramework.csproj" />
+    <ProjectReference Include="..\OperationResults\PAS.OperationResults.csproj" />
   </ItemGroup>
 
 </Project>

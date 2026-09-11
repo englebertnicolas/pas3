@@ -1,4 +1,5 @@
 ﻿using FluentAssertions;
+using PAS.Assets.Domain.CurrencyAggregate;
 using PAS.Assets.Domain.FundAggregate;
 
 namespace PAS.Assets.Tests.Domain.Funds;
@@ -10,17 +11,19 @@ public class CreateFundTests : DomainTestBase {
         // Arrange
         var name = "Global Equity Fund";
         var isin = "BE1234567890";
-        var currency = "EUR";
+        var period = FundValuationPeriodicity.Daily;
+        var currency = new CurrencyId("EUR");
 
         // Act
-        var eoFund = Fund.CreateCollectiveFund(null, FundStatus.Active, name, isin, currency);
+        var eoFund = Fund.CreateCollectiveFund(null, FundStatus.Active, name, isin, currency, period);
 
         // Assert
-        eoFund.IsSuccess.Should().BeTrue();
+        eoFund.Errors.Should().BeNullOrEmpty();
         var fund = eoFund.Value;
         fund.Name.Should().Be(name);
         fund.Isin.Value.Should().Be(isin);
-        fund.CurrencyId.Value.Should().Be(currency);
+        fund.ValuationPeriodicity.Should().Be(period);
+        fund.CurrencyId.Should().Be(currency);
     }
 
     [Theory]

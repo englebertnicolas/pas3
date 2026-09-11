@@ -1,4 +1,6 @@
-﻿namespace PAS.Assets.Contracts;
+﻿using PAS.Core.Amqp;
+
+namespace PAS.Assets.Contracts;
 
 [Topic("PAS.Assets.FundClosed")]
 public record FundClosedIntegrationEvent(

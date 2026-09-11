@@ -1,4 +1,6 @@
-﻿using System.Text.Json.Serialization.Metadata;
+﻿using System.Reflection;
+using System.Text.Json.Serialization;
+using System.Text.Json.Serialization.Metadata;
 using Microsoft.AspNetCore.OpenApi;
 
 namespace PAS.AspNetCore.OpenApi;
@@ -29,7 +31,10 @@ internal static class SchemaReferenceIdHelper {
 
         // Nested types
         if (type.IsNested && type.DeclaringType != null) {
-            return $"{CreateSchemaReferenceId(type.DeclaringType)}{GetTypeName(type)}";
+            if (type.BaseType?.GetCustomAttribute<JsonPolymorphicAttribute>() != null)
+                return GetTypeName(type);
+            else
+                return $"{CreateSchemaReferenceId(type.DeclaringType)}{GetTypeName(type)}";
         }
 
         return GetTypeName(type);

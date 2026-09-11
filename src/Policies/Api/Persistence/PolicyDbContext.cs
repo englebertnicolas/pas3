@@ -1,10 +1,11 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using PAS.Domain;
-using PAS.Persistence;
+using PAS.Policies.Domain.PolicyAggregate;
+using PAS.Rebus;
 
 namespace PAS.Policies.Persistence;
 
-public class PolicyDbContext : DbContextBase {
+public class PolicyDbContext : DbContextBaseWithRebusInbox {
     public static string SchemaName => GetSchemaNameOf<PolicyDbContext>();
 
     public PolicyDbContext(DbContextOptions<PolicyDbContext> options)
@@ -15,5 +16,6 @@ public class PolicyDbContext : DbContextBase {
         : base(options, SchemaName, domainEventDispatcher) {
     }
 
-    // Define DbSet properties for entities here
+    public DbSet<Policy> Policies => Set<Policy>();
+    public DbSet<PolicyOperation> PolicyOperations => Set<PolicyOperation>();
 }

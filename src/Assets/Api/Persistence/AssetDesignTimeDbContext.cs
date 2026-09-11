@@ -8,7 +8,6 @@ namespace PAS.Assets.Persistence;
 /// Used by EF Core tools (migrations, updates) when no DI container is available.
 /// </summary>
 internal class AssetDesignTimeDbContext : IDesignTimeDbContextFactory<AssetDbContext> {
-
     public AssetDbContext CreateDbContext(string[] args) {
         var optionsBuilder = new DbContextOptionsBuilder<AssetDbContext>();
         optionsBuilder.UseSqlServer("Server=.\\dbloc19;Database=PAS3;Trusted_Connection=True;Encrypt=False");

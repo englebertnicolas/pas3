@@ -9,7 +9,8 @@ namespace PAS.AspNetCore.OpenApi;
 /// </summary>
 internal class OperationDefaultResponseTransformer : IOpenApiOperationTransformer {
 
-    public async Task TransformAsync(OpenApiOperation operation, OpenApiOperationTransformerContext context, CancellationToken ct) {
+    public async Task TransformAsync(OpenApiOperation operation, OpenApiOperationTransformerContext context, CancellationToken cancellationToken) {
+        if (context.Document == null) return;
         operation.Responses ??= [];
 
         // 500 response
@@ -17,8 +18,10 @@ internal class OperationDefaultResponseTransformer : IOpenApiOperationTransforme
             Description = "Internal Server Error",
             Content = new Dictionary<string, OpenApiMediaType>(),
         };
+        var problemSchema = await context.GetOrCreateSchemaAsync(typeof(ProblemDetails), null, cancellationToken);
+        context.Document.AddComponent("ProblemDetails", problemSchema);
         internalErrorResponse.Content.Add("application/problem+json", new OpenApiMediaType {
-            Schema = await context.GetOrCreateSchemaAsync(typeof(ProblemDetails), null, ct)
+            Schema = new OpenApiSchemaReference("ProblemDetails", context.Document)
         });
         operation.Responses.TryAdd("500", internalErrorResponse);
 
@@ -27,8 +30,10 @@ internal class OperationDefaultResponseTransformer : IOpenApiOperationTransforme
             Description = "Bad Request",
             Content = new Dictionary<string, OpenApiMediaType>(),
         };
+        var validationProblemSchema = await context.GetOrCreateSchemaAsync(typeof(ValidationProblemDetails), null, cancellationToken);
+        context.Document.AddComponent("ValidationProblemDetails", validationProblemSchema);
         badRequestResponse.Content.Add("application/problem+json", new OpenApiMediaType {
-            Schema = await context.GetOrCreateSchemaAsync(typeof(ValidationProblemDetails), null, ct)
+            Schema = new OpenApiSchemaReference("ValidationProblemDetails", context.Document)
         });
         operation.Responses.TryAdd("400", badRequestResponse);
     }
