@@ -30,7 +30,7 @@ public static class RebusExtensions {
     public static IServiceCollection AddDefaultRebus<TAppDbContext>(
         this IServiceCollection services,
         Action<DefaultRebusOptions> configureOptions
-    ) where TAppDbContext : DbContextBaseWithRebusInbox {
+    ) where TAppDbContext : DbContextBaseWithRebusInbox, IHasSchemaName {
         var options = new DefaultRebusOptions();
         configureOptions(options);
 
@@ -68,7 +68,7 @@ public static class RebusExtensions {
     public static IServiceCollection AddRebusUsingRabbitMq<TAppDbContext>(
         this IServiceCollection services,
         Action<RebusUsingRabbitMqOptions> configureOptions
-    ) where TAppDbContext : DbContextBaseWithRebusInbox {
+    ) where TAppDbContext : DbContextBaseWithRebusInbox, IHasSchemaName {
         var options = new RebusUsingRabbitMqOptions();
         configureOptions(options);
 
@@ -82,7 +82,7 @@ public static class RebusExtensions {
             .AddRebusBase(
                 errorQueueName: "error",
                 rebusConfig => {
-                    var appDbSchemaName = DbContextBase.GetSchemaNameOf<TAppDbContext>();
+                    var appDbSchemaName = TAppDbContext.SchemaName;
                     var inputQueueName = AppDomain.CurrentDomain.FriendlyName;
                     rebusConfig
                         .Transport(x => x.UseRabbitMq(options.RabbitMqConnectionString, inputQueueName))
@@ -109,7 +109,10 @@ public static class RebusExtensions {
     /// Registers Rebus using the SQL Server transport.
     /// The Rebus centralized database contains the queues and message subscriptions.
     /// </summary>
-    public static IServiceCollection AddRebusUsingSqlServer<TAppDbContext>(this IServiceCollection services, Action<RebusUsingSqlServerOptions> configureOptions) where TAppDbContext : DbContextBaseWithRebusInbox {
+    public static IServiceCollection AddRebusUsingSqlServer<TAppDbContext>(
+        this IServiceCollection services, 
+        Action<RebusUsingSqlServerOptions> configureOptions
+    ) where TAppDbContext : DbContextBaseWithRebusInbox, IHasSchemaName {
         var options = new RebusUsingSqlServerOptions();
         configureOptions(options);
 
@@ -123,7 +126,7 @@ public static class RebusExtensions {
                 errorQueueName: $"{RebusInfraDbSchemaName}.Errors",
                 config => {
                     string inputQueueName = $"{RebusInfraDbSchemaName}.{AppDomain.CurrentDomain.FriendlyName.Replace(".", "")}Queue";
-                    var appDbSchemaName = DbContextBase.GetSchemaNameOf<TAppDbContext>();
+                    var appDbSchemaName = TAppDbContext.SchemaName;
                     config
                         .Transport(x => x.UseSqlServer(new SqlServerTransportOptions(options.RebusInfraDbConnectionString), inputQueueName))
                         //.Timeouts(x => x.StoreInSqlServer(rebusDbCnc, $"{options.RebusDbSchemaName}.Timeouts")) // Not necessary (with SQL server transport) because Rebus uses the "visible" field of the queue tables to defer messages (to handle the second-level retry tentatives)

@@ -1,0 +1,49 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <RootNamespace>PAS.PolicyValuation</RootNamespace>
+    <Authors>Switch IT</Authors>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Using Include="PAS.Core" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Using Include="PAS.AspNetCore" />
+    <Using Include="PAS.EntityFramework.Linq" />
+    <Using Include="PAS.OperationResults" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\Common\AspireServiceDefaults\PAS.AspireServiceDefaults.csproj" />
+    <ProjectReference Include="..\..\Common\AspNetCore\PAS.AspNetCore.csproj" />
+    <ProjectReference Include="..\..\Common\Core\PAS.Core.csproj" />
+    <ProjectReference Include="..\..\Common\Mediator\PAS.Mediator.csproj" />
+    <ProjectReference Include="..\..\Common\OperationResults\PAS.OperationResults.csproj" />
+    <ProjectReference Include="..\..\Common\Rebus\PAS.Rebus.csproj" />
+    <ProjectReference Include="..\..\MarketData\Contracts\PAS.MarketData.Contracts.csproj" />
+    <ProjectReference Include="..\..\PolicyAdmin\Client\PAS.PolicyAdmin.Client.csproj" />
+    <ProjectReference Include="..\..\PolicyAdmin\Contracts\PAS.PolicyAdmin.Contracts.csproj" />
+    <ProjectReference Include="..\Domain\PAS.PolicyValuation.Domain.csproj" />
+    <ProjectReference Include="..\Persistence\PAS.PolicyValuation.Persistence.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="AsyncKeyedLock" Version="8.0.2" />
+    <PackageReference Include="Microsoft.Extensions.ApiDescription.Server" Version="10.0.11">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+  </ItemGroup>
+
+  <PropertyGroup>
+    <OpenApiGenerateDocumentsOnBuild>true</OpenApiGenerateDocumentsOnBuild>
+    <OpenApiDocumentsDirectory>.</OpenApiDocumentsDirectory>
+    <OpenApiGenerateDocumentsOptions>--file-name openapi</OpenApiGenerateDocumentsOptions>
+  </PropertyGroup>
+
+</Project>

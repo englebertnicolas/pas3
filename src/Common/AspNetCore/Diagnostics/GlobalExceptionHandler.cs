@@ -71,7 +71,7 @@ public class GlobalExceptionHandler(ILogger<GlobalExceptionHandler> logger, IWeb
                 var internalProblem = new ProblemDetails {
                     Status = StatusCodes.Status500InternalServerError,
                     Title = ReasonPhrases.GetReasonPhrase(StatusCodes.Status500InternalServerError).ToSentenceCase(),
-                    Detail = env.IsDevelopment() ? exception.Message : "An unexpected error occurred on the server.",
+                    Detail = env.IsDevelopment() ? exception.GetFullMessage() : "An unexpected error occurred on the server.",
                     Instance = httpContext.Request.Path
                 };
                 internalProblem.Extensions["traceId"] = traceId;

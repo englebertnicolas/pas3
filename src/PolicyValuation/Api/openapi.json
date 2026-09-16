@@ -1,0 +1,349 @@
+{
+  "openapi": "3.1.1",
+  "info": {
+    "title": "PAS.PolicyValuation.Api | v1",
+    "version": "1.0.0"
+  },
+  "paths": {
+    "/policies/{id}/valuation": {
+      "post": {
+        "tags": [
+          "Policies"
+        ],
+        "description": "Try to roll forward the valuation of the insurance policy identified by 'id' up to the current date.",
+        "operationId": "PerformPolicyValuation",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RollForwardValuationResult"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unprocessable Entity",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/policies/{id}/valuation/lastest": {
+      "get": {
+        "tags": [
+          "Policies"
+        ],
+        "description": "Get the lastest valuation of the insurance policy identified by 'id'.",
+        "operationId": "GetPolicy",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GetLatestValuationResult"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "GetLatestValuationResult": {
+        "required": [
+          "currencyId"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "currencyId": {
+            "type": "string"
+          },
+          "latestValuationDate": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "format": "date"
+          },
+          "totalReservesInEur": {
+            "type": "number",
+            "format": "decimal"
+          },
+          "totalReservesInPolicyCurrency": {
+            "type": "number",
+            "format": "decimal"
+          },
+          "reserves": {
+            "type": [
+              "null",
+              "array"
+            ],
+            "items": {
+              "$ref": "#/components/schemas/GetLatestValuationResultReserve"
+            }
+          },
+          "warningMessage": {
+            "type": [
+              "null",
+              "string"
+            ]
+          }
+        }
+      },
+      "GetLatestValuationResultReserve": {
+        "required": [
+          "fundId",
+          "fundIsin",
+          "fundName",
+          "units",
+          "amountInPolicyCurrency",
+          "amountInFundCurrency",
+          "amountInEur"
+        ],
+        "type": "object",
+        "properties": {
+          "fundId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "fundIsin": {
+            "type": "string"
+          },
+          "fundName": {
+            "type": "string"
+          },
+          "units": {
+            "type": "number",
+            "format": "decimal"
+          },
+          "amountInPolicyCurrency": {
+            "type": "number",
+            "format": "decimal"
+          },
+          "amountInFundCurrency": {
+            "type": "number",
+            "format": "decimal"
+          },
+          "amountInEur": {
+            "type": "number",
+            "format": "decimal"
+          }
+        }
+      },
+      "ProblemDetails": {
+        "type": "object",
+        "properties": {
+          "type": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "title": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "status": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "detail": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "instance": {
+            "type": [
+              "null",
+              "string"
+            ]
+          }
+        }
+      },
+      "RollForwardValuationResult": {
+        "required": [
+          "generatedEvents",
+          "warningMessage",
+          "lastestValuationDate",
+          "totalReservesInPolicyCurrency",
+          "totalReservesInEur"
+        ],
+        "type": "object",
+        "properties": {
+          "generatedEvents": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "warningMessage": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "lastestValuationDate": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "format": "date"
+          },
+          "totalReservesInPolicyCurrency": {
+            "type": "number",
+            "format": "decimal"
+          },
+          "totalReservesInEur": {
+            "type": "number",
+            "format": "decimal"
+          }
+        }
+      },
+      "ValidationProblemDetails": {
+        "type": "object",
+        "properties": {
+          "type": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "title": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "status": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "detail": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "instance": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "errors": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "tags": [
+    {
+      "name": "Policies"
+    }
+  ]
+}

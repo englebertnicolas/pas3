@@ -1,0 +1,28 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <Authors>Switch IT</Authors>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Using Include="PAS.Core" />
+    <Using Include="PAS.OperationResults" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\Common\EntityFramework\PAS.EntityFramework.csproj" />
+    <ProjectReference Include="..\..\Common\Rebus\PAS.Rebus.csproj" />
+    <ProjectReference Include="..\Domain\PAS.PolicyAdmin.Domain.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="10.0.9">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+  </ItemGroup>
+
+</Project>

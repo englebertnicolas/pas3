@@ -43,7 +43,7 @@ public static class Guard {
     /// </summary>
     public static void ThrowIfNotSorted<T>([NotNull] IEnumerable<T> input, IComparer<T>? comparer = null, [CallerArgumentExpression(nameof(input))] string? paramName = null) {
         if (input.IsSorted(comparer))
-            throw new ArgumentException("The enumerable value cannot be unsorted.", paramName);
+            throw new ArgumentException("The enumerable value must be sorted.", paramName);
     }
 
     /// <summary>
@@ -51,7 +51,7 @@ public static class Guard {
     /// </summary>
     public static void ThrowIfNotSortedBy<T, TKey>([NotNull] IEnumerable<T> input, Func<T, TKey> keySelector, IComparer<TKey>? keyComparer = null, [CallerArgumentExpression(nameof(input))] string? paramName = null) {
         if (input.IsSortedBy(keySelector, keyComparer))
-            throw new ArgumentException("The enumerable value cannot be unsorted.", paramName);
+            throw new ArgumentException("The enumerable value must be sorted.", paramName);
     }
 
     /// <summary>
@@ -114,11 +114,11 @@ public static class Guard {
     }
 
     /// <summary>
-    /// Throws an <see cref="InvalidOperationException"/> if <paramref name="invalidCondition"/> is true.
+    /// Throws an <see cref="ArgumentException"/> if <paramref name="invalidCondition"/> is true.
     /// </summary>
-    public static void ThrowIf(bool invalidCondition, string errorMessage) {
+    public static void ThrowIf(bool invalidCondition, string errorMessage, string? paramName = null) {
         if (invalidCondition) {
-            throw new InvalidOperationException(errorMessage);
+            throw new ArgumentException(errorMessage, paramName);
         }
     }
 }

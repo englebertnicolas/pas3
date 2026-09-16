@@ -15,7 +15,7 @@ internal static class IdempotentMessageHandlerDecoratorActivator {
 
         // Dynamically build the decorator closed type by injecting both the message type
         // and the API's specific DbContext type.
-        // Target shape: IdempotentMessageHandlerDecorator<FundNavChangedIntegrationEvent, AssetDbContext>
+        // Target shape: IdempotentMessageHandlerDecorator<FundNavChangedIntegrationEvent, MarketDatDbContext>
         var closedDecoratorType = typeof(IdempotentMessageHandlerDecorator<,>)
             .MakeGenericType(messageType, typeof(TDbContext));
 

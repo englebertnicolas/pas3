@@ -54,7 +54,7 @@ internal sealed partial class SqlServerHintCommandInterceptor : DbCommandInterce
             return;
 
         // Substitution in the SQL
-        // $1 = FROM/JOIN, $2 = [Actu].[Policies], $3 = [p]
+        // $1 = FROM/JOIN, $2 = [Valuation].[Policies], $3 = [p]
         command.CommandText = TableAliasRegex().Replace(
             command.CommandText,
             $"$1 $2 AS $3 {hintClause}");

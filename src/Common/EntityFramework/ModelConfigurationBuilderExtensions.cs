@@ -8,16 +8,13 @@ namespace PAS.EntityFramework;
 public static class ModelConfigurationBuilderExtensions {
 
     /// <summary>
-    /// Scans the provided assemblies to automatically register EF Core ValueConverters 
+    /// Scans the given assemblies to automatically register EF Core ValueConverters 
     /// for all strongly-typed IDs implementing IStronglyTypedId&lt;T&gt;.
     /// </summary>
     public static ModelConfigurationBuilder RegisterStronglyTypedIdConverters(
         this ModelConfigurationBuilder configurationBuilder,
-        params Assembly[] assembliesToScan) {
-        if (assembliesToScan == null || assembliesToScan.Length == 0) {
-            throw new ArgumentException("At least one assembly must be provided for scanning.", nameof(assembliesToScan));
-        }
-
+        params Assembly[] assembliesToScan
+    ) {
         var idTypes = assembliesToScan
             .SelectMany(assembly => assembly.GetTypes())
             .Select(type => new {

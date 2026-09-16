@@ -14,26 +14,31 @@ public class FluentValidationFilterFactory {
         EndpointFilterDelegate next
     ) {
         var parameters = filterContext.MethodInfo.GetParameters();
+        var validatorsInfo = new List<(int Index, Type ValidatorType)>();
 
+        // Prepare the list of validators (one time, on start)
         for (int i = 0; i < parameters.Length; i++) {
             var parameterType = parameters[i].ParameterType;
             var validatorType = typeof(IValidator<>).MakeGenericType(parameterType);
+            validatorsInfo.Add((i, validatorType));
+        }
 
-            return async (invocationContext) => {
+        if (validatorsInfo.Count == 0) return next;
+
+        return async (invocationContext) => {
+            foreach (var (index, validatorType) in validatorsInfo) {
                 if (invocationContext.HttpContext.RequestServices.GetService(validatorType) is IValidator validator) {
-                    var argument = invocationContext.Arguments[i]!;
+                    var argument = invocationContext.Arguments[index]!;
                     var validationContext = new ValidationContext<object>(argument);
-                    var validationResult = await validator!.ValidateAsync(validationContext, invocationContext.HttpContext.RequestAborted);
+                    var validationResult = await validator.ValidateAsync(validationContext, invocationContext.HttpContext.RequestAborted);
 
                     if (!validationResult.IsValid) {
                         return Results.ValidationProblem(validationResult.ToDictionary());
                     }
                 }
+            }
 
-                return await next(invocationContext);
-            };
-        }
-
-        return next;
+            return await next(invocationContext);
+        };
     }
 }

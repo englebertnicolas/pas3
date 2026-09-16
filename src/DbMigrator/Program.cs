@@ -1,8 +1,8 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
-using PAS.ActuarialEngine.Persistence;
-using PAS.Assets.Persistence;
-using PAS.Policies.Persistence;
+using PAS.MarketData.Persistence;
+using PAS.PolicyAdmin.Persistence;
+using PAS.PolicyValuation.Persistence.Write;
 
 try {
     Console.WriteLine("Initializing database migration...");
@@ -17,9 +17,9 @@ try {
     var cnc = configuration.GetConnectionString("Database")
         ?? throw new InvalidOperationException("Undefined database connection string.");
 
-    await MigrateDbContextAsync<AssetDbContext>(cnc);
+    await MigrateDbContextAsync<MarketDbContext>(cnc);
     await MigrateDbContextAsync<PolicyDbContext>(cnc);
-    await MigrateDbContextAsync<ActuDbContext>(cnc);
+    await MigrateDbContextAsync<ValuationDbContext>(cnc);
 
 } catch (Exception ex) {
     Console.ForegroundColor = ConsoleColor.Red;

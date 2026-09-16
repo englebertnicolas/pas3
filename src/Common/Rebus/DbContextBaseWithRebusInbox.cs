@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using System.Reflection;
+using Microsoft.EntityFrameworkCore;
 using PAS.Domain;
 using PAS.EntityFramework;
 using PAS.Rebus.Inbox;
@@ -8,8 +9,9 @@ namespace PAS.Rebus;
 public abstract class DbContextBaseWithRebusInbox(
     DbContextOptions options,
     string schemaName,
+    Assembly domainAssembly,
     IDomainEventDispatcher? domainEventDispatcher
-) : DbContextBase(options, schemaName, domainEventDispatcher) {
+) : DbContextBase(options, schemaName, domainAssembly, domainEventDispatcher) {
 
     internal DbSet<RebusInboxMessage> RebusInboxMessages => Set<RebusInboxMessage>();
 

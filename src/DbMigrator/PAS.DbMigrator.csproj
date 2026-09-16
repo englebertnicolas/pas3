@@ -27,9 +27,9 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\ActuarialEngine\Api\PAS.ActuarialEngine.Api.csproj" />
-    <ProjectReference Include="..\Assets\Api\PAS.Assets.Api.csproj" />
-    <ProjectReference Include="..\Policies\Api\PAS.Policies.Api.csproj" />
+    <ProjectReference Include="..\MarketData\Api\PAS.MarketData.Api.csproj" />
+    <ProjectReference Include="..\PolicyAdmin\Api\PAS.PolicyAdmin.Api.csproj" />
+    <ProjectReference Include="..\PolicyValuation\Api\PAS.PolicyValuation.Api.csproj" />
   </ItemGroup>
 
   <ItemGroup>

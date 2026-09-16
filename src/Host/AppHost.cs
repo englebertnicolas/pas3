@@ -16,21 +16,21 @@ var rabbitMq = useRabbitMq
         .WithLifetime(ContainerLifetime.Persistent) //.WithDataVolume()
     : null;
 
-builder.AddProject<Projects.PAS_Assets_Api>("api-assets")
+builder.AddProject<Projects.PAS_MarketData_Api>("api-marketdata")
     .WithReference(dbCnc)
     .WithOptionalReference(rabbitMq)
     .WithScalarEndpoint()
     .WaitForCompletion(dbMigrator)
     .WaitForOptional(rabbitMq);
 
-var apiPolicies = builder.AddProject<Projects.PAS_Policies_Api>("api-policies")
+var apiPolicies = builder.AddProject<Projects.PAS_PolicyAdmin_Api>("api-policyadmin")
     .WithReference(dbCnc)
     .WithOptionalReference(rabbitMq)
     .WithScalarEndpoint()
     .WaitForCompletion(dbMigrator)
     .WaitForOptional(rabbitMq);
 
-builder.AddProject<Projects.PAS_ActuarialEngine_Api>("api-actuarialengine")
+builder.AddProject<Projects.PAS_PolicyValuation_Api>("api-policyvaluation")
     .WithReference(dbCnc)
     .WithOptionalReference(rabbitMq)
     .WithReference(apiPolicies)

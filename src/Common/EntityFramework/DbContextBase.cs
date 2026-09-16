@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using System.Reflection;
+using Microsoft.EntityFrameworkCore;
 using PAS.Domain;
 using PAS.EntityFramework.Hints;
 
@@ -7,19 +8,16 @@ namespace PAS.EntityFramework;
 public abstract class DbContextBase(
     DbContextOptions options,
     string schemaName,
+    Assembly domainAssembly,
     IDomainEventDispatcher? domainEventDispatcher
 ) : DbContext(options) {
 
-    public static string GetSchemaNameOf<TDbContext>() where TDbContext : DbContextBase {
-        var n = typeof(TDbContext).Name;
-        if (n.EndsWith("DbContext") && n.Length > "DbContext".Length)
-            return n[..^"DbContext".Length];
-        return "dbo";
-    }
-
     protected override void OnModelCreating(ModelBuilder builder) {
         builder.HasDefaultSchema(schemaName);
-        builder.ApplyConfigurationsFromAssembly(GetType().Assembly);
+        builder.ApplyConfigurationsFromAssembly(
+            GetType().Assembly,
+            t => t.Namespace != null && t.Namespace.EndsWith($"{GetType().Namespace}.Configuration")
+        );
     }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder) {
@@ -37,7 +35,7 @@ public abstract class DbContextBase(
 
     protected override void ConfigureConventions(ModelConfigurationBuilder configurationBuilder) {
         base.ConfigureConventions(configurationBuilder);
-        configurationBuilder.RegisterStronglyTypedIdConverters(GetType().Assembly);
+        configurationBuilder.RegisterStronglyTypedIdConverters(domainAssembly);
     }
 
     public override int SaveChanges() {
