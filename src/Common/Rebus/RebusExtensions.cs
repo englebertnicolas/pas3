@@ -110,7 +110,7 @@ public static class RebusExtensions {
     /// The Rebus centralized database contains the queues and message subscriptions.
     /// </summary>
     public static IServiceCollection AddRebusUsingSqlServer<TAppDbContext>(
-        this IServiceCollection services, 
+        this IServiceCollection services,
         Action<RebusUsingSqlServerOptions> configureOptions
     ) where TAppDbContext : DbContextBaseWithRebusInbox, IHasSchemaName {
         var options = new RebusUsingSqlServerOptions();

@@ -1,38 +1,31 @@
-﻿using System;
-using Microsoft.EntityFrameworkCore.Migrations;
+﻿using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 
-namespace PAS.PolicyValuation.Persistence.Write.Migrations
-{
+namespace PAS.PolicyValuation.Persistence.Write.Migrations {
     /// <inheritdoc />
-    public partial class V_1_0_0 : Migration
-    {
+    public partial class V_1_0_0 : Migration {
         /// <inheritdoc />
-        protected override void Up(MigrationBuilder migrationBuilder)
-        {
+        protected override void Up(MigrationBuilder migrationBuilder) {
             migrationBuilder.EnsureSchema(
                 name: "PolicyValuation");
 
             migrationBuilder.CreateTable(
                 name: "__RebusInbox",
                 schema: "PolicyValuation",
-                columns: table => new
-                {
+                columns: table => new {
                     MessageId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     MessageType = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: false),
                     ProcessedAt = table.Column<DateTime>(type: "datetime2", nullable: false)
                 },
-                constraints: table =>
-                {
+                constraints: table => {
                     table.PrimaryKey("PK___RebusInbox", x => x.MessageId);
                 });
 
             migrationBuilder.CreateTable(
                 name: "RetroactiveChanges",
                 schema: "PolicyValuation",
-                columns: table => new
-                {
+                columns: table => new {
                     Id = table.Column<long>(type: "bigint", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     Type = table.Column<string>(type: "nvarchar(128)", maxLength: 128, nullable: false),
@@ -40,16 +33,14 @@ namespace PAS.PolicyValuation.Persistence.Write.Migrations
                     EffectiveDate = table.Column<DateOnly>(type: "date", nullable: false),
                     Details = table.Column<string>(type: "nvarchar(max)", nullable: false)
                 },
-                constraints: table =>
-                {
+                constraints: table => {
                     table.PrimaryKey("PK_RetroactiveChanges", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
                 name: "Policies",
                 schema: "PolicyValuation",
-                columns: table => new
-                {
+                columns: table => new {
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     CurrencyId = table.Column<string>(type: "nvarchar(3)", maxLength: 3, nullable: false),
                     IsSealed = table.Column<bool>(type: "bit", nullable: false),
@@ -57,8 +48,7 @@ namespace PAS.PolicyValuation.Persistence.Write.Migrations
                     WarningMessage = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     LastHandledRetroactiveChangeId = table.Column<long>(type: "bigint", nullable: true)
                 },
-                constraints: table =>
-                {
+                constraints: table => {
                     table.PrimaryKey("PK_Policies", x => x.Id)
                         .Annotation("SqlServer:Clustered", false);
                     table.ForeignKey(
@@ -73,8 +63,7 @@ namespace PAS.PolicyValuation.Persistence.Write.Migrations
             migrationBuilder.CreateTable(
                 name: "ValuationEvents",
                 schema: "PolicyValuation",
-                columns: table => new
-                {
+                columns: table => new {
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     PolicyValuationId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     Seq = table.Column<int>(type: "int", nullable: false),
@@ -83,8 +72,7 @@ namespace PAS.PolicyValuation.Persistence.Write.Migrations
                     TotalReservesInPolicyCurrency = table.Column<decimal>(type: "decimal(18,4)", precision: 18, scale: 4, nullable: false),
                     TotalReservesInEur = table.Column<decimal>(type: "decimal(18,4)", precision: 18, scale: 4, nullable: false)
                 },
-                constraints: table =>
-                {
+                constraints: table => {
                     table.PrimaryKey("PK_ValuationEvents", x => x.Id);
                     table.ForeignKey(
                         name: "FK_ValuationEvents_Policies_PolicyValuationId",
@@ -98,8 +86,7 @@ namespace PAS.PolicyValuation.Persistence.Write.Migrations
             migrationBuilder.CreateTable(
                 name: "ValuationMovements",
                 schema: "PolicyValuation",
-                columns: table => new
-                {
+                columns: table => new {
                     Id = table.Column<long>(type: "bigint", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     ValuationEventId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
@@ -122,8 +109,7 @@ namespace PAS.PolicyValuation.Persistence.Write.Migrations
                     PolicyToEurFxRateDate = table.Column<DateOnly>(type: "date", nullable: true),
                     PolicyToEurFxRateValue = table.Column<decimal>(type: "decimal(28,10)", precision: 28, scale: 10, nullable: true)
                 },
-                constraints: table =>
-                {
+                constraints: table => {
                     table.PrimaryKey("PK_ValuationMovements", x => x.Id);
                     table.ForeignKey(
                         name: "FK_ValuationMovements_ValuationEvents_ValuationEventId",
@@ -137,8 +123,7 @@ namespace PAS.PolicyValuation.Persistence.Write.Migrations
             migrationBuilder.CreateTable(
                 name: "ValuationReserves",
                 schema: "PolicyValuation",
-                columns: table => new
-                {
+                columns: table => new {
                     Id = table.Column<long>(type: "bigint", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     ValuationEventId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
@@ -159,8 +144,7 @@ namespace PAS.PolicyValuation.Persistence.Write.Migrations
                     PolicyToEurFxRateDate = table.Column<DateOnly>(type: "date", nullable: true),
                     PolicyToEurFxRateValue = table.Column<decimal>(type: "decimal(28,10)", precision: 28, scale: 10, nullable: true)
                 },
-                constraints: table =>
-                {
+                constraints: table => {
                     table.PrimaryKey("PK_ValuationReserves", x => x.Id);
                     table.ForeignKey(
                         name: "FK_ValuationReserves_ValuationEvents_ValuationEventId",
@@ -221,8 +205,7 @@ namespace PAS.PolicyValuation.Persistence.Write.Migrations
         }
 
         /// <inheritdoc />
-        protected override void Down(MigrationBuilder migrationBuilder)
-        {
+        protected override void Down(MigrationBuilder migrationBuilder) {
             migrationBuilder.DropForeignKey(
                 name: "FK_Policies_RetroactiveChanges_LastHandledRetroactiveChangeId",
                 schema: "PolicyValuation",

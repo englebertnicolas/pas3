@@ -1,16 +1,19 @@
-﻿<Project Sdk="Aspire.AppHost.Sdk/13.4.6">
+<Project Sdk="Aspire.AppHost.Sdk/13.5.4">
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
     <TargetFramework>net10.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
+    <AspireUseCliBundle>true</AspireUseCliBundle>
     <UserSecretsId>4e1a41e5-ac96-4be4-a5ee-b2447d1d73ed</UserSecretsId>
     <Authors>Switch IT</Authors>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Aspire.Hosting.RabbitMQ" Version="13.4.6" />
+    <PackageReference Include="Aspire.Hosting.RabbitMQ" Version="13.5.4" />
+    <PackageReference Include="Aspire.Hosting.SqlServer" Version="13.5.4" />
+    <PackageReference Include="CommunityToolkit.Aspire.Hosting.SqlServer.Extensions" Version="13.5.0" />
   </ItemGroup>
 
   <ItemGroup>

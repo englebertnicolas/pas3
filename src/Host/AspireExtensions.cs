@@ -10,19 +10,59 @@ internal static class AspireExtensions {
 
     public static IResourceBuilder<TDestination> WithOptionalReference<TDestination>(
         this IResourceBuilder<TDestination> builder,
-        IResourceBuilder<IResourceWithConnectionString>? sourceBuilder
+        IResourceBuilder<IResourceWithConnectionString>? source
     ) where TDestination : IResourceWithEnvironment {
-        if (sourceBuilder is not null)
-            return builder.WithReference(sourceBuilder);
+        if (source is not null)
+            return builder.WithReference(source, optional: true);
         return builder;
     }
 
     public static IResourceBuilder<TDestination> WaitForOptional<TDestination>(
         this IResourceBuilder<TDestination> builder,
-        IResourceBuilder<IResource>? sourceBuilder
+        IResourceBuilder<IResource>? dependency
     ) where TDestination : IResourceWithWaitSupport {
-        if (sourceBuilder is not null)
-            return builder.WaitFor(sourceBuilder);
+        if (dependency is not null)
+            return builder.WaitFor(dependency);
         return builder;
     }
+
+    public static IResourceBuilder<TDestination> WaitForCompletionOptional<TDestination>(
+        this IResourceBuilder<TDestination> builder,
+        IResourceBuilder<IResource>? dependency
+    ) where TDestination : IResourceWithWaitSupport {
+        if (dependency is not null)
+            return builder.WaitForCompletion(dependency);
+        return builder;
+    }
+
+    public static IResourceBuilder<T> WithOptionalEnvironment<T>(
+        this IResourceBuilder<T> builder,
+        string name,
+        EndpointReference? endpointReference
+    ) where T : IResourceWithEnvironment {
+        if (endpointReference is not null)
+            return builder.WithEnvironment(name, endpointReference);
+        return builder;
+    }
+
+    public static IResourceBuilder<T> WithOptionalEnvironment<T>(
+        this IResourceBuilder<T> builder,
+        string name,
+        IResourceBuilder<ParameterResource>? parameter
+    ) where T : IResourceWithEnvironment {
+        if (parameter is not null)
+            return builder.WithEnvironment(name, parameter);
+        return builder;
+    }
+
+    public static IResourceBuilder<T> WithOptionalEnvironment<T>(
+        this IResourceBuilder<T> builder,
+        string name,
+        string? value
+    ) where T : IResourceWithEnvironment {
+        if (value is not null)
+            return builder.WithEnvironment(name, value);
+        return builder;
+    }
+
 }

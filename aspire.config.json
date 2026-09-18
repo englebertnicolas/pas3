@@ -1,5 +1,5 @@
 {
   "appHost": {
-    "path": "Host/PAS.AppHost.csproj"
+    "path": "src/Host/PAS.AppHost.csproj"
   }
 }

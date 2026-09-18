@@ -5,11 +5,13 @@ using PAS.AspNetCore.Configuration;
 using PAS.AspNetCore.Diagnostics;
 using PAS.AspNetCore.Endpoints;
 using PAS.AspNetCore.OpenApi;
+using PAS.AspNetCore.Vault;
 
 var builder = WebApplication.CreateBuilder(args);
-var thisAssembly = typeof(Program).Assembly;
-var dbCnc = builder.Configuration.GetConnectionString("Database") ?? throw new InvalidOperationException("Database connection string not found.");
+await builder.Configuration.AddVaultSecretsAsync();
+var dbCnc = builder.Configuration.BuildConnectionString("Database") ?? throw new InvalidOperationException("Database connection string not found.");
 var rabbitMqCnc = builder.Configuration.GetConnectionString("RabbitMq");
+var thisAssembly = typeof(Program).Assembly;
 
 builder
     .AddAspireServiceDefaults()

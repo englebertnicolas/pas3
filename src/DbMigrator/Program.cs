@@ -1,5 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
+using PAS.AspNetCore;
+using PAS.AspNetCore.Vault;
 using PAS.MarketData.Persistence;
 using PAS.PolicyAdmin.Persistence;
 using PAS.PolicyValuation.Persistence.Write;
@@ -7,15 +9,16 @@ using PAS.PolicyValuation.Persistence.Write;
 try {
     Console.WriteLine("Initializing database migration...");
     var environment = Environment.GetEnvironmentVariable("NETCORE_ENVIRONMENT") ?? "Production";
-    var configuration = new ConfigurationBuilder()
+    var configurationBuiler = new ConfigurationBuilder()
         .SetBasePath(AppContext.BaseDirectory)
         .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
         .AddJsonFile($"appsettings.{environment}.json", optional: true, reloadOnChange: true)
-        .AddEnvironmentVariables()
-        .Build();
+        .AddEnvironmentVariables();
+    await configurationBuiler.AddVaultSecretsAsync();
+    var configuration = configurationBuiler.Build();
 
-    var cnc = configuration.GetConnectionString("Database")
-        ?? throw new InvalidOperationException("Undefined database connection string.");
+    var cnc = configuration.BuildConnectionString("Database")
+         ?? throw new InvalidOperationException("Undefined database connection string.");
 
     await MigrateDbContextAsync<MarketDbContext>(cnc);
     await MigrateDbContextAsync<PolicyDbContext>(cnc);
