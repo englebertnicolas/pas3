@@ -6,46 +6,57 @@
     <File Path="nuget.config" />
     <File Path="README.md" />
   </Folder>
-  <Folder Name="/src/">
-    <Project Path="src/DbMigrator/PAS.DbMigrator.csproj" Id="d7fe68f7-c095-4118-b645-2a11c9fe79f6" />
-    <Project Path="src/Host/PAS.AppHost.csproj" />
+  <Folder Name="/src/" />
+  <Folder Name="/src/backend/">
+    <Project Path="src/backend/DbMigrator/PAS.DbMigrator.csproj" Id="d7fe68f7-c095-4118-b645-2a11c9fe79f6" />
+    <Project Path="src/backend/Host/PAS.AppHost.csproj" />
   </Folder>
-  <Folder Name="/src/PolicyValuation/">
-    <Project Path="src/PolicyValuation/Api/PAS.PolicyValuation.Api.csproj" />
-    <Project Path="src/PolicyValuation/Domain/PAS.PolicyValuation.Domain.csproj" Id="f62e7772-a795-490c-a17d-3fa402a7dd86" />
-    <Project Path="src/PolicyValuation/Persistence/PAS.PolicyValuation.Persistence.csproj" Id="15974bea-241c-482b-aaad-12c2fc6a1041" />
-    <Project Path="tests/PolicyValuation/PAS.PolicyValuation.Tests.csproj" />
+  <Folder Name="/src/backend/PolicyValuation/">
+    <Project Path="src/backend/PolicyValuation/Api/PAS.PolicyValuation.Api.csproj" />
+    <Project Path="src/backend/PolicyValuation/Domain/PAS.PolicyValuation.Domain.csproj" Id="f62e7772-a795-490c-a17d-3fa402a7dd86" />
+    <Project Path="src/backend/PolicyValuation/Persistence/PAS.PolicyValuation.Persistence.csproj" Id="15974bea-241c-482b-aaad-12c2fc6a1041" />
   </Folder>
-  <Folder Name="/src/MarketData/">
-    <Project Path="src/MarketData/Api/PAS.MarketData.Api.csproj" Id="43ced1cc-e7cd-4aec-9179-2da5c855089d" />
-    <Project Path="src/MarketData/Client/PAS.MarketData.Client.csproj" Id="ce416fc5-be4b-410e-82fc-08b5f16b1b67">
-      <BuildDependency Project="src/MarketData/Api/PAS.MarketData.Api.csproj" />
+  <Folder Name="/src/backend/Common/Aspire/">
+    <Project Path="src/backend/Common/AspireServiceDefaults/PAS.AspireServiceDefaults.csproj" />
+  </Folder>
+  <Folder Name="/src/backend/Common/AspNetCore/">
+    <Project Path="src/backend/Common/AspNetCore.Authentication.Keycloak/PAS.AspNetCore.Authentication.Keycloak.csproj" Id="8a3c3742-75dd-472f-9693-d1864be746ff" />
+    <Project Path="src/backend/Common/AspNetCore.OpenApi/PAS.AspNetCore.OpenApi.csproj" />
+    <Project Path="src/backend/Common/AspNetCore/PAS.AspNetCore.csproj" Id="22de0e46-27cc-48ab-bd3a-787994371493" />
+  </Folder>
+  <Folder Name="/src/backend/MarketData/">
+    <Project Path="src/backend/MarketData/Api/PAS.MarketData.Api.csproj" Id="43ced1cc-e7cd-4aec-9179-2da5c855089d" />
+    <Project Path="src/backend/MarketData/Client/PAS.MarketData.Client.csproj" Id="ce416fc5-be4b-410e-82fc-08b5f16b1b67">
+      <BuildDependency Project="src/backend/MarketData/Api/PAS.MarketData.Api.csproj" />
     </Project>
-    <Project Path="src/MarketData/Contracts/PAS.MarketData.Contracts.csproj" Id="211a5354-248a-41e2-b3fa-61d5219eb4ad" />
-    <Project Path="src/MarketData/Domain/PAS.MarketData.Domain.csproj" Id="02233858-39b2-42a0-91df-de888ddaf9b3" />
-    <Project Path="src/MarketData/Persistence/PAS.MarketData.Persistence.csproj" Id="a856b5a1-d36b-4c4b-a723-8746e295e82a" />
-    <Project Path="tests/MarketData/PAS.MarketData.Tests.csproj" Id="f92336a9-96c7-44d3-98c3-c67c2fa87fb1" />
+    <Project Path="src/backend/MarketData/Contracts/PAS.MarketData.Contracts.csproj" Id="211a5354-248a-41e2-b3fa-61d5219eb4ad" />
+    <Project Path="src/backend/MarketData/Domain/PAS.MarketData.Domain.csproj" Id="02233858-39b2-42a0-91df-de888ddaf9b3" />
+    <Project Path="src/backend/MarketData/Persistence/PAS.MarketData.Persistence.csproj" Id="a856b5a1-d36b-4c4b-a723-8746e295e82a" />
   </Folder>
-  <Folder Name="/src/Common/">
-    <Project Path="src/Common/AspireServiceDefaults/PAS.AspireServiceDefaults.csproj" />
-    <Project Path="src/Common/AspNetCore/PAS.AspNetCore.csproj" Id="22de0e46-27cc-48ab-bd3a-787994371493" />
-    <Project Path="src/Common/Core/PAS.Core.csproj" />
-    <Project Path="src/Common/Domain/PAS.Domain.csproj" Id="1cafb59e-b86e-4691-a4ce-abe9dcde8625" />
-    <Project Path="src/Common/EntityFramework/PAS.EntityFramework.csproj" />
-    <Project Path="src/Common/Mediator/PAS.Mediator.csproj" Id="6a308e0c-cd2e-4cf6-a4d3-7610e6bd18f1" />
-    <Project Path="src/Common/OperationResults/PAS.OperationResults.csproj" Id="7fcc72da-8dff-4a6c-a61f-c45411a4492f" />
-    <Project Path="src/Common/Rebus/PAS.Rebus.csproj" Id="50bec626-2527-4efb-b164-a89aacae5918" />
+  <Folder Name="/src/backend/Common/">
+    <Project Path="src/backend/Common/Core/PAS.Core.csproj" />
+    <Project Path="src/backend/Common/Domain/PAS.Domain.csproj" />
+    <Project Path="src/backend/Common/EntityFramework/PAS.EntityFramework.csproj" />
+    <Project Path="src/backend/Common/Mediator/PAS.Mediator.csproj" Id="6a308e0c-cd2e-4cf6-a4d3-7610e6bd18f1" />
+    <Project Path="src/backend/Common/OperationResults/PAS.OperationResults.csproj" Id="7fcc72da-8dff-4a6c-a61f-c45411a4492f" />
+    <Project Path="src/backend/Common/Rebus/PAS.Rebus.csproj" Id="50bec626-2527-4efb-b164-a89aacae5918" />
   </Folder>
-  <Folder Name="/src/Messaging/">
-    <Project Path="src/Messaging/Api/PAS.Messaging.Api.csproj" />
+  <Folder Name="/src/backend/Messaging/">
+    <Project Path="src/backend/Messaging/Api/PAS.Messaging.Api.csproj" />
   </Folder>
-  <Folder Name="/src/PolicyAdmin/">
-    <Project Path="src/PolicyAdmin/Api/PAS.PolicyAdmin.Api.csproj" Id="89c710f4-65c7-4e2a-a698-107c95cdc193" />
-    <Project Path="src/PolicyAdmin/Client/PAS.PolicyAdmin.Client.csproj">
-      <BuildDependency Project="src/PolicyAdmin/Api/PAS.PolicyAdmin.Api.csproj" />
+  <Folder Name="/src/backend/PolicyAdmin/">
+    <Project Path="src/backend/PolicyAdmin/Api/PAS.PolicyAdmin.Api.csproj" Id="89c710f4-65c7-4e2a-a698-107c95cdc193" />
+    <Project Path="src/backend/PolicyAdmin/Client/PAS.PolicyAdmin.Client.csproj">
+      <BuildDependency Project="src/backend/PolicyAdmin/Api/PAS.PolicyAdmin.Api.csproj" />
     </Project>
-    <Project Path="src/PolicyAdmin/Contracts/PAS.PolicyAdmin.Contracts.csproj" Id="ae0f0eab-01d6-4d5e-917c-bd1401a9a718" />
-    <Project Path="src/PolicyAdmin/Domain/PAS.PolicyAdmin.Domain.csproj" Id="fe24ddbc-7468-4685-be03-711bb7110e00" />
-    <Project Path="src/PolicyAdmin/Persistence/PAS.PolicyAdmin.Persistence.csproj" Id="0559ccaf-acf6-4a7c-a5ac-d80a103b3740" />
+    <Project Path="src/backend/PolicyAdmin/Contracts/PAS.PolicyAdmin.Contracts.csproj" Id="ae0f0eab-01d6-4d5e-917c-bd1401a9a718" />
+    <Project Path="src/backend/PolicyAdmin/Domain/PAS.PolicyAdmin.Domain.csproj" Id="fe24ddbc-7468-4685-be03-711bb7110e00" />
+    <Project Path="src/backend/PolicyAdmin/Persistence/PAS.PolicyAdmin.Persistence.csproj" Id="0559ccaf-acf6-4a7c-a5ac-d80a103b3740" />
+  </Folder>
+  <Folder Name="/tests/" />
+  <Folder Name="/tests/backend/">
+    <Project Path="tests/backend/Common/Testing/PAS.Testing.csproj" Id="131c3350-4a7d-45da-97ce-3c35912b89d4" />
+    <Project Path="tests/backend/MarketData/PAS.MarketData.Tests.csproj" Id="f92336a9-96c7-44d3-98c3-c67c2fa87fb1" />
+    <Project Path="tests/backend/PolicyValuation/PAS.PolicyValuation.Tests.csproj" />
   </Folder>
 </Solution>

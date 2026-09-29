@@ -1,0 +1,10 @@
+### Note: Some requests below require disabling API authentication/authorization.
+###       Set 'Infrastructure:BypassAuthentication' to true in the AppHost's 'appsettings.Development.json'.
+
+@Api_HostAddress = http://localhost:5229
+
+### Healthy check
+GET {{Api_HostAddress}}/health/
+
+### OpenApi
+GET {{Api_HostAddress}}/openapi/v1.json
