@@ -1,7 +1,7 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using PAS.Rebus.Dlq;
 
-namespace PAS.AspNetCore.Configuration;
+namespace PAS.Rebus;
 
 public static class RebusDlqManagerConfigurationExtensions
 {

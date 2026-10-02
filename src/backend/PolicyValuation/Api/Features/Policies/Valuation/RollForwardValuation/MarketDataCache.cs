@@ -1,7 +1,7 @@
 ﻿using AsyncKeyedLock;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Memory;
-using PAS.PolicyValuation.Domain.PolicyAggregate;
+using PAS.PolicyValuation.Domain;
 using PAS.PolicyValuation.Domain.Services.Models;
 using PAS.PolicyValuation.Persistence.Read;
 
@@ -13,86 +13,25 @@ public class MarketDataCache(ValuationReadDbContext dbContext, IMemoryCache memo
 
     #region Currencies
 
-    public static string CurrenciesKey() => $"PolicyValuation-Currencies";
+    public static string CurrencyKey(CurrencyId id) => $"PolicyValuation-Currency-{id}";
 
-    public async Task<ErrorOr<CurrencyInfo>> GetCurrencyAsync(CurrencyId id, bool writeToCache = true, CancellationToken cancellationToken = default)
+    public async Task<ErrorOr<CurrencyInfo>> GetCurrencyAsync(CurrencyId id, DateOnly fxRatesSince, bool writeToCache = true, CancellationToken cancellationToken = default)
     {
-        var eoCurrencies = await GetCurrenciesAsync(writeToCache, cancellationToken);
-        if (eoCurrencies.IsFailure) return eoCurrencies.Errors;
-        var currencies = eoCurrencies.Value;
+        var key = CurrencyKey(id);
 
-        var item = currencies.FirstOrDefault(x => x.Id == id);
-        if (item == null) return ErrorInfo.NotFound($"Currency '{id}' not found.");
-        return item;
-    }
+        if (memoryCache.TryGetValue(key, out CurrencyCacheItem? cachedItem) && cachedItem != null)
+            if (cachedItem.FxRatesSince <= fxRatesSince) return cachedItem.Currency;
 
-    public async Task<ErrorOr<CurrencyInfo[]>> GetCurrenciesAsync(bool writeToCache = true, CancellationToken cancellationToken = default)
-    {
-        var key = CurrenciesKey();
-
-        if (memoryCache.TryGetValue(key, out CurrencyInfo[]? cachedValue) && cachedValue != null)
-        {
-            return cachedValue;
-        }
-
-        using (await lockManager.LockAsync($"Currencies", cancellationToken))
-        {
-            // A previous thread could have change the cache during the lock
-            if (memoryCache.TryGetValue(key, out cachedValue) && cachedValue != null)
-            {
-                return cachedValue;
-            }
-
-            var eoCurrencyInfos = await LoadCurrenciesAsync(cancellationToken);
-            if (eoCurrencyInfos.IsFailure) return eoCurrencyInfos.Errors;
-
-            var newValues = eoCurrencyInfos.Value;
-            if (writeToCache)
-            {
-                memoryCache.Set(key, newValues, new MemoryCacheEntryOptions
-                {
-                    SlidingExpiration = CacheExpiration
-                });
-            }
-
-            return newValues;
-        }
-    }
-
-    private async Task<ErrorOr<CurrencyInfo[]>> LoadCurrenciesAsync(CancellationToken cancellationToken)
-    {
-        return await dbContext.Currencies.AsNoTracking()
-            .Select(x => new CurrencyInfo(new(x.Id), x.Decimals))
-            .ToArrayAsync(cancellationToken);
-    }
-
-    #endregion
-
-    #region Currency pairs
-
-    public static string CurrencyPairKey(CurrencyId from, CurrencyId to) => $"PolicyValuation-CurrencyPair-{from}-{to}";
-
-    public async Task<ErrorOr<CurrencyPairInfo>> GetCurrencyPairAsync(CurrencyId baseCurrencyId, CurrencyId quoteCurrencyId, DateOnly ratesSince, bool writeToCache = true, CancellationToken cancellationToken = default)
-    {
-        var key = CurrencyPairKey(baseCurrencyId, quoteCurrencyId);
-
-        if (memoryCache.TryGetValue(key, out CurrencyPairCacheItem? cachedItem) && cachedItem != null)
-        {
-            if (cachedItem.RatesSince <= ratesSince) return cachedItem.CurrencyPair;
-        }
-
-        using (await lockManager.LockAsync($"{baseCurrencyId}>{quoteCurrencyId}", cancellationToken))
+        using (await lockManager.LockAsync(key, cancellationToken))
         {
             // A previous thread could have change the cache during the lock
             if (memoryCache.TryGetValue(key, out cachedItem) && cachedItem != null)
-            {
-                if (cachedItem.RatesSince <= ratesSince) return cachedItem.CurrencyPair;
-            }
+                if (cachedItem.FxRatesSince <= fxRatesSince) return cachedItem.Currency;
 
-            var eoCurrencyInfo = await LoadCurrencyPairAsync(baseCurrencyId, quoteCurrencyId, ratesSince, cancellationToken);
+            var eoCurrencyInfo = await LoadCurrencyAsync(id, fxRatesSince, cancellationToken);
             if (eoCurrencyInfo.IsFailure) return eoCurrencyInfo.Errors;
 
-            var newItem = new CurrencyPairCacheItem(eoCurrencyInfo.Value, ratesSince);
+            var newItem = new CurrencyCacheItem(eoCurrencyInfo.Value, fxRatesSince);
             if (writeToCache)
             {
                 memoryCache.Set(key, newItem, new MemoryCacheEntryOptions
@@ -101,32 +40,32 @@ public class MarketDataCache(ValuationReadDbContext dbContext, IMemoryCache memo
                 });
             }
 
-            return newItem.CurrencyPair;
+            return newItem.Currency;
         }
     }
 
-    private async Task<ErrorOr<CurrencyPairInfo>> LoadCurrencyPairAsync(CurrencyId baseCurrencyId, CurrencyId quoteCurrencyId, DateOnly ratesSince, CancellationToken cancellationToken)
+    private async Task<ErrorOr<CurrencyInfo>> LoadCurrencyAsync(CurrencyId id, DateOnly fxRatesSince, CancellationToken cancellationToken)
     {
-        var currencyPairInfo = await dbContext.CurrencyPairs.AsNoTracking()
-            .Where(x => x.BaseCurrencyId == (string)baseCurrencyId && x.QuoteCurrencyId == (string)quoteCurrencyId)
-            .Select(x => new CurrencyPairInfo(new(x.Id), new(x.BaseCurrencyId), new(x.QuoteCurrencyId), Array.Empty<CurrencyRateInfo>()))
+        var currencyInfo = await dbContext.Currencies.AsNoTracking()
+            .Where(x => x.Id == (string)id)
+            .Select(x => new CurrencyInfo(new(x.Id), x.Decimals, Array.Empty<CurrencyFxRateInfo>()))
             .SingleOrDefaultAsync(cancellationToken);
 
-        if (currencyPairInfo == null)
-            return ErrorInfo.NotFound($"Currency pair '{baseCurrencyId}-{quoteCurrencyId}' not found.");
+        if (currencyInfo == null)
+            return ErrorInfo.NotFound($"Currency '{id}' not found.");
 
-        var minRateDate = ratesSince.AddDays(-7);
-        var rates = await dbContext.CurrencyRates.AsNoTracking()
-            .Where(x => x.CurrencyPairId == (Guid)currencyPairInfo.Id)
-            .Where(x => x.Date >= minRateDate)
-            .Select(x => new CurrencyRateInfo(x.Date, x.Value))
+        var minFxRateDate = fxRatesSince.AddDays(-7);
+        var navs = await dbContext.CurrencyFxRates.AsNoTracking()
+            .Where(x => x.CurrencyId == (string)id)
+            .Where(x => x.Date >= minFxRateDate)
             .OrderBy(x => x.Date)
+            .Select(x => new CurrencyFxRateInfo(x.Date, x.RateToEur))
             .ToArrayAsync(cancellationToken);
 
-        return currencyPairInfo with { CurrencyRates = rates };
+        return currencyInfo with { FxRates = navs };
     }
 
-    private record CurrencyPairCacheItem(CurrencyPairInfo CurrencyPair, DateOnly RatesSince);
+    private record CurrencyCacheItem(CurrencyInfo Currency, DateOnly FxRatesSince);
 
     #endregion
 
@@ -139,17 +78,13 @@ public class MarketDataCache(ValuationReadDbContext dbContext, IMemoryCache memo
         var key = FundKey(id);
 
         if (memoryCache.TryGetValue(key, out FundCacheItem? cachedItem) && cachedItem != null)
-        {
             if (cachedItem.NavsSince <= navsSince) return cachedItem.Fund;
-        }
 
-        using (await lockManager.LockAsync(id.ToString(), cancellationToken))
+        using (await lockManager.LockAsync(key, cancellationToken))
         {
             // A previous thread could have change the cache during the lock
             if (memoryCache.TryGetValue(key, out cachedItem) && cachedItem != null)
-            {
                 if (cachedItem.NavsSince <= navsSince) return cachedItem.Fund;
-            }
 
             var eoFundInfo = await LoadFundAsync(id, navsSince, cancellationToken);
             if (eoFundInfo.IsFailure) return eoFundInfo.Errors;

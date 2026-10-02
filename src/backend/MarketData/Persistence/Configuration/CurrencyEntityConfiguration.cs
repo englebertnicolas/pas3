@@ -27,5 +27,16 @@ public class CurrencyEntityConfiguration : IEntityTypeConfiguration<Currency>
                 .HasColumnName("Symbol")
                 .HasMaxLength(3);
         });
+
+        builder.OwnsMany(e => e.FxRates, fxRatesBuilder =>
+        {
+            fxRatesBuilder.ToTable("CurrencyFxRates");
+            fxRatesBuilder.HasKey("Id");
+            fxRatesBuilder.Property<long>("Id").HasColumnOrder(0);
+            fxRatesBuilder.Property<CurrencyId>("CurrencyId").HasColumnOrder(1);
+            fxRatesBuilder.Property(e => e.RateToEur).HasPrecision(28, 10);
+
+            fxRatesBuilder.HasIndex("CurrencyId", nameof(CurrencyFxRate.Date)).IsUnique();
+        });
     }
 }

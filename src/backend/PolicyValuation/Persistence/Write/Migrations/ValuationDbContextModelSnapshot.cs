@@ -169,12 +169,21 @@ namespace PAS.PolicyValuation.Persistence.Write.Migrations
 
                             SqlServerPropertyBuilderExtensions.UseIdentityColumn(b1.Property<long>("Id"));
 
+                            b1.Property<string>("Details")
+                                .IsRequired()
+                                .HasColumnType("nvarchar(max)");
+
                             b1.Property<Guid>("FundId")
                                 .HasColumnType("uniqueidentifier");
 
                             b1.Property<string>("Type")
                                 .IsRequired()
                                 .HasColumnType("nvarchar(max)");
+
+                            b1.Property<decimal>("Units")
+                                .HasPrecision(28, 10)
+                                .HasColumnType("decimal(28,10)")
+                                .HasColumnName("Units");
 
                             b1.Property<Guid>("ValuationEventId")
                                 .HasColumnType("uniqueidentifier")
@@ -189,51 +198,25 @@ namespace PAS.PolicyValuation.Persistence.Write.Migrations
                             b1.WithOwner()
                                 .HasForeignKey("ValuationEventId");
 
-                            b1.OwnsOne("PAS.PolicyValuation.Domain.PolicyAggregate.FundValuationDetails", "Valuation", b2 =>
+                            b1.OwnsOne("PAS.PolicyValuation.Domain.PolicyAggregate.ValuationMovementAmount", "Amount", b2 =>
                                 {
                                     b2.Property<long>("ValuationMovementId")
                                         .HasColumnType("bigint");
 
-                                    b2.Property<decimal>("AmountInEur")
-                                        .HasPrecision(18, 4)
-                                        .HasColumnType("decimal(18,4)")
+                                    b2.Property<decimal>("InEur")
+                                        .HasPrecision(14, 4)
+                                        .HasColumnType("decimal(14,4)")
                                         .HasColumnName("AmountInEur");
 
-                                    b2.Property<decimal>("AmountInFundCurrency")
-                                        .HasPrecision(18, 4)
-                                        .HasColumnType("decimal(18,4)")
+                                    b2.Property<decimal>("InFundCurrency")
+                                        .HasPrecision(14, 4)
+                                        .HasColumnType("decimal(14,4)")
                                         .HasColumnName("AmountInFundCurrency");
 
-                                    b2.Property<decimal>("AmountInPolicyCurrency")
-                                        .HasPrecision(18, 4)
-                                        .HasColumnType("decimal(18,4)")
+                                    b2.Property<decimal>("InPolicyCurrency")
+                                        .HasPrecision(14, 4)
+                                        .HasColumnType("decimal(14,4)")
                                         .HasColumnName("AmountInPolicyCurrency");
-
-                                    b2.Property<string>("NavValuationMode")
-                                        .IsRequired()
-                                        .HasMaxLength(128)
-                                        .HasColumnType("nvarchar(128)")
-                                        .HasColumnName("NavValuationMode");
-
-                                    b2.Property<decimal>("RawAmountInEur")
-                                        .HasPrecision(28, 10)
-                                        .HasColumnType("decimal(28,10)")
-                                        .HasColumnName("RawAmountInEur");
-
-                                    b2.Property<decimal>("RawAmountInFundCurrency")
-                                        .HasPrecision(28, 10)
-                                        .HasColumnType("decimal(28,10)")
-                                        .HasColumnName("RawAmountInFundCurrency");
-
-                                    b2.Property<decimal>("RawAmountInPolicyCurrency")
-                                        .HasPrecision(28, 10)
-                                        .HasColumnType("decimal(28,10)")
-                                        .HasColumnName("RawAmountInPolicyCurrency");
-
-                                    b2.Property<decimal>("Units")
-                                        .HasPrecision(28, 10)
-                                        .HasColumnType("decimal(28,10)")
-                                        .HasColumnName("Units");
 
                                     b2.HasKey("ValuationMovementId");
 
@@ -241,106 +224,9 @@ namespace PAS.PolicyValuation.Persistence.Write.Migrations
 
                                     b2.WithOwner()
                                         .HasForeignKey("ValuationMovementId");
-
-                                    b2.OwnsOne("PAS.PolicyValuation.Domain.PolicyAggregate.CurrencyRate", "FundToPolicyFxRate", b3 =>
-                                        {
-                                            b3.Property<long>("FundValuationDetailsValuationMovementId")
-                                                .HasColumnType("bigint");
-
-                                            b3.Property<DateOnly>("Date")
-                                                .HasColumnType("date")
-                                                .HasColumnName("FundToPolicyFxRateDate");
-
-                                            b3.Property<decimal>("Value")
-                                                .HasPrecision(28, 10)
-                                                .HasColumnType("decimal(28,10)")
-                                                .HasColumnName("FundToPolicyFxRateValue");
-
-                                            b3.HasKey("FundValuationDetailsValuationMovementId");
-
-                                            b3.ToTable("ValuationMovements", "PolicyValuation");
-
-                                            b3.WithOwner()
-                                                .HasForeignKey("FundValuationDetailsValuationMovementId");
-                                        });
-
-                                    b2.OwnsOne("PAS.PolicyValuation.Domain.PolicyAggregate.FundNav", "Nav", b3 =>
-                                        {
-                                            b3.Property<long>("FundValuationDetailsValuationMovementId")
-                                                .HasColumnType("bigint");
-
-                                            b3.Property<DateOnly>("Date")
-                                                .HasColumnType("date")
-                                                .HasColumnName("NavDate");
-
-                                            b3.Property<decimal>("Value")
-                                                .HasPrecision(28, 10)
-                                                .HasColumnType("decimal(28,10)")
-                                                .HasColumnName("NavValue");
-
-                                            b3.HasKey("FundValuationDetailsValuationMovementId");
-
-                                            b3.ToTable("ValuationMovements", "PolicyValuation");
-
-                                            b3.WithOwner()
-                                                .HasForeignKey("FundValuationDetailsValuationMovementId");
-                                        });
-
-                                    b2.OwnsOne("PAS.PolicyValuation.Domain.PolicyAggregate.CurrencyRate", "PolicyToEurFxRate", b3 =>
-                                        {
-                                            b3.Property<long>("FundValuationDetailsValuationMovementId")
-                                                .HasColumnType("bigint");
-
-                                            b3.Property<DateOnly>("Date")
-                                                .HasColumnType("date")
-                                                .HasColumnName("PolicyToEurFxRateDate");
-
-                                            b3.Property<decimal>("Value")
-                                                .HasPrecision(28, 10)
-                                                .HasColumnType("decimal(28,10)")
-                                                .HasColumnName("PolicyToEurFxRateValue");
-
-                                            b3.HasKey("FundValuationDetailsValuationMovementId");
-
-                                            b3.ToTable("ValuationMovements", "PolicyValuation");
-
-                                            b3.WithOwner()
-                                                .HasForeignKey("FundValuationDetailsValuationMovementId");
-                                        });
-
-                                    b2.OwnsOne("PAS.PolicyValuation.Domain.PolicyAggregate.CurrencyRate", "PolicyToFundFxRate", b3 =>
-                                        {
-                                            b3.Property<long>("FundValuationDetailsValuationMovementId")
-                                                .HasColumnType("bigint");
-
-                                            b3.Property<DateOnly>("Date")
-                                                .HasColumnType("date")
-                                                .HasColumnName("PolicyToFundFxRateDate");
-
-                                            b3.Property<decimal>("Value")
-                                                .HasPrecision(28, 10)
-                                                .HasColumnType("decimal(28,10)")
-                                                .HasColumnName("PolicyToFundFxRateValue");
-
-                                            b3.HasKey("FundValuationDetailsValuationMovementId");
-
-                                            b3.ToTable("ValuationMovements", "PolicyValuation");
-
-                                            b3.WithOwner()
-                                                .HasForeignKey("FundValuationDetailsValuationMovementId");
-                                        });
-
-                                    b2.Navigation("FundToPolicyFxRate");
-
-                                    b2.Navigation("Nav")
-                                        .IsRequired();
-
-                                    b2.Navigation("PolicyToEurFxRate");
-
-                                    b2.Navigation("PolicyToFundFxRate");
                                 });
 
-                            b1.Navigation("Valuation")
+                            b1.Navigation("Amount")
                                 .IsRequired();
                         });
 
@@ -353,8 +239,17 @@ namespace PAS.PolicyValuation.Persistence.Write.Migrations
 
                             SqlServerPropertyBuilderExtensions.UseIdentityColumn(b1.Property<long>("Id"));
 
+                            b1.Property<string>("Details")
+                                .IsRequired()
+                                .HasColumnType("nvarchar(max)");
+
                             b1.Property<Guid>("FundId")
                                 .HasColumnType("uniqueidentifier");
+
+                            b1.Property<decimal>("Units")
+                                .HasPrecision(28, 10)
+                                .HasColumnType("decimal(28,10)")
+                                .HasColumnName("Units");
 
                             b1.Property<Guid>("ValuationEventId")
                                 .HasColumnType("uniqueidentifier")
@@ -369,45 +264,25 @@ namespace PAS.PolicyValuation.Persistence.Write.Migrations
                             b1.WithOwner()
                                 .HasForeignKey("ValuationEventId");
 
-                            b1.OwnsOne("PAS.PolicyValuation.Domain.PolicyAggregate.FundValuationDetails", "Valuation", b2 =>
+                            b1.OwnsOne("PAS.PolicyValuation.Domain.PolicyAggregate.ValuationReserveAmount", "Amount", b2 =>
                                 {
                                     b2.Property<long>("ValuationReserveId")
                                         .HasColumnType("bigint");
 
-                                    b2.Property<decimal>("AmountInEur")
-                                        .HasPrecision(18, 4)
-                                        .HasColumnType("decimal(18,4)")
+                                    b2.Property<decimal>("InEur")
+                                        .HasPrecision(14, 4)
+                                        .HasColumnType("decimal(14,4)")
                                         .HasColumnName("AmountInEur");
 
-                                    b2.Property<decimal>("AmountInFundCurrency")
-                                        .HasPrecision(18, 4)
-                                        .HasColumnType("decimal(18,4)")
+                                    b2.Property<decimal>("InFundCurrency")
+                                        .HasPrecision(14, 4)
+                                        .HasColumnType("decimal(14,4)")
                                         .HasColumnName("AmountInFundCurrency");
 
-                                    b2.Property<decimal>("AmountInPolicyCurrency")
-                                        .HasPrecision(18, 4)
-                                        .HasColumnType("decimal(18,4)")
+                                    b2.Property<decimal>("InPolicyCurrency")
+                                        .HasPrecision(14, 4)
+                                        .HasColumnType("decimal(14,4)")
                                         .HasColumnName("AmountInPolicyCurrency");
-
-                                    b2.Property<decimal>("RawAmountInEur")
-                                        .HasPrecision(28, 10)
-                                        .HasColumnType("decimal(28,10)")
-                                        .HasColumnName("RawAmountInEur");
-
-                                    b2.Property<decimal>("RawAmountInFundCurrency")
-                                        .HasPrecision(28, 10)
-                                        .HasColumnType("decimal(28,10)")
-                                        .HasColumnName("RawAmountInFundCurrency");
-
-                                    b2.Property<decimal>("RawAmountInPolicyCurrency")
-                                        .HasPrecision(28, 10)
-                                        .HasColumnType("decimal(28,10)")
-                                        .HasColumnName("RawAmountInPolicyCurrency");
-
-                                    b2.Property<decimal>("Units")
-                                        .HasPrecision(28, 10)
-                                        .HasColumnType("decimal(28,10)")
-                                        .HasColumnName("Units");
 
                                     b2.HasKey("ValuationReserveId");
 
@@ -415,106 +290,9 @@ namespace PAS.PolicyValuation.Persistence.Write.Migrations
 
                                     b2.WithOwner()
                                         .HasForeignKey("ValuationReserveId");
-
-                                    b2.OwnsOne("PAS.PolicyValuation.Domain.PolicyAggregate.CurrencyRate", "FundToPolicyFxRate", b3 =>
-                                        {
-                                            b3.Property<long>("FundValuationDetailsValuationReserveId")
-                                                .HasColumnType("bigint");
-
-                                            b3.Property<DateOnly>("Date")
-                                                .HasColumnType("date")
-                                                .HasColumnName("FundToPolicyFxRateDate");
-
-                                            b3.Property<decimal>("Value")
-                                                .HasPrecision(28, 10)
-                                                .HasColumnType("decimal(28,10)")
-                                                .HasColumnName("FundToPolicyFxRateValue");
-
-                                            b3.HasKey("FundValuationDetailsValuationReserveId");
-
-                                            b3.ToTable("ValuationReserves", "PolicyValuation");
-
-                                            b3.WithOwner()
-                                                .HasForeignKey("FundValuationDetailsValuationReserveId");
-                                        });
-
-                                    b2.OwnsOne("PAS.PolicyValuation.Domain.PolicyAggregate.FundNav", "Nav", b3 =>
-                                        {
-                                            b3.Property<long>("FundValuationDetailsValuationReserveId")
-                                                .HasColumnType("bigint");
-
-                                            b3.Property<DateOnly>("Date")
-                                                .HasColumnType("date")
-                                                .HasColumnName("NavDate");
-
-                                            b3.Property<decimal>("Value")
-                                                .HasPrecision(28, 10)
-                                                .HasColumnType("decimal(28,10)")
-                                                .HasColumnName("NavValue");
-
-                                            b3.HasKey("FundValuationDetailsValuationReserveId");
-
-                                            b3.ToTable("ValuationReserves", "PolicyValuation");
-
-                                            b3.WithOwner()
-                                                .HasForeignKey("FundValuationDetailsValuationReserveId");
-                                        });
-
-                                    b2.OwnsOne("PAS.PolicyValuation.Domain.PolicyAggregate.CurrencyRate", "PolicyToEurFxRate", b3 =>
-                                        {
-                                            b3.Property<long>("FundValuationDetailsValuationReserveId")
-                                                .HasColumnType("bigint");
-
-                                            b3.Property<DateOnly>("Date")
-                                                .HasColumnType("date")
-                                                .HasColumnName("PolicyToEurFxRateDate");
-
-                                            b3.Property<decimal>("Value")
-                                                .HasPrecision(28, 10)
-                                                .HasColumnType("decimal(28,10)")
-                                                .HasColumnName("PolicyToEurFxRateValue");
-
-                                            b3.HasKey("FundValuationDetailsValuationReserveId");
-
-                                            b3.ToTable("ValuationReserves", "PolicyValuation");
-
-                                            b3.WithOwner()
-                                                .HasForeignKey("FundValuationDetailsValuationReserveId");
-                                        });
-
-                                    b2.OwnsOne("PAS.PolicyValuation.Domain.PolicyAggregate.CurrencyRate", "PolicyToFundFxRate", b3 =>
-                                        {
-                                            b3.Property<long>("FundValuationDetailsValuationReserveId")
-                                                .HasColumnType("bigint");
-
-                                            b3.Property<DateOnly>("Date")
-                                                .HasColumnType("date")
-                                                .HasColumnName("PolicyToFundFxRateDate");
-
-                                            b3.Property<decimal>("Value")
-                                                .HasPrecision(28, 10)
-                                                .HasColumnType("decimal(28,10)")
-                                                .HasColumnName("PolicyToFundFxRateValue");
-
-                                            b3.HasKey("FundValuationDetailsValuationReserveId");
-
-                                            b3.ToTable("ValuationReserves", "PolicyValuation");
-
-                                            b3.WithOwner()
-                                                .HasForeignKey("FundValuationDetailsValuationReserveId");
-                                        });
-
-                                    b2.Navigation("FundToPolicyFxRate");
-
-                                    b2.Navigation("Nav")
-                                        .IsRequired();
-
-                                    b2.Navigation("PolicyToEurFxRate");
-
-                                    b2.Navigation("PolicyToFundFxRate");
                                 });
 
-                            b1.Navigation("Valuation")
+                            b1.Navigation("Amount")
                                 .IsRequired();
                         });
 

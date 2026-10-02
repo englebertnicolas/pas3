@@ -8,6 +8,9 @@ public class Currency : Entity<CurrencyId>, IAggregateRoot
     public CurrencySymbol Symbol { get; private set; } = null!;
     public int Decimals { get; private set; }
 
+    private readonly List<CurrencyFxRate> fxRates = [];
+    public IReadOnlyCollection<CurrencyFxRate> FxRates => fxRates.AsReadOnly();
+
     private Currency()
     {
         // For EF hydration
@@ -40,5 +43,33 @@ public class Currency : Entity<CurrencyId>, IAggregateRoot
             return ErrorInfo.Unprocessable("Number of decimals of the currency is out of acceptable range.");
 
         return new Currency(id, englishName, eoCurrencySymbol.Value, decimals);
+    }
+
+    /// <summary>
+    /// Add or update a currency exchange rate at the given date.
+    /// </summary>
+    /// <remarks>
+    /// Precondition: The Currency aggregate should be loaded with exchange rates filtered 
+    /// to include at least the rate at the given date (if it exists).
+    /// </remarks>
+    public ErrorOr<UpsertResult> UpsertFxRate(DateOnly date, decimal rateToEur)
+    {
+        if (Id.Value == "EUR")
+            return ErrorInfo.Unprocessable("Cannot set exchange rate for EUR currency.");
+
+        var eoFxRate = CurrencyFxRate.Create(date, rateToEur);
+        if (eoFxRate.IsFailure) return eoFxRate.Errors;
+        var fxRate = eoFxRate.Value;
+
+        var existingFxRate = fxRates.FirstOrDefault(v => v.Date == date);
+        if (existingFxRate != null)
+        {
+            if (existingFxRate.RateToEur == fxRate.RateToEur) return UpsertResult.Unchanged;
+            fxRates.Remove(existingFxRate);
+        }
+
+        fxRates.Add(fxRate);
+        AddDomainEvent(new CurrencyFxRateChangedDomainEvent(Id.Value, fxRate.Date, existingFxRate?.RateToEur, fxRate.RateToEur));
+        return existingFxRate == null ? UpsertResult.Created : UpsertResult.Updated;
     }
 }

@@ -3,7 +3,6 @@ using PAS.Domain;
 using PAS.EntityFramework;
 using PAS.MarketData.Domain;
 using PAS.MarketData.Domain.CurrencyAggregate;
-using PAS.MarketData.Domain.CurrencyPairAggregate;
 using PAS.MarketData.Domain.FundAggregate;
 using PAS.Rebus;
 
@@ -24,6 +23,5 @@ public class MarketDbContext : DbContextBaseWithRebusInbox, IHasSchemaName
     }
 
     public DbSet<Currency> Currencies => Set<Currency>();
-    public DbSet<CurrencyPair> CurrencyPairs => Set<CurrencyPair>();
     public DbSet<Fund> Funds => Set<Fund>();
 }

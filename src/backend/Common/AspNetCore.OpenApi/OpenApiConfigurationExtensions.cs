@@ -10,6 +10,12 @@ namespace PAS.AspNetCore.OpenApi;
 public static class OpenApiConfigurationExtensions
 {
     public static IServiceCollection AddDefaultOpenApi(this IServiceCollection services)
+        => services.AddDefaultOpenApi(addKeycloakSecurity: true);
+
+    public static IServiceCollection AddBffOpenApi(this IServiceCollection services)
+        => services.AddDefaultOpenApi(addKeycloakSecurity: false);
+
+    private static IServiceCollection AddDefaultOpenApi(this IServiceCollection services, bool addKeycloakSecurity)
     {
         return services.AddOpenApi(options =>
         {
@@ -28,13 +34,22 @@ public static class OpenApiConfigurationExtensions
                 .AddSchemaTransformer<SchemaDecimalTransformer>();
 
             // Security-related transformers
-            options
-                .AddDocumentTransformer<DocumentKeycloakSecurityTransformer>()
-                .AddOperationTransformer<OperationKeycloakSecurityTransformer>();
+            if (addKeycloakSecurity)
+            {
+                options
+                    .AddDocumentTransformer<DocumentKeycloakSecurityTransformer>()
+                    .AddOperationTransformer<OperationKeycloakSecurityTransformer>();
+            }
         });
     }
 
     public static WebApplication UseDefaultOpenApi(this WebApplication app, string? title = null)
+        => app.UseDefaultOpenApi(title, addKeycloakSecurity: true);
+
+    public static WebApplication UseBffOpenApi(this WebApplication app, string? title = null)
+        => app.UseDefaultOpenApi(title, addKeycloakSecurity: false);
+
+    private static WebApplication UseDefaultOpenApi(this WebApplication app, string? title, bool addKeycloakSecurity)
     {
         if (!app.Environment.IsDevelopment())
             return app;
@@ -50,7 +65,7 @@ public static class OpenApiConfigurationExtensions
 
             // Authentication
             var keycloakOptions = app.Configuration.GetKeycloakOptions();
-            if (!string.IsNullOrEmpty(keycloakOptions.Authority))
+            if (addKeycloakSecurity && !string.IsNullOrEmpty(keycloakOptions.Authority))
             {
                 options.AddAuthorizationCodeFlow(DocumentKeycloakSecurityTransformer.SchemeName, flow =>
                 {

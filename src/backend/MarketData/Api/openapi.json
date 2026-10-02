@@ -175,24 +175,18 @@
         }
       }
     },
-    "/currencies/rates": {
+    "/currencies/{id}/fxrates": {
       "get": {
         "tags": [
           "Currencies"
         ],
         "description": "Get a paginated list of currency exchange rates.",
-        "operationId": "GetCurrencyRateList",
+        "operationId": "GetCurrencyFxRateList",
         "parameters": [
           {
-            "name": "baseCurrencyId",
-            "in": "query",
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "quoteCurrencyId",
-            "in": "query",
+            "name": "id",
+            "in": "path",
+            "required": true,
             "schema": {
               "type": "string"
             }
@@ -222,6 +216,14 @@
               "format": "int32",
               "default": 100
             }
+          },
+          {
+            "name": "orderAsc",
+            "in": "query",
+            "schema": {
+              "type": "boolean",
+              "default": false
+            }
           }
         ],
         "responses": {
@@ -230,7 +232,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/GetCurrencyRateListResult"
+                  "$ref": "#/components/schemas/GetCurrencyFxRateListResult"
                 }
               }
             }
@@ -281,13 +283,23 @@
         "tags": [
           "Currencies"
         ],
-        "description": "Add or update the currency exchange rate.",
-        "operationId": "UpsertCurrencyRate",
+        "description": "Add or update the exchange rate for the currency identified by 'id'.",
+        "operationId": "UpsertCurrencyFxRate",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
         "requestBody": {
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/UpsertCurrencyRateCommand"
+                "$ref": "#/components/schemas/UpsertCurrencyFxRateCommandBody"
               }
             }
           },
@@ -541,6 +553,14 @@
             "schema": {
               "type": "string",
               "format": "uuid"
+            }
+          },
+          {
+            "name": "startDate",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "format": "date"
             }
           },
           {
@@ -1093,6 +1113,41 @@
           "Monthly"
         ]
       },
+      "GetCurrencyFxRateListResult": {
+        "required": [
+          "items",
+          "hasNextPage"
+        ],
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/GetCurrencyFxRateListResultItem"
+            }
+          },
+          "hasNextPage": {
+            "type": "boolean"
+          }
+        }
+      },
+      "GetCurrencyFxRateListResultItem": {
+        "required": [
+          "date",
+          "rateToEur"
+        ],
+        "type": "object",
+        "properties": {
+          "date": {
+            "type": "string",
+            "format": "date"
+          },
+          "rateToEur": {
+            "type": "number",
+            "format": "decimal"
+          }
+        }
+      },
       "GetCurrencyListResult": {
         "required": [
           "items",
@@ -1132,49 +1187,6 @@
           "decimals": {
             "type": "integer",
             "format": "int32"
-          }
-        }
-      },
-      "GetCurrencyRateListResult": {
-        "required": [
-          "items",
-          "hasNextPage"
-        ],
-        "type": "object",
-        "properties": {
-          "items": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/GetCurrencyRateListResultItem"
-            }
-          },
-          "hasNextPage": {
-            "type": "boolean"
-          }
-        }
-      },
-      "GetCurrencyRateListResultItem": {
-        "required": [
-          "baseCurrencyId",
-          "quoteCurrencyId",
-          "date",
-          "rate"
-        ],
-        "type": "object",
-        "properties": {
-          "baseCurrencyId": {
-            "type": "string"
-          },
-          "quoteCurrencyId": {
-            "type": "string"
-          },
-          "date": {
-            "type": "string",
-            "format": "date"
-          },
-          "rate": {
-            "type": "number",
-            "format": "decimal"
           }
         }
       },
@@ -1369,26 +1381,18 @@
           }
         }
       },
-      "UpsertCurrencyRateCommand": {
+      "UpsertCurrencyFxRateCommandBody": {
         "required": [
-          "baseCurrencyId",
-          "quoteCurrencyId",
           "date",
-          "rate"
+          "rateToEur"
         ],
         "type": "object",
         "properties": {
-          "baseCurrencyId": {
-            "type": "string"
-          },
-          "quoteCurrencyId": {
-            "type": "string"
-          },
           "date": {
             "type": "string",
             "format": "date"
           },
-          "rate": {
+          "rateToEur": {
             "type": "number",
             "format": "decimal"
           }

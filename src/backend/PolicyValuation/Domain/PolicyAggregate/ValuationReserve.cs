@@ -3,24 +3,28 @@
 public record ValuationReserve
 {
     public FundId FundId { get; private set; }
-    public FundValuationDetails Valuation { get; private set; } = null!;
+    public decimal Units { get; private set; }
+    public ValuationReserveAmount Amount { get; private set; } = null!;
+    public ValuationReserveDetails Details { get; private set; } = null!;
 
     private ValuationReserve()
     {
         // For EF hydration
     }
 
-    private ValuationReserve(FundId fundId, FundValuationDetails fundValuation)
+    private ValuationReserve(FundId fundId, decimal units, ValuationReserveAmount amount, ValuationReserveDetails details)
     {
         FundId = fundId;
-        Valuation = fundValuation;
+        Units = units;
+        Amount = amount;
+        Details = details;
     }
 
-    public static ErrorOr<ValuationReserve> Create(FundId fundId, decimal units, FundValuationContext context)
+    public static ErrorOr<ValuationReserve> Create(FundId fundId, decimal units, ValuationReserveAmount amount, ValuationReserveDetails details)
     {
-        var eoFundValuation = FundValuationDetails.CreateFromUnits(units, context);
-        if (eoFundValuation.IsFailure) return eoFundValuation.Errors;
+        if (units < 0)
+            return ErrorInfo.Unprocessable("Number of units of the reserve cannot be negative.");
 
-        return new ValuationReserve(fundId, eoFundValuation.Value);
+        return new ValuationReserve(fundId, units, amount, details);
     }
 }

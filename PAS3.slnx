@@ -33,10 +33,14 @@
     <Project Path="src/backend/MarketData/Domain/PAS.MarketData.Domain.csproj" Id="02233858-39b2-42a0-91df-de888ddaf9b3" />
     <Project Path="src/backend/MarketData/Persistence/PAS.MarketData.Persistence.csproj" Id="a856b5a1-d36b-4c4b-a723-8746e295e82a" />
   </Folder>
+  <Folder Name="/src/backend/Bff/">
+    <Project Path="src/backend/Bff/Api/PAS.Bff.Api.csproj" />
+  </Folder>
   <Folder Name="/src/backend/Common/">
     <Project Path="src/backend/Common/Core/PAS.Core.csproj" />
     <Project Path="src/backend/Common/Domain/PAS.Domain.csproj" />
     <Project Path="src/backend/Common/EntityFramework/PAS.EntityFramework.csproj" />
+    <Project Path="src/backend/Common/Hosting/PAS.Hosting.csproj" Id="bf62549f-4422-4a5c-8a02-5813d92ceceb" />
     <Project Path="src/backend/Common/Mediator/PAS.Mediator.csproj" Id="6a308e0c-cd2e-4cf6-a4d3-7610e6bd18f1" />
     <Project Path="src/backend/Common/OperationResults/PAS.OperationResults.csproj" Id="7fcc72da-8dff-4a6c-a61f-c45411a4492f" />
     <Project Path="src/backend/Common/Rebus/PAS.Rebus.csproj" Id="50bec626-2527-4efb-b164-a89aacae5918" />

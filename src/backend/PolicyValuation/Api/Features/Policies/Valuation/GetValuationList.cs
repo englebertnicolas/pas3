@@ -4,7 +4,7 @@ using PAS.AspNetCore.Endpoints;
 using PAS.AspNetCore.Paging;
 using PAS.PolicyValuation.Persistence.Read;
 
-namespace PAS.PolicyValuation.Features.Currencies;
+namespace PAS.PolicyValuation.Features.Policies.Valuation;
 
 public class GetValuationList : IEndpoint
 {

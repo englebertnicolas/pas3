@@ -11,6 +11,7 @@ public class GetFundNavList : IEndpoint
 {
     public record Query(
         Guid Id,
+        DateOnly? StartDate,
         int PageNumber = 1,
         int PageSize = 100,
         bool OrderAsc = false) : IPagedQuery;
@@ -38,6 +39,7 @@ public class GetFundNavList : IEndpoint
             .AsNoTracking()
             .Where(x => x.Id == (FundId)query.Id)
             .SelectMany(x => x.Navs)
+            .WhereIf(query.StartDate.HasValue, x => x.Date >= query.StartDate)
             .OrderBy(query.OrderAsc, x => x.Date)
             .Skip((query.PageNumber - 1) * query.PageSize)
             .Take(query.PageSize + 1)

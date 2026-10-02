@@ -29,8 +29,7 @@ public class ValuationReadDbContext(
      * 3. Decoupling: No cross-schema foreign keys allowed.
      */
     public DbSet<Currency> Currencies => Set<Currency>();
-    public DbSet<CurrencyPair> CurrencyPairs => Set<CurrencyPair>();
-    public DbSet<CurrencyRate> CurrencyRates => Set<CurrencyRate>();
+    public DbSet<CurrencyFxRate> CurrencyFxRates => Set<CurrencyFxRate>();
     public DbSet<Fund> Funds => Set<Fund>();
     public DbSet<FundNav> FundNavs => Set<FundNav>();
 }

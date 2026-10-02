@@ -1,0 +1,56 @@
+### Note: Some requests below require disabling API authentication/authorization.
+###       Set 'Infrastructure:BypassAuthentication' to true in the AppHost's 'appsettings.Development.json'.
+
+@Api_HostAddress = http://localhost:5225
+
+### Healthy check
+GET {{Api_HostAddress}}/health/
+
+### OpenApi
+GET {{Api_HostAddress}}/openapi/v1.json
+
+### Get fund list
+GET {{Api_HostAddress}}/funds
+
+### Create fund
+POST {{Api_HostAddress}}/funds/collective
+Content-Type: application/json
+{
+  "id": "00000000-0000-0000-0001-000000000001",
+  "name": "Global Equity Fund",
+  "isin": "BE1234567890",
+  "currencyId": "EUR",
+  "unitDecimals": 4,
+  "navDecimals": 4,
+  "navPricingLag": 2,
+  "navStalenessTolerance": 2
+}
+
+### Get fund
+GET {{Api_HostAddress}}/funds/00000000-0000-0000-0001-000000000001
+
+### Get fund navs
+GET {{Api_HostAddress}}/funds/00000000-0000-0000-0001-000000000001/navs
+
+### Upsert fund NAV
+POST {{Api_HostAddress}}/funds/00000000-0000-0000-0001-000000000001/navs
+Content-Type: application/json
+{
+  "date": "2026-08-02",
+  "value": 97.5139
+}
+
+### Get currencies
+GET {{Api_HostAddress}}/currencies
+
+### Get currency exchange rates
+GET {{Api_HostAddress}}/currencies/USD/fxrates
+
+### Upsert currency exchange rate USD
+POST {{Api_HostAddress}}/currencies/USD/fxrates
+Content-Type: application/json
+{
+  "currencyId": "USD",
+  "date": "2026-08-02",
+  "rateToEur": 0.8902
+}

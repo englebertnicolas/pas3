@@ -1,4 +1,5 @@
 ﻿using PAS.PolicyAdmin.Client;
+using PAS.PolicyValuation.Domain;
 using PAS.PolicyValuation.Domain.PolicyAggregate;
 using PAS.PolicyValuation.Domain.Services;
 using PAS.PolicyValuation.Domain.Services.Models;
@@ -28,39 +29,32 @@ public class PolicyValuationContextLoader(
 
         var loadMarketDataFrom = policy.LatestEvent?.Date ?? policyInfo.EffectiveDate;
 
-        // Loading currencies
-        var eoCurrencies = await valuationCache.GetCurrenciesAsync(cancellationToken: cancellationToken);
-        if (eoCurrencies.IsFailure) return eoCurrencies.Errors;
-        var currencies = eoCurrencies.Value;
-
         // Loading funds
-        var fundIds = policyInfo.GetDistinctFundIds();
-        var funds = new List<FundInfo>();
-        foreach (var fundId in fundIds)
+        var fundInfos = new List<FundInfo>();
+        foreach (var fundId in policyInfo.GetOperationFundIds())
         {
-            var eoFund = await valuationCache.GetFundAsync(fundId, loadMarketDataFrom, cancellationToken: cancellationToken);
-            if (eoFund.IsFailure) return eoFund.Errors;
-            funds.Add(eoFund.Value);
+            var eoFundInfo = await valuationCache.GetFundAsync(fundId, loadMarketDataFrom, cancellationToken: cancellationToken);
+            if (eoFundInfo.IsFailure) return eoFundInfo.Errors.Map(ErrorType.NotFound, ErrorType.Unprocessable);
+            fundInfos.Add(eoFundInfo.Value);
         }
 
-        // Loading currency exchange rates
-        var currencyPairs = new List<CurrencyPairInfo>();
-        if (policyInfo.CurrencyId != (CurrencyId)"EUR")
+        // Loading currencies
+        var currencyInfos = new List<CurrencyInfo>();
+        foreach (var currencyId in GetDistinctCurrencyIds(policyInfo, fundInfos))
         {
-            var eoCurrencyPair = await valuationCache.GetCurrencyPairAsync(policyInfo.CurrencyId, (CurrencyId)"EUR", loadMarketDataFrom, cancellationToken: cancellationToken);
-            if (eoCurrencyPair.IsFailure) return eoCurrencyPair.Errors;
-            currencyPairs.Add(eoCurrencyPair.Value);
-        }
-        foreach (var fundCurrencyId in funds.Select(x => x.CurrencyId).Distinct().Except([(CurrencyId)"EUR", policyInfo.CurrencyId]))
-        {
-            if (fundCurrencyId != policyInfo.CurrencyId)
-            {
-                var eoCurrencyPair = await valuationCache.GetCurrencyPairAsync(fundCurrencyId, policyInfo.CurrencyId, loadMarketDataFrom, cancellationToken: cancellationToken);
-                if (eoCurrencyPair.IsFailure) return eoCurrencyPair.Errors;
-                currencyPairs.Add(eoCurrencyPair.Value);
-            }
+            var eoCurrencyInfo = await valuationCache.GetCurrencyAsync(currencyId, loadMarketDataFrom, cancellationToken: cancellationToken);
+            if (eoCurrencyInfo.IsFailure) return eoCurrencyInfo.Errors.Map(ErrorType.NotFound, ErrorType.Unprocessable);
+            currencyInfos.Add(eoCurrencyInfo.Value);
         }
 
-        return new PolicyValuationContext(valuationDate.Value, policyInfo, currencies, currencyPairs, funds);
+        return new PolicyValuationContext(valuationDate.Value, policyInfo, currencyInfos, fundInfos);
+    }
+
+    private static List<CurrencyId> GetDistinctCurrencyIds(PolicyInfo policy, IEnumerable<FundInfo> funds)
+    {
+        return [.. funds
+            .Select(x => x.CurrencyId)
+            .Concat([new("EUR"), policy.CurrencyId])
+            .Distinct()];
     }
 }

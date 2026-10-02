@@ -1,9 +1,6 @@
 ﻿namespace PAS.OperationResults;
 
-public readonly record struct ErrorInfo(
-    ErrorType Type,
-    string Message,
-    string? Code = null)
+public readonly record struct ErrorInfo(ErrorType Type, string Message, string? Code = null)
 {
     public static ErrorInfo Unknown(string message, string? code = null) => new(ErrorType.Unknown, message, code);
     public static ErrorInfo Unprocessable(string message, string? code = null) => new(ErrorType.Unprocessable, message, code);

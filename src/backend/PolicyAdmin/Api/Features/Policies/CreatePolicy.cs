@@ -1,6 +1,7 @@
 ﻿using FluentValidation;
 using Microsoft.EntityFrameworkCore;
 using PAS.AspNetCore.Endpoints;
+using PAS.PolicyAdmin.Domain;
 using PAS.PolicyAdmin.Domain.PolicyAggregate;
 using PAS.PolicyAdmin.Persistence;
 
@@ -10,6 +11,7 @@ public class CreatePolicy : IEndpoint
 {
     public record Command(
         Guid? Id,
+        string? ProposalNumber,
         DateOnly PremiumDate,
         string CurrencyId,
         decimal PremiumAmount,
@@ -46,6 +48,7 @@ public class CreatePolicy : IEndpoint
     {
         var eoPolicy = Policy.Create(
             (PolicyId?)command.Id,
+            command.ProposalNumber,
             command.PremiumDate,
             (CurrencyId)command.CurrencyId,
             command.PremiumAmount,

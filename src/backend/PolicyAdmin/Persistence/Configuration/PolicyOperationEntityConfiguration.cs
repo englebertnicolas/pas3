@@ -5,10 +5,8 @@ using PAS.PolicyAdmin.Domain.PolicyAggregate;
 
 namespace PAS.PolicyAdmin.Persistence.Configuration;
 
-internal class PolicyOperatoinEntityConfiguration : IEntityTypeConfiguration<PolicyOperation>
+internal class PolicyOperationEntityConfiguration : IEntityTypeConfiguration<PolicyOperation>
 {
-    private static readonly JsonSerializerOptions jsonSerializerOptions = new() { PropertyNameCaseInsensitive = true };
-
     public void Configure(EntityTypeBuilder<PolicyOperation> builder)
     {
         builder.ToTable("PolicyOperations");
@@ -23,8 +21,8 @@ internal class PolicyOperatoinEntityConfiguration : IEntityTypeConfiguration<Pol
 
         builder.Property(e => e.Details)
             .HasConversion(
-                v => JsonSerializer.Serialize(v, jsonSerializerOptions),
-                v => JsonSerializer.Deserialize<PolicyOperationDetails>(v, jsonSerializerOptions)!
+                v => JsonSerializer.Serialize(v, JsonOptions.DatabaseDefault),
+                v => JsonSerializer.Deserialize<PolicyOperationDetails>(v, JsonOptions.DatabaseDefault)!
             )
             .HasColumnType("nvarchar(max)");
     }

@@ -13,7 +13,7 @@ public class IssuePolicy : IEndpoint
         [FromRoute] Guid Id,
         [FromBody] Command.Body Issuance)
     {
-        public record Body(DateOnly? Date = null);
+        public record Body(string PolicyNumber, DateOnly? Date = null);
     }
 
     public class CommandValidator : AbstractValidator<Command>
@@ -46,7 +46,7 @@ public class IssuePolicy : IEndpoint
         if (policy == null)
             return ErrorInfo.NotFound($"Policy '{command.Id}' not found").ToHttpResult();
 
-        var eos = policy.Issue(command.Issuance.Date);
+        var eos = policy.Issue(command.Issuance.PolicyNumber, command.Issuance.Date);
         if (eos.IsFailure) return eos.Errors.ToHttpResult();
 
         await dbContext.SaveChangesAsync(cancellationToken);

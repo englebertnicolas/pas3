@@ -22,8 +22,8 @@ public class ValuationEvent : Entity<ValuationEventId>
     }
 
     private ValuationEvent(ValuationEventId id, PolicyId policyId, int seq, PolicyOperationId? operationId,
-            DateOnly date, decimal reserveInPolicyCurrency, decimal reserveInEur,
-            IEnumerable<ValuationMovement> movements, IEnumerable<ValuationReserve> reserves)
+        DateOnly date, decimal reserveInPolicyCurrency, decimal reserveInEur,
+        IEnumerable<ValuationMovement> movements, IEnumerable<ValuationReserve> reserves)
     {
         Id = id;
         PolicyId = policyId;
@@ -36,9 +36,8 @@ public class ValuationEvent : Entity<ValuationEventId>
         this.reserves.AddRange(reserves);
     }
 
-    public static ErrorOr<ValuationEvent> Create(ValuationEventId? id, PolicyId policyId, int seq,
-            PolicyOperationId? operationId, DateOnly date, decimal reserveInPolicyCurrency, decimal reserveInEur,
-            IEnumerable<ValuationMovement> movements, IEnumerable<ValuationReserve> reserves)
+    public static ErrorOr<ValuationEvent> Create(ValuationEventId? id, PolicyId policyId, int seq, PolicyOperationId? operationId, 
+        DateOnly date, IEnumerable<ValuationMovement> movements, IEnumerable<ValuationReserve> reserves)
     {
         if (!reserves.Any())
             return ErrorInfo.Unprocessable("At least one reserve is required.");
@@ -55,7 +54,10 @@ public class ValuationEvent : Entity<ValuationEventId>
         if (reserves.Select(x => x.FundId).Distinct().Count() < reserves.Count())
             return ErrorInfo.Unprocessable("Duplicate reserves for the same fund are not allowed.");
 
-        return new ValuationEvent(id ?? ValuationEventId.New(), policyId, seq, operationId, date,
-            reserveInPolicyCurrency, reserveInEur, movements, reserves);
+        var totalInPolicyCurrency = reserves.Sum(x => x.Amount.InPolicyCurrency);
+        var totalInEur = reserves.Sum(x => x.Amount.InEur);
+
+        return new ValuationEvent(id ?? ValuationEventId.New(), policyId, seq, operationId, date, 
+            totalInPolicyCurrency, totalInEur, movements, reserves);
     }
 }

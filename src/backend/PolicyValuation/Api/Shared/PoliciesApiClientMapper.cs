@@ -61,7 +61,7 @@ public static class PoliciesApiClientMapper
                 );
 
             default:
-                throw new NotSupportedException($"Unsupported operation type: {source.GetType().Name}.");
+                throw new NotSupportedException($"Unsupported operation type '{source.GetType().Name}'.");
         }
     }
 }

@@ -17,6 +17,14 @@ namespace PAS.PolicyAdmin.Client.Models
         public IDictionary<string, object> AdditionalData { get; set; }
         /// <summary>The date property</summary>
         public Date? Date { get; set; }
+        /// <summary>The policyNumber property</summary>
+#if NETSTANDARD2_1_OR_GREATER || NETCOREAPP3_1_OR_GREATER
+#nullable enable
+        public string? PolicyNumber { get; set; }
+#nullable restore
+#else
+        public string PolicyNumber { get; set; }
+#endif
         /// <summary>
         /// Instantiates a new <see cref="global::PAS.PolicyAdmin.Client.Models.IssuePolicyCommandBody"/> and sets the default values.
         /// </summary>
@@ -43,6 +51,7 @@ namespace PAS.PolicyAdmin.Client.Models
             return new Dictionary<string, Action<IParseNode>>
             {
                 { "date", n => { Date = n.GetDateValue(); } },
+                { "policyNumber", n => { PolicyNumber = n.GetStringValue(); } },
             };
         }
         /// <summary>
@@ -53,6 +62,7 @@ namespace PAS.PolicyAdmin.Client.Models
         {
             if(ReferenceEquals(writer, null)) throw new ArgumentNullException(nameof(writer));
             writer.WriteDateValue("date", Date);
+            writer.WriteStringValue("policyNumber", PolicyNumber);
             writer.WriteAdditionalData(AdditionalData);
         }
     }

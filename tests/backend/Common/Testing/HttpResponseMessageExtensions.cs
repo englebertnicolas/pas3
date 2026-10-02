@@ -1,17 +1,15 @@
 ﻿using System.Net.Http.Json;
-using System.Text.Json;
 using Microsoft.AspNetCore.Http;
+using PAS.Core;
 
 namespace PAS.Testing;
 
 public static class HttpResponseMessageExtensions
 {
-    private static readonly JsonSerializerOptions DefaultOptions = new() { PropertyNameCaseInsensitive = true };
-
     public static async Task<T?> ReadSuccessContentFromJsonOrLogAsync<T>(this HttpResponseMessage response)
     {
         if (response.IsSuccessStatusCode)
-            return await response.Content.ReadFromJsonAsync<T>(DefaultOptions, TestContext.Current.CancellationToken);
+            return await response.Content.ReadFromJsonAsync<T>(JsonOptions.ApiDefault, TestContext.Current.CancellationToken);
 
         var rawBody = await response.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
         TestContext.Current.TestOutputHelper?.WriteLine(
@@ -24,7 +22,6 @@ public static class HttpResponseMessageExtensions
 
     public static async Task<HttpValidationProblemDetails?> ReadContentAsProblemDetailsAsync(this HttpResponseMessage response)
     {
-        var options = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
-        return await response.Content.ReadFromJsonAsync<HttpValidationProblemDetails>(options, TestContext.Current.CancellationToken);
+        return await response.Content.ReadFromJsonAsync<HttpValidationProblemDetails>(JsonOptions.ApiDefault, TestContext.Current.CancellationToken);
     }
 }

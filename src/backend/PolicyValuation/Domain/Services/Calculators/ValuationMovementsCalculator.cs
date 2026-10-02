@@ -38,10 +38,12 @@ internal static class ValuationMovementsCalculator
         var result = new List<ValuationMovement>(premiumOpe.Allocations.Length);
         foreach (var alloc in premiumOpe.Allocations)
         {
-            var eoMovement = CreateValuationMovement(
+            var eoMovement = CreateValuationMovementFromAmount(
                 context,
                 policy,
+                PolicyValuationMovementType.Ope,
                 premiumOpe.Amount * alloc.Ratio,
+                premiumOpe.CurrencyId,
                 alloc.FundId,
                 date
             );
@@ -52,62 +54,80 @@ internal static class ValuationMovementsCalculator
         return result;
     }
 
-    private static ErrorOr<ValuationMovement> CreateValuationMovement(
+    private static ErrorOr<ValuationMovement> CreateValuationMovementFromAmount(
         PolicyValuationContext context,
         Policy policy,
+        PolicyValuationMovementType movementType,
         decimal amount,
+        CurrencyId currencyId,
         FundId fundId,
         DateOnly date)
     {
-        // Lookup fund NAV
-        var navValuationMode = NavValuationMode.Forward;
-        var eoNav = FundNavResolver.Execute(context, fundId, date, navValuationMode);
-        if (eoNav.IsFailure) return eoNav.Errors;
-        var nav = eoNav.Value;
-
         // Get fund
         var eoFund = context.GetFund(fundId);
         if (eoFund.IsFailure) return eoFund.Errors;
         var fund = eoFund.Value;
 
-        // Get fund currency
-        var eoFundCurrency = context.GetCurrency(fund.CurrencyId);
-        if (eoFundCurrency.IsFailure) return eoFundCurrency.Errors;
-        var fundCurrency = eoFundCurrency.Value;
+        // Lookup fund NAV
+        var navValuationMode = NavValuationMode.Forward;
+        var eoNav = FundNavResolver.Execute(fund, date, navValuationMode);
+        if (eoNav.IsFailure) return eoNav.Errors;
+        var nav = eoNav.Value;
+
+        // Get EUR currency
+        var eoEurCurrency = context.GetCurrency(new("EUR"));
+        if (eoEurCurrency.IsFailure) return eoEurCurrency.Errors;
+        var eurCurrency = eoEurCurrency.Value;
+
+        // Get original amount currency
+        var eoOriginalCurrency = context.GetCurrency(currencyId);
+        if (eoOriginalCurrency.IsFailure) return eoOriginalCurrency.Errors;
+        var originalCurrency = eoOriginalCurrency.Value;
+
+        // Lookup original currency exchange rate
+        var eoOriginalFxRate = CurrencyFxRateResolver.Execute(originalCurrency, date);
+        if (eoOriginalFxRate.IsFailure) return eoOriginalFxRate.Errors;
+        var originalFxRate = eoOriginalFxRate.Value;
 
         // Get policy currency
         var eoPolicyCurrency = context.GetCurrency(policy.CurrencyId);
         if (eoPolicyCurrency.IsFailure) return eoPolicyCurrency.Errors;
         var policyCurrency = eoPolicyCurrency.Value;
 
-        // Lookup policy to fund currency exchange rates
-        var eoPolicyToFundCurrencyRate = CurrencyRateResolver
-            .Execute(context, policy.CurrencyId, fund.CurrencyId, date);
-        if (eoPolicyToFundCurrencyRate.IsFailure) return eoPolicyToFundCurrencyRate.Errors;
-        var policyToFundCurrencyRate = eoPolicyToFundCurrencyRate.Value;
+        // Lookup policy currency exchange rate
+        var eoPolicyFxRate = CurrencyFxRateResolver.Execute(policyCurrency, date);
+        if (eoPolicyFxRate.IsFailure) return eoPolicyFxRate.Errors;
+        var policyFxRate = eoPolicyFxRate.Value;
 
-        // Lookup policy to EUR currency exchange rates
-        var eoPolicyToEurRate = CurrencyRateResolver
-            .Execute(context, policy.CurrencyId, new CurrencyId("EUR"), date);
-        if (eoPolicyToEurRate.IsFailure) return eoPolicyToEurRate.Errors;
-        var policyToEurRate = eoPolicyToEurRate.Value;
+        // Get fund currency
+        var eoFundCurrency = context.GetCurrency(fund.CurrencyId);
+        if (eoFundCurrency.IsFailure) return eoFundCurrency.Errors;
+        var fundCurrency = eoFundCurrency.Value;
 
-        // Get EUR currency
-        var eoEurCurrency = context.GetCurrency(new("EUR"));
-        if (eoEurCurrency.IsFailure) return eoEurCurrency.Errors;
-        var eurCurrency = eoPolicyCurrency.Value;
+        // Lookup fund currency exchange rate
+        var eoFundFxRate = CurrencyFxRateResolver.Execute(fundCurrency, date);
+        if (eoFundFxRate.IsFailure) return eoFundFxRate.Errors;
+        var fundFxRate = eoFundFxRate.Value;
 
-        // Calculate movements
-        return ValuationMovement.CreateFromAmountInPolicyCurrency(PolicyValuationMovementType.Ope, fundId, amount, new()
-        {
-            FundNav = nav,
-            FundNavValuationMode = NavValuationMode.Backward,
-            FundUnitDecimals = fund.UnitDecimals,
-            FundCurrency = fundCurrency,
-            PolicyCurrency = policyCurrency,
-            EurCurrency = eurCurrency,
-            PolicyToFundFxRate = policyToFundCurrencyRate,
-            PolicyToEurFxRate = policyToEurRate
-        });
+        // Calculate amount and units
+        var rawAmountInFundCurrency = amount * (originalFxRate?.RateToEur ?? 1) / (fundFxRate?.RateToEur ?? 1);
+        var units = Math.Round(rawAmountInFundCurrency / nav.Value, fund.UnitDecimals);
+        var rawAmountInPolicyCurrency = amount * (originalFxRate?.RateToEur ?? 1) / (policyFxRate?.RateToEur ?? 1);
+        var rawAmountInEur = rawAmountInPolicyCurrency * (policyFxRate?.RateToEur ?? 1);
+
+        var amountInFundCurrency = Math.Round(rawAmountInFundCurrency, fundCurrency.Decimals);
+        var amountInPolicyCurrency = Math.Round(rawAmountInPolicyCurrency, policyCurrency.Decimals);
+        var amountInEur = Math.Round(rawAmountInEur, eurCurrency.Decimals);
+
+        // Prepare the movement
+        var eoAmount = ValuationMovementAmount.Create(amountInFundCurrency, amountInPolicyCurrency, amountInEur);
+        if (eoAmount.IsFailure) return eoAmount.Errors;
+
+        var eoDetails = ValuationMovementDetails.Create(nav, navValuationMode, [originalFxRate, fundFxRate, policyFxRate]);
+        if (eoDetails.IsFailure) return eoDetails.Errors;
+
+        var eoNewMovement = ValuationMovement.Create(movementType, fund.Id, units, eoAmount.Value, eoDetails.Value);
+        if (eoNewMovement.IsFailure) return eoNewMovement.Errors;
+        return eoNewMovement.Value;
     }
 }

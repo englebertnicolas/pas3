@@ -4,6 +4,7 @@ using PAS.EntityFramework;
 using PAS.EntityFramework.Hints;
 using PAS.PolicyValuation.Domain;
 using PAS.PolicyValuation.Domain.PolicyAggregate;
+using PAS.PolicyValuation.Domain.RetroactiveChangeAggregate;
 using PAS.Rebus;
 
 namespace PAS.PolicyValuation.Persistence.Write;

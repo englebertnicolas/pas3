@@ -1,6 +1,7 @@
 ﻿using Microsoft.Extensions.Caching.Memory;
 using PAS.MarketData.Contracts;
-using PAS.PolicyValuation.Domain.PolicyAggregate;
+using PAS.PolicyValuation.Domain;
+using PAS.PolicyValuation.Domain.RetroactiveChangeAggregate;
 using PAS.PolicyValuation.Features.Policies.Valuation.RollForwardValuation;
 using PAS.PolicyValuation.Persistence.Write;
 using Rebus.Handlers;

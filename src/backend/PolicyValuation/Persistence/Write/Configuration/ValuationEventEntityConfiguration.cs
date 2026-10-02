@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using System.Text.Json;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using PAS.PolicyValuation.Domain.PolicyAggregate;
 
@@ -28,59 +29,27 @@ internal class ValuationEventEntityConfiguration : IEntityTypeConfiguration<Valu
             mvtsBuilder.Property<long>("Id").HasColumnOrder(0);
             mvtsBuilder.Property<ValuationEventId>("ValuationEventId").HasColumnOrder(1);
             mvtsBuilder.Property(e => e.Type).HasConversion<string>();
+            mvtsBuilder.Property(p => p.Units).HasPrecision(28, 10).HasColumnName("Units");
 
             // ComplexProperty not supported on owned types, see open issue: https://github.com/dotnet/efcore/issues/33170
             // -> Using OwnsOne instead of ComplexProperty for now
             //    + adding .WithOwner() to avoid exception 'Unable to determine the owner for the relationship'.
-            //resBuilder.ComplexProperty(e => e.Valuation, valuationBuilder => {
-            mvtsBuilder.OwnsOne(e => e.Valuation, valuationBuilder =>
+            //resBuilder.ComplexProperty(e => e.Amount, valuationBuilder => {
+            mvtsBuilder.OwnsOne(e => e.Amount, valuationBuilder =>
             {
                 valuationBuilder.WithOwner();
-                valuationBuilder.Property(p => p.Units).HasPrecision(28, 10).HasColumnName("Units");
-                valuationBuilder.Property(p => p.AmountInFundCurrency).HasPrecision(18, 4).HasColumnName("AmountInFundCurrency");
-                valuationBuilder.Property(p => p.AmountInPolicyCurrency).HasPrecision(18, 4).HasColumnName("AmountInPolicyCurrency");
-                valuationBuilder.Property(p => p.AmountInEur).HasPrecision(18, 4).HasColumnName("AmountInEur");
-                valuationBuilder.Property(p => p.RawAmountInFundCurrency).HasPrecision(28, 10).HasColumnName("RawAmountInFundCurrency");
-                valuationBuilder.Property(p => p.RawAmountInPolicyCurrency).HasPrecision(28, 10).HasColumnName("RawAmountInPolicyCurrency");
-                valuationBuilder.Property(p => p.RawAmountInEur).HasPrecision(28, 10).HasColumnName("RawAmountInEur");
+                valuationBuilder.Property(p => p.InFundCurrency).HasPrecision(14, 4).HasColumnName("AmountInFundCurrency");
+                valuationBuilder.Property(p => p.InPolicyCurrency).HasPrecision(14, 4).HasColumnName("AmountInPolicyCurrency");
+                valuationBuilder.Property(p => p.InEur).HasPrecision(14, 4).HasColumnName("AmountInEur");
 
-                //pricingBuilder.ComplexProperty(p => p.Nav, navBuilder => {
-                valuationBuilder.OwnsOne(p => p.Nav, navBuilder =>
-                {
-                    navBuilder.WithOwner();
-                    navBuilder.Property(n => n.Value).HasPrecision(28, 10).HasColumnName("NavValue");
-                    navBuilder.Property(n => n.Date).HasColumnName("NavDate");
-                });
-
-                valuationBuilder.Property(p => p.NavValuationMode)
-                    .HasConversion<string>()
-                    .HasMaxLength(128)
-                    .HasColumnName("NavValuationMode");
-
-                //pricingBuilder.ComplexProperty(p => p.FundToPolicyFxRate, fxBuilder =>
-                valuationBuilder.OwnsOne(p => p.FundToPolicyFxRate, fxBuilder =>
-                {
-                    fxBuilder.WithOwner();
-                    fxBuilder.Property(f => f.Value).HasPrecision(28, 10).HasColumnName("FundToPolicyFxRateValue");
-                    fxBuilder.Property(f => f.Date).HasColumnName("FundToPolicyFxRateDate");
-                });
-
-                //pricingBuilder.ComplexProperty(p => p.PolicyToFundFxRate, fxBuilder =>
-                valuationBuilder.OwnsOne(p => p.PolicyToFundFxRate, fxBuilder =>
-                {
-                    fxBuilder.WithOwner();
-                    fxBuilder.Property(f => f.Value).HasPrecision(28, 10).HasColumnName("PolicyToFundFxRateValue");
-                    fxBuilder.Property(f => f.Date).HasColumnName("PolicyToFundFxRateDate");
-                });
-
-                //pricingBuilder.ComplexProperty(p => p.PolicyToEurFxRate, fxBuilder =>
-                valuationBuilder.OwnsOne(p => p.PolicyToEurFxRate, fxBuilder =>
-                {
-                    fxBuilder.WithOwner();
-                    fxBuilder.Property(f => f.Value).HasPrecision(28, 10).HasColumnName("PolicyToEurFxRateValue");
-                    fxBuilder.Property(f => f.Date).HasColumnName("PolicyToEurFxRateDate");
-                });
             });
+
+            mvtsBuilder.Property(e => e.Details)
+                .HasConversion(
+                    v => JsonSerializer.Serialize(v, JsonOptions.DatabaseDefault),
+                    v => JsonSerializer.Deserialize<ValuationMovementDetails>(v, JsonOptions.DatabaseDefault)!
+                )
+                .HasColumnType("nvarchar(max)");
         });
 
         builder.OwnsMany(e => e.Reserves, resBuilder =>
@@ -89,56 +58,26 @@ internal class ValuationEventEntityConfiguration : IEntityTypeConfiguration<Valu
             resBuilder.HasKey("Id");
             resBuilder.Property<long>("Id").HasColumnOrder(0);
             resBuilder.Property<ValuationEventId>("ValuationEventId").HasColumnOrder(1);
+            resBuilder.Property(p => p.Units).HasPrecision(28, 10).HasColumnName("Units");
 
             // ComplexProperty not supported on owned types, see open issue: https://github.com/dotnet/efcore/issues/33170
             // -> Using OwnsOne instead of ComplexProperty for now
             //    + adding .WithOwner() to avoid exception 'Unable to determine the owner for the relationship'.
-            //resBuilder.ComplexProperty(e => e.Valuation, valuationBuilder => {
-            resBuilder.OwnsOne(e => e.Valuation, valuationBuilder =>
+            //resBuilder.ComplexProperty(e => e.Amount, valuationBuilder => {
+            resBuilder.OwnsOne(e => e.Amount, valuationBuilder =>
             {
                 valuationBuilder.WithOwner();
-                valuationBuilder.Property(p => p.Units).HasPrecision(28, 10).HasColumnName("Units");
-                valuationBuilder.Property(p => p.AmountInFundCurrency).HasPrecision(18, 4).HasColumnName("AmountInFundCurrency");
-                valuationBuilder.Property(p => p.AmountInPolicyCurrency).HasPrecision(18, 4).HasColumnName("AmountInPolicyCurrency");
-                valuationBuilder.Property(p => p.AmountInEur).HasPrecision(18, 4).HasColumnName("AmountInEur");
-                valuationBuilder.Property(p => p.RawAmountInFundCurrency).HasPrecision(28, 10).HasColumnName("RawAmountInFundCurrency");
-                valuationBuilder.Property(p => p.RawAmountInPolicyCurrency).HasPrecision(28, 10).HasColumnName("RawAmountInPolicyCurrency");
-                valuationBuilder.Property(p => p.RawAmountInEur).HasPrecision(28, 10).HasColumnName("RawAmountInEur");
-
-                //pricingBuilder.ComplexProperty(p => p.Nav, navBuilder => {
-                valuationBuilder.OwnsOne(p => p.Nav, navBuilder =>
-                {
-                    navBuilder.WithOwner();
-                    navBuilder.Property(n => n.Value).HasPrecision(28, 10).HasColumnName("NavValue");
-                    navBuilder.Property(n => n.Date).HasColumnName("NavDate");
-                });
-
-                valuationBuilder.Ignore(e => e.NavValuationMode);
-
-                //pricingBuilder.ComplexProperty(p => p.FundToPolicyFxRate, fxBuilder =>
-                valuationBuilder.OwnsOne(p => p.FundToPolicyFxRate, fxBuilder =>
-                {
-                    fxBuilder.WithOwner();
-                    fxBuilder.Property(f => f.Value).HasPrecision(28, 10).HasColumnName("FundToPolicyFxRateValue");
-                    fxBuilder.Property(f => f.Date).HasColumnName("FundToPolicyFxRateDate");
-                });
-
-                //pricingBuilder.ComplexProperty(p => p.PolicyToFundFxRate, fxBuilder =>
-                valuationBuilder.OwnsOne(p => p.PolicyToFundFxRate, fxBuilder =>
-                {
-                    fxBuilder.WithOwner();
-                    fxBuilder.Property(f => f.Value).HasPrecision(28, 10).HasColumnName("PolicyToFundFxRateValue");
-                    fxBuilder.Property(f => f.Date).HasColumnName("PolicyToFundFxRateDate");
-                });
-
-                //pricingBuilder.ComplexProperty(p => p.PolicyToEurFxRate, fxBuilder =>
-                valuationBuilder.OwnsOne(p => p.PolicyToEurFxRate, fxBuilder =>
-                {
-                    fxBuilder.WithOwner();
-                    fxBuilder.Property(f => f.Value).HasPrecision(28, 10).HasColumnName("PolicyToEurFxRateValue");
-                    fxBuilder.Property(f => f.Date).HasColumnName("PolicyToEurFxRateDate");
-                });
+                valuationBuilder.Property(p => p.InFundCurrency).HasPrecision(14, 4).HasColumnName("AmountInFundCurrency");
+                valuationBuilder.Property(p => p.InPolicyCurrency).HasPrecision(14, 4).HasColumnName("AmountInPolicyCurrency");
+                valuationBuilder.Property(p => p.InEur).HasPrecision(14, 4).HasColumnName("AmountInEur");
             });
+
+            resBuilder.Property(e => e.Details)
+                .HasConversion(
+                    v => JsonSerializer.Serialize(v, JsonOptions.DatabaseDefault),
+                    v => JsonSerializer.Deserialize<ValuationReserveDetails>(v, JsonOptions.DatabaseDefault)!
+                )
+                .HasColumnType("nvarchar(max)");
         });
 
         builder.HasIndex(x => new { x.PolicyId, x.Date, x.OperationId }).IsUnique();

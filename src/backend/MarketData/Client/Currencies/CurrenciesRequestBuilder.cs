@@ -3,7 +3,7 @@
 using Microsoft.Kiota.Abstractions.Extensions;
 using Microsoft.Kiota.Abstractions.Serialization;
 using Microsoft.Kiota.Abstractions;
-using PAS.MarketData.Client.Currencies.Rates;
+using PAS.MarketData.Client.Currencies.Item;
 using PAS.MarketData.Client.Models;
 using System.Collections.Generic;
 using System.IO;
@@ -18,10 +18,17 @@ namespace PAS.MarketData.Client.Currencies
     [global::System.CodeDom.Compiler.GeneratedCode("Kiota", "1.0.0")]
     public partial class CurrenciesRequestBuilder : BaseRequestBuilder
     {
-        /// <summary>The rates property</summary>
-        public global::PAS.MarketData.Client.Currencies.Rates.RatesRequestBuilder Rates
+        /// <summary>Gets an item from the PAS.MarketData.Client.currencies.item collection</summary>
+        /// <param name="position">Unique identifier of the item</param>
+        /// <returns>A <see cref="global::PAS.MarketData.Client.Currencies.Item.CurrenciesItemRequestBuilder"/></returns>
+        public global::PAS.MarketData.Client.Currencies.Item.CurrenciesItemRequestBuilder this[string position]
         {
-            get => new global::PAS.MarketData.Client.Currencies.Rates.RatesRequestBuilder(PathParameters, RequestAdapter);
+            get
+            {
+                var urlTplParams = new Dictionary<string, object>(PathParameters);
+                urlTplParams.Add("id", position);
+                return new global::PAS.MarketData.Client.Currencies.Item.CurrenciesItemRequestBuilder(urlTplParams, RequestAdapter);
+            }
         }
         /// <summary>
         /// Instantiates a new <see cref="global::PAS.MarketData.Client.Currencies.CurrenciesRequestBuilder"/> and sets the default values.

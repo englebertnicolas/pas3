@@ -10,8 +10,7 @@ public class GetCurrencyList : IEndpoint
 {
     public record Query(
         int PageNumber = 1,
-        int PageSize = 100
-    ) : IPagedQuery;
+        int PageSize = 100) : IPagedQuery;
 
     public class QueryValidator : PagedQueryValidator<Query>;
 

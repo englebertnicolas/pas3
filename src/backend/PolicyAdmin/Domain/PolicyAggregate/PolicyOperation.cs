@@ -27,7 +27,7 @@ public class PolicyOperation : Entity<PolicyOperationId>
         {
             PremiumOperationDetails => PolicyOperationType.Premium,
             FullSurrenderOperationDetails => PolicyOperationType.FullSurrender,
-            _ => throw new NotSupportedException($"Unsupported operation details type: {details.GetType().Name}")
+            _ => throw new NotSupportedException($"Unsupported operation details type '{details.GetType().Name}'.")
         };
     }
 
@@ -40,7 +40,7 @@ public class PolicyOperation : Entity<PolicyOperationId>
             return ErrorInfo.Unprocessable("Premium amount must be greater than zero.");
 
         var totalRatio = details.Allocations.Sum(x => x.Ratio);
-        if (Math.Abs(totalRatio - 1.0M) > 0.0001M)
+        if (Math.Abs(totalRatio - 1.0m) > 0.0001m)
             return ErrorInfo.Unprocessable("Invalid premium fund allocation.");
 
         return new PolicyOperation(id ?? PolicyOperationId.New(), policyId, details);

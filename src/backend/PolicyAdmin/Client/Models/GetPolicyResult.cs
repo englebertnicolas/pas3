@@ -35,6 +35,22 @@ namespace PAS.PolicyAdmin.Client.Models
 #else
         public List<global::PAS.PolicyAdmin.Client.Models.GetPolicyResultOperation> Operations { get; set; }
 #endif
+        /// <summary>The policyNumber property</summary>
+#if NETSTANDARD2_1_OR_GREATER || NETCOREAPP3_1_OR_GREATER
+#nullable enable
+        public string? PolicyNumber { get; set; }
+#nullable restore
+#else
+        public string PolicyNumber { get; set; }
+#endif
+        /// <summary>The proposalNumber property</summary>
+#if NETSTANDARD2_1_OR_GREATER || NETCOREAPP3_1_OR_GREATER
+#nullable enable
+        public string? ProposalNumber { get; set; }
+#nullable restore
+#else
+        public string ProposalNumber { get; set; }
+#endif
         /// <summary>The status property</summary>
         public global::PAS.PolicyAdmin.Client.Models.PolicyStatus? Status { get; set; }
         /// <summary>
@@ -66,6 +82,8 @@ namespace PAS.PolicyAdmin.Client.Models
                 { "effectiveDate", n => { EffectiveDate = n.GetDateValue(); } },
                 { "id", n => { Id = n.GetGuidValue(); } },
                 { "operations", n => { Operations = n.GetCollectionOfObjectValues<global::PAS.PolicyAdmin.Client.Models.GetPolicyResultOperation>(global::PAS.PolicyAdmin.Client.Models.GetPolicyResultOperation.CreateFromDiscriminatorValue)?.AsList(); } },
+                { "policyNumber", n => { PolicyNumber = n.GetStringValue(); } },
+                { "proposalNumber", n => { ProposalNumber = n.GetStringValue(); } },
                 { "status", n => { Status = n.GetEnumValue<global::PAS.PolicyAdmin.Client.Models.PolicyStatus>(); } },
             };
         }
@@ -80,6 +98,8 @@ namespace PAS.PolicyAdmin.Client.Models
             writer.WriteDateValue("effectiveDate", EffectiveDate);
             writer.WriteGuidValue("id", Id);
             writer.WriteCollectionOfObjectValues<global::PAS.PolicyAdmin.Client.Models.GetPolicyResultOperation>("operations", Operations);
+            writer.WriteStringValue("policyNumber", PolicyNumber);
+            writer.WriteStringValue("proposalNumber", ProposalNumber);
             writer.WriteEnumValue<global::PAS.PolicyAdmin.Client.Models.PolicyStatus>("status", Status);
             writer.WriteAdditionalData(AdditionalData);
         }

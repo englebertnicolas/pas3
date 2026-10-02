@@ -8,9 +8,7 @@ namespace PAS.PolicyValuation.Domain.Services;
 /// </summary>
 public class PolicyValuationDomainService
 {
-    public ErrorOr<int> PerformPolicyValuation(
-        PolicyValuationContext context,
-        Policy valuation)
+    public virtual ErrorOr<int> PerformPolicyValuation(PolicyValuationContext context, Policy valuation)
     {
         if (valuation.IsSealed)
             return ErrorInfo.Unprocessable("Cannot perform valuation on a sealed policy.");

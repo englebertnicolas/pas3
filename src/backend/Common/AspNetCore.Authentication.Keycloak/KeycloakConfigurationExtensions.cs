@@ -13,7 +13,7 @@ namespace PAS.AspNetCore.Authentication.Keycloak;
 public static class KeycloakConfigurationExtensions
 {
     /// <summary>
-    /// Configures JWT Bearer authentication for Web APIs acting as OAuth 2.0 Resource Servers.
+    /// Configures Keycloak JWT Bearer authentication for Web APIs acting as OAuth 2.0 Resource Servers.
     /// </summary>
     public static IServiceCollection AddKeycloakApiAuthentication(this IServiceCollection services, IConfiguration configuration)
     {
@@ -50,9 +50,9 @@ public static class KeycloakConfigurationExtensions
     }
 
     /// <summary>
-    /// Configures OpenID Connect and Cookie-based authentication for Backend-For-Frontend (BFF) applications acting as OIDC Clients.
+    /// Configures Keycloak OpenID Connect and Cookie-based authentication for Backend-For-Frontend (BFF) applications acting as OIDC Clients.
     /// </summary>
-    public static IServiceCollection AddBffAuthentication(this IServiceCollection services, IConfiguration configuration)
+    public static IServiceCollection AddKeycloakBffAuthentication(this IServiceCollection services, IConfiguration configuration)
     {
         DisableInboundClaimMapping();
 
@@ -77,6 +77,8 @@ public static class KeycloakConfigurationExtensions
                 options.Cookie.SameSite = SameSiteMode.Strict;
                 options.Cookie.HttpOnly = true;
                 options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
+
+                options.Events = new KeycloakCookieAuthenticationEvents(keycloakOptions);
             })
             .AddOpenIdConnect(OpenIdConnectDefaults.AuthenticationScheme, options =>
             {
@@ -130,7 +132,7 @@ public static class KeycloakConfigurationExtensions
             KeycloakTokenProviderType.M2m => services
                 .AddScoped<IAccessTokenProvider, KeycloakM2mTokenProvider>(),
 
-            _ => throw new NotSupportedException($"Keycloak access token provider '{type}' not supported.")
+            _ => throw new NotSupportedException($"Unsupported Keycloak access token provider '{type}'.")
         };
     }
 

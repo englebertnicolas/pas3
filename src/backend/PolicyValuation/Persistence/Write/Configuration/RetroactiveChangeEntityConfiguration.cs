@@ -2,13 +2,12 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using PAS.PolicyValuation.Domain.PolicyAggregate;
+using PAS.PolicyValuation.Domain.RetroactiveChangeAggregate;
 
 namespace PAS.PolicyValuation.Persistence.Write.Configuration;
 
 internal class RetroactiveChangeEntityConfiguration : IEntityTypeConfiguration<RetroactiveChange>
 {
-    private static readonly JsonSerializerOptions jsonSerializerOptions = new() { PropertyNameCaseInsensitive = true };
-
     public void Configure(EntityTypeBuilder<RetroactiveChange> builder)
     {
         builder.ToTable("RetroactiveChanges");
@@ -23,8 +22,8 @@ internal class RetroactiveChangeEntityConfiguration : IEntityTypeConfiguration<R
 
         builder.Property(e => e.Details)
             .HasConversion(
-                v => JsonSerializer.Serialize(v, jsonSerializerOptions),
-                v => JsonSerializer.Deserialize<RetroactiveChangeDetails>(v, jsonSerializerOptions)!
+                v => JsonSerializer.Serialize(v, JsonOptions.DatabaseDefault),
+                v => JsonSerializer.Deserialize<RetroactiveChangeDetails>(v, JsonOptions.DatabaseDefault)!
             )
             .HasColumnType("nvarchar(max)");
 

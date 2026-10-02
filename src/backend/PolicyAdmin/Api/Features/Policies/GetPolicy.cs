@@ -13,6 +13,8 @@ public class GetPolicy : IEndpoint
 
     public record Result(
         Guid Id,
+        string? ProposalNumber,
+        string? PolicyNumber,
         PolicyStatus Status,
         string CurrencyId,
         DateOnly EffectiveDate,
@@ -71,6 +73,8 @@ public class GetPolicy : IEndpoint
     {
         return new Result(
             policy.Id.Value,
+            policy.ProposalNumber,
+            policy.PolicyNumber,
             policy.Status,
             policy.CurrencyId.Value,
             policy.EffectiveDate,
@@ -100,7 +104,7 @@ public class GetPolicy : IEndpoint
                     surrender.DailySeq
                 );
             default:
-                throw new NotSupportedException($"Unsupported policy operation type: {ope.Type}");
+                throw new NotSupportedException($"Unsupported policy operation type '{ope.Type}'.");
         }
     }
 }

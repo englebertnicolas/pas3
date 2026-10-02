@@ -279,6 +279,7 @@
       "CreatePolicyCommand": {
         "required": [
           "id",
+          "proposalNumber",
           "premiumDate",
           "currencyId",
           "premiumAmount",
@@ -292,6 +293,12 @@
               "string"
             ],
             "format": "uuid"
+          },
+          "proposalNumber": {
+            "type": [
+              "null",
+              "string"
+            ]
           },
           "premiumDate": {
             "type": "string",
@@ -344,6 +351,8 @@
       "GetPolicyResult": {
         "required": [
           "id",
+          "proposalNumber",
+          "policyNumber",
           "status",
           "currencyId",
           "effectiveDate",
@@ -354,6 +363,18 @@
           "id": {
             "type": "string",
             "format": "uuid"
+          },
+          "proposalNumber": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "policyNumber": {
+            "type": [
+              "null",
+              "string"
+            ]
           },
           "status": {
             "$ref": "#/components/schemas/PolicyStatus"
@@ -482,8 +503,14 @@
         }
       },
       "IssuePolicyCommandBody": {
+        "required": [
+          "policyNumber"
+        ],
         "type": "object",
         "properties": {
+          "policyNumber": {
+            "type": "string"
+          },
           "date": {
             "type": [
               "null",

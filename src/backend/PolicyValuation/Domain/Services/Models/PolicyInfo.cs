@@ -8,5 +8,5 @@ public record PolicyInfo(
     DateOnly EffectiveDate,
     PolicyOperationInfo[] Operations)
 {
-    public IEnumerable<FundId> GetDistinctFundIds() => Operations.SelectMany(x => x.GetDistinctFundIds()).Distinct();
+    public IEnumerable<FundId> GetOperationFundIds() => Operations.SelectMany(x => x.GetDistinctFundIds()).Distinct();
 }

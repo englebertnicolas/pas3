@@ -1,5 +1,6 @@
 {
   "realm": "sit",
+  "displayName": "Keycloack - Switch IT",
   "enabled": true,
   "sslRequired": "none",
   "loginWithEmailAllowed": true,
@@ -74,9 +75,8 @@
             "usermodel.clientRoleMapping.clientId": "pas-app",
             "introspection.token.claim": "true",
             "multivalued": "true",
-            "userinfo.token.claim": "false",
-            "id.token.claim": "false",
-            "lightweight.claim": "false",
+            "userinfo.token.claim": "true",
+            "id.token.claim": "true",
             "access.token.claim": "true",
             "claim.name": "roles",
             "jsonType.label": "String"

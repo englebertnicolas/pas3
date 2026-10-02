@@ -2,9 +2,9 @@
 
 ## DbContext migration
 
-To generate migration for PolicyAdminDbContext:
+To generate migration for PolicyDbContext:
 - Open a PowerShell prompt in the `src/PolicyAdmin/Persistence` folder.
 - Execute the following command (with the expected version):
 ```
-dotnet ef migrations add V_1_0_0 --context PolicyAdminDbContext
+dotnet ef migrations add V_1_0_0 --context PolicyDbContext
 ```

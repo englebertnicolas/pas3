@@ -1,11 +1,13 @@
-﻿namespace PAS.PolicyValuation.Persistence.Read.Models;
+﻿using PAS.PolicyValuation.Domain.PolicyAggregate;
+
+namespace PAS.PolicyValuation.Persistence.Read.Models;
 
 public record ValuationMovement
 {
     public long Id { get; init; }
     public Guid ValuationEventId { get; init; }
     public ValuationEvent ValuationEvent { get; init; } = null!;
-    public Domain.PolicyAggregate.PolicyValuationMovementType Type { get; init; }
+    public PolicyValuationMovementType Type { get; init; }
     public Guid FundId { get; init; }
     public Fund Fund { get; init; } = null!;
     public decimal Units { get; init; }
@@ -14,7 +16,7 @@ public record ValuationMovement
     public decimal AmountInEur { get; init; }
     public DateOnly NavDate { get; init; }
     public decimal NavValue { get; init; }
-    public Domain.PolicyAggregate.NavValuationMode NavValuationMode { get; init; }
+    public NavValuationMode NavValuationMode { get; init; }
     public DateOnly? FundToPolicyFxRateDate { get; init; }
     public decimal? FundToPolicyFxRateValue { get; init; }
     public DateOnly? PolicyToFundFxRateDate { get; init; }

@@ -1,18 +1,20 @@
 using FluentValidation;
 using Microsoft.EntityFrameworkCore;
 using PAS.AspireServiceDefaults;
-using PAS.AspNetCore;
 using PAS.AspNetCore.Authentication.Keycloak;
+using PAS.AspNetCore.Authorization;
 using PAS.AspNetCore.Diagnostics;
 using PAS.AspNetCore.Endpoints;
 using PAS.AspNetCore.OpenApi;
 using PAS.AspNetCore.Vault;
 using PAS.EntityFramework;
+using PAS.Hosting;
 using PAS.MarketData.Persistence;
 using PAS.Mediator;
 using PAS.Rebus;
 
 var builder = WebApplication.CreateBuilder(args);
+builder.Configuration.AddLocalJsonFiles(builder.Environment);
 await builder.Configuration.AddVaultSecretsAsync();
 var dbCnc = builder.Configuration.BuildConnectionString("Database") ?? throw new InvalidOperationException("Database connection string not found.");
 var rabbitMqCnc = builder.Configuration.GetConnectionString("RabbitMq");

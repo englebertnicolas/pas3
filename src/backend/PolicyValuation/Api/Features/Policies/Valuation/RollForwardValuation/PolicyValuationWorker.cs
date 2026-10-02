@@ -1,6 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
-using PAS.AspNetCore.Hosting;
+using PAS.Hosting;
 using PAS.Mediator;
 using PAS.PolicyValuation.Domain.PolicyAggregate;
 using PAS.PolicyValuation.Persistence.Write;

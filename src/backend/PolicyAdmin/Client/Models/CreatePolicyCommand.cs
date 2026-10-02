@@ -37,6 +37,14 @@ namespace PAS.PolicyAdmin.Client.Models
         public decimal? PremiumAmount { get; set; }
         /// <summary>The premiumDate property</summary>
         public Date? PremiumDate { get; set; }
+        /// <summary>The proposalNumber property</summary>
+#if NETSTANDARD2_1_OR_GREATER || NETCOREAPP3_1_OR_GREATER
+#nullable enable
+        public string? ProposalNumber { get; set; }
+#nullable restore
+#else
+        public string ProposalNumber { get; set; }
+#endif
         /// <summary>
         /// Instantiates a new <see cref="global::PAS.PolicyAdmin.Client.Models.CreatePolicyCommand"/> and sets the default values.
         /// </summary>
@@ -67,6 +75,7 @@ namespace PAS.PolicyAdmin.Client.Models
                 { "premiumAllocations", n => { PremiumAllocations = n.GetCollectionOfObjectValues<global::PAS.PolicyAdmin.Client.Models.CreatePolicyCommandAllocationItem>(global::PAS.PolicyAdmin.Client.Models.CreatePolicyCommandAllocationItem.CreateFromDiscriminatorValue)?.AsList(); } },
                 { "premiumAmount", n => { PremiumAmount = n.GetDecimalValue(); } },
                 { "premiumDate", n => { PremiumDate = n.GetDateValue(); } },
+                { "proposalNumber", n => { ProposalNumber = n.GetStringValue(); } },
             };
         }
         /// <summary>
@@ -81,6 +90,7 @@ namespace PAS.PolicyAdmin.Client.Models
             writer.WriteCollectionOfObjectValues<global::PAS.PolicyAdmin.Client.Models.CreatePolicyCommandAllocationItem>("premiumAllocations", PremiumAllocations);
             writer.WriteDecimalValue("premiumAmount", PremiumAmount);
             writer.WriteDateValue("premiumDate", PremiumDate);
+            writer.WriteStringValue("proposalNumber", ProposalNumber);
             writer.WriteAdditionalData(AdditionalData);
         }
     }

@@ -1,7 +1,9 @@
 using Microsoft.Extensions.Configuration;
 using PAS.AppHost;
+using PAS.Hosting;
 
 var builder = DistributedApplication.CreateBuilder(args);
+builder.Configuration.AddLocalJsonFiles(builder.Environment);
 
 // Startup parameters
 var bypassAuthentication = builder.Configuration.GetValue("Infrastructure:BypassAuthentication", false);
@@ -81,10 +83,16 @@ ApplyApiDefaults(apiPolicyValuation);
 var apiMessaging = builder.AddProject<Projects.PAS_Messaging_Api>("api-messaging");
 ApplyApiDefaults(apiMessaging);
 
+var apiBff = builder.AddProject<Projects.PAS_Bff_Api>("api-bff")
+    .WithReference(apiMarketData)
+    .WithReference(apiPolicyAdmin)
+    .WithReference(apiPolicyValuation);
+ApplyApiDefaults(apiBff, false, false);
+
 builder.Build().Run();
 
 // API common configuration
-IResourceBuilder<ProjectResource> ApplyApiDefaults(IResourceBuilder<ProjectResource> project)
+IResourceBuilder<ProjectResource> ApplyApiDefaults(IResourceBuilder<ProjectResource> project, bool dependsOnDatabase = true, bool dependsRabbitMq = true)
 {
     if (bypassAuthentication)
         project.WithEnvironment("Keycloak__Authority", string.Empty);
@@ -96,15 +104,25 @@ IResourceBuilder<ProjectResource> ApplyApiDefaults(IResourceBuilder<ProjectResou
             .WithEnvironment("Keycloak__M2mClientSecret", "m2m-secret")
             .WaitFor(keycloakContainer);
 
+    if (dependsOnDatabase)
+    {
+        project
+            .WithReference(database)
+            .WithOptionalEnvironment("SqlUsers__Database__Name", sqlUsername)
+            .WithOptionalEnvironment("SqlUsers__Database__Password", sqlPassword)
+            .WaitForCompletion(dbMigrator);
+    }
+
+    if (dependsRabbitMq)
+    {
+        project
+            .WithOptionalReference(rabbitMq)
+            .WaitFor(rabbitMq);
+    }
+
     return project
         .WithScalarEndpoint()
-        .WithOptionalEnvironment("Vault:Azure:Endpoint", azureKeyVault)
-        .WithReference(database)
-        .WithOptionalEnvironment("SqlUsers__Database__Name", sqlUsername)
-        .WithOptionalEnvironment("SqlUsers__Database__Password", sqlPassword)
-        .WaitForCompletion(dbMigrator)
-        .WithOptionalReference(rabbitMq)
-        .WaitFor(rabbitMq);
+        .WithOptionalEnvironment("Vault:Azure:Endpoint", azureKeyVault);
 }
 
 #region Backup - Hachicorp Vault container initialization

@@ -14,6 +14,12 @@ internal class PolicyEntityConfiguration : IEntityTypeConfiguration<Policy>
         builder.HasKey(e => e.Id)
             .IsClustered(false); // To avoid fragmentation, since the Id is a Guid and not sequential
 
+        builder.Property(e => e.ProposalNumber)
+            .HasMaxLength(128);
+
+        builder.Property(e => e.PolicyNumber)
+            .HasMaxLength(128);
+
         builder.Property(e => e.Status)
             .HasConversion<string>()
             .HasMaxLength(128);

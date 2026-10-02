@@ -22,14 +22,11 @@ internal static class ValuationEventCalculator
         if (eoMovements.IsFailure) return eoMovements.Errors;
         var movements = eoMovements.Value;
 
-        var eoReserveCalculatorResult = ValuationReservesCalculator.Execute(context, policy, scheduledEvent.Date, movements);
-        if (eoReserveCalculatorResult.IsFailure) return eoReserveCalculatorResult.Errors;
-        var reserves = eoReserveCalculatorResult.Value.Reserves;
-        var reserveInPolicyCurrency = eoReserveCalculatorResult.Value.TotalInPolicyCurrency;
-        var reserveInEur = eoReserveCalculatorResult.Value.TotalInEur;
+        var eoReserves = ValuationReservesCalculator.Execute(context, policy, scheduledEvent.Date, movements);
+        if (eoReserves.IsFailure) return eoReserves.Errors;
+        var reserves = eoReserves.Value;
 
-        var eoValuation = ValuationEvent.Create(null, policy.Id, seq, scheduledEvent.OperationId, scheduledEvent.Date,
-            reserveInPolicyCurrency, reserveInEur, movements, reserves);
+        var eoValuation = ValuationEvent.Create(null, policy.Id, seq, scheduledEvent.OperationId, scheduledEvent.Date, movements, reserves);
         if (eoValuation.IsFailure) return eoValuation.Errors;
         return eoValuation.Value;
     }

@@ -1,4 +1,4 @@
-<Project Sdk="Aspire.AppHost.Sdk/13.5.4">
+﻿<Project Sdk="Aspire.AppHost.Sdk/13.5.4">
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
@@ -18,6 +18,8 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\Bff\Api\PAS.Bff.Api.csproj" />
+    <ProjectReference Include="..\Common\Hosting\PAS.Hosting.csproj" ReferenceOutputAssembly="true" IsAspireProjectResource="false" />
     <ProjectReference Include="..\DbMigrator\PAS.DbMigrator.csproj" />
     <ProjectReference Include="..\MarketData\Api\PAS.MarketData.Api.csproj" />
     <ProjectReference Include="..\Messaging\Api\PAS.Messaging.Api.csproj" />

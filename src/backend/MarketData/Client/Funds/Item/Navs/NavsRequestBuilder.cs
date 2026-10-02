@@ -22,7 +22,7 @@ namespace PAS.MarketData.Client.Funds.Item.Navs
         /// </summary>
         /// <param name="pathParameters">Path parameters for the request</param>
         /// <param name="requestAdapter">The request adapter to use to execute the requests.</param>
-        public NavsRequestBuilder(Dictionary<string, object> pathParameters, IRequestAdapter requestAdapter) : base(requestAdapter, "{+baseurl}/funds/{id}/navs{?orderAsc*,pageNumber*,pageSize*}", pathParameters)
+        public NavsRequestBuilder(Dictionary<string, object> pathParameters, IRequestAdapter requestAdapter) : base(requestAdapter, "{+baseurl}/funds/{id}/navs{?orderAsc*,pageNumber*,pageSize*,startDate*}", pathParameters)
         {
         }
         /// <summary>
@@ -30,7 +30,7 @@ namespace PAS.MarketData.Client.Funds.Item.Navs
         /// </summary>
         /// <param name="rawUrl">The raw URL to use for the request builder.</param>
         /// <param name="requestAdapter">The request adapter to use to execute the requests.</param>
-        public NavsRequestBuilder(string rawUrl, IRequestAdapter requestAdapter) : base(requestAdapter, "{+baseurl}/funds/{id}/navs{?orderAsc*,pageNumber*,pageSize*}", rawUrl)
+        public NavsRequestBuilder(string rawUrl, IRequestAdapter requestAdapter) : base(requestAdapter, "{+baseurl}/funds/{id}/navs{?orderAsc*,pageNumber*,pageSize*,startDate*}", rawUrl)
         {
         }
         /// <summary>
@@ -158,6 +158,8 @@ namespace PAS.MarketData.Client.Funds.Item.Navs
             public int? PageNumber { get; set; }
             [QueryParameter("pageSize")]
             public int? PageSize { get; set; }
+            [QueryParameter("startDate")]
+            public Date? StartDate { get; set; }
         }
         /// <summary>
         /// Configuration for the request such as headers, query parameters, and middleware options.
