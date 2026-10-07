@@ -24,12 +24,12 @@ public static class PolicyValuationContextFactory
     public static PolicyInfo CreatePolicy1(DateOnly effectiveDate, IEnumerable<FundId> investedFunds)
     {
         return new PolicyInfo(
-            Id: new(Guid.NewGuid()),
+            Id: new(GuidGenerator.Create()),
             CurrencyId: new("EUR"),
             EffectiveDate: effectiveDate,
             Operations: [
                 new PremiumOperationInfo(
-                    Id: new(Guid.NewGuid()),
+                    Id: new(GuidGenerator.Create()),
                     Date: effectiveDate,
                     DailySeq: 1,
                     Amount: 100000,
@@ -50,15 +50,13 @@ public static class PolicyValuationContextFactory
 
     public static CurrencyInfo CreateCurrencyEur()
     {
-        return new CurrencyInfo(new("EUR"), 2);
+        return new CurrencyInfo(new("EUR"), 2, 7);
     }
 
     public static CurrencyInfo CreateCurrencyUsd(DateOnly? referenceDate = null)
     {
         var refDate = referenceDate ?? DateOnly.FromDateTime(DateTime.Now);
-        return new CurrencyInfo(
-            new("USD"),
-            2,
+        return new CurrencyInfo(new("USD"), 2, 7,
             [
                 new(refDate.AddDays(-36), 0.8897m),
                 new(refDate.AddDays(-29), 0.8893m),
@@ -71,7 +69,7 @@ public static class PolicyValuationContextFactory
 
     public static CurrencyInfo CreateCurrencyGbp()
     {
-        return new CurrencyInfo(new("GBP"), 2, []);
+        return new CurrencyInfo(new("GBP"), 2, 7, []);
     }
 
     public static FundInfo CreateFund1(DateOnly? referenceDate = null)

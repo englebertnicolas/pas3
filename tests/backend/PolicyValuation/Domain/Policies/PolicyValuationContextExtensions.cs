@@ -8,15 +8,19 @@ public static class PolicyValuationContextExtensions
 {
     public static PolicyValuationContext WithFund(this PolicyValuationContext context, FundInfo newFund)
     {
-        var funds = context.Funds;
-        funds[newFund.Id] = newFund;
+        var funds = new Dictionary<FundId, FundInfo>(context.Funds)
+        {
+            [newFund.Id] = newFund
+        };
         return context with { Funds = funds };
     }
 
     public static PolicyValuationContext WithCurrency(this PolicyValuationContext context, CurrencyInfo newCurrency)
     {
-        var currencies = context.Currencies;
-        currencies[newCurrency.Id] = newCurrency;
+        var currencies = new Dictionary<CurrencyId, CurrencyInfo>(context.Currencies)
+        {
+            [newCurrency.Id] = newCurrency
+        };
         return context with { Currencies = currencies };
     }
 

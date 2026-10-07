@@ -9,6 +9,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Using Include="PAS.Core" />
     <Using Include="PAS.Testing" />
     <Using Include="Xunit" />
   </ItemGroup>

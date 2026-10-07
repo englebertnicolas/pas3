@@ -7,6 +7,7 @@ public class Currency : Entity<CurrencyId>, IAggregateRoot
     public string EnglishName { get; private set; } = null!;
     public CurrencySymbol Symbol { get; private set; } = null!;
     public int Decimals { get; private set; }
+    public int FxRateStalenessTolerance { get; private set; }
 
     private readonly List<CurrencyFxRate> fxRates = [];
     public IReadOnlyCollection<CurrencyFxRate> FxRates => fxRates.AsReadOnly();
@@ -16,15 +17,16 @@ public class Currency : Entity<CurrencyId>, IAggregateRoot
         // For EF hydration
     }
 
-    private Currency(CurrencyId id, string englishName, CurrencySymbol symbol, int decimals)
+    private Currency(CurrencyId id, string englishName, CurrencySymbol symbol, int decimals, int fxRateStalenessTolerance)
     {
         Id = id;
         EnglishName = englishName;
         Decimals = decimals;
         Symbol = symbol;
+        FxRateStalenessTolerance = fxRateStalenessTolerance;
     }
 
-    public static ErrorOr<Currency> Create(CurrencyId id, string englishName, string? symbol, int decimals)
+    public static ErrorOr<Currency> Create(CurrencyId id, string englishName, string? symbol, int decimals, int fxRateStalenessTolerance = 7)
     {
         if (string.IsNullOrWhiteSpace(id.Value))
             return ErrorInfo.Unprocessable("Invalid currency code.");
@@ -42,7 +44,7 @@ public class Currency : Entity<CurrencyId>, IAggregateRoot
         if (decimals < 0 || decimals > 3)
             return ErrorInfo.Unprocessable("Number of decimals of the currency is out of acceptable range.");
 
-        return new Currency(id, englishName, eoCurrencySymbol.Value, decimals);
+        return new Currency(id, englishName, eoCurrencySymbol.Value, decimals, fxRateStalenessTolerance);
     }
 
     /// <summary>

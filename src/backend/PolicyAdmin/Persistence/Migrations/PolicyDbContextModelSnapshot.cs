@@ -51,8 +51,6 @@ namespace PAS.PolicyAdmin.Persistence.Migrations
 
                     b.HasKey("Id");
 
-                    SqlServerKeyBuilderExtensions.IsClustered(b.HasKey("Id"), false);
-
                     b.HasIndex("Status");
 
                     b.ToTable("Policies", "PolicyAdmin");
@@ -76,8 +74,6 @@ namespace PAS.PolicyAdmin.Persistence.Migrations
                         .HasColumnType("nvarchar(128)");
 
                     b.HasKey("Id");
-
-                    SqlServerKeyBuilderExtensions.IsClustered(b.HasKey("Id"), false);
 
                     b.HasIndex("PolicyId");
 

@@ -11,8 +11,8 @@ internal class ValuationEventEntityConfiguration : IEntityTypeConfiguration<Valu
         builder.ToView("ValuationEvents");
         builder.HasKey(x => x.Id);
 
-        builder.HasOne(x => x.Policy)
+        builder.HasOne(x => x.Ledger)
             .WithMany(x => x.Events)
-            .HasForeignKey(x => x.PolicyId);
+            .HasForeignKey(x => x.LedgerId);
     }
 }

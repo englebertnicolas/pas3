@@ -298,11 +298,11 @@
             ],
             "format": "date"
           },
-          "totalReservesInEur": {
+          "totalReservesInPolicyCurrency": {
             "type": "number",
             "format": "decimal"
           },
-          "totalReservesInPolicyCurrency": {
+          "totalReservesInEur": {
             "type": "number",
             "format": "decimal"
           },
@@ -329,8 +329,8 @@
           "fundIsin",
           "fundName",
           "units",
+          "amount",
           "amountInPolicyCurrency",
-          "amountInFundCurrency",
           "amountInEur"
         ],
         "type": "object",
@@ -349,11 +349,11 @@
             "type": "number",
             "format": "decimal"
           },
-          "amountInPolicyCurrency": {
+          "amount": {
             "type": "number",
             "format": "decimal"
           },
-          "amountInFundCurrency": {
+          "amountInPolicyCurrency": {
             "type": "number",
             "format": "decimal"
           },

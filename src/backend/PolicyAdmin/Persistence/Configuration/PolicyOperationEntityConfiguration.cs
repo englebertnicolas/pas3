@@ -12,8 +12,7 @@ internal class PolicyOperationEntityConfiguration : IEntityTypeConfiguration<Pol
         builder.ToTable("PolicyOperations");
         builder.Ignore(e => e.DomainEvents);
 
-        builder.HasKey(e => e.Id)
-            .IsClustered(false); // To avoid fragmentation, since the Id is a Guid and not sequential
+        builder.HasKey(e => e.Id);
 
         builder.Property(e => e.Type)
             .HasConversion<string>()

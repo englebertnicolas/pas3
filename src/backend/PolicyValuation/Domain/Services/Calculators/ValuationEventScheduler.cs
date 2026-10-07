@@ -1,21 +1,21 @@
-﻿using PAS.PolicyValuation.Domain.PolicyAggregate;
-using PAS.PolicyValuation.Domain.Services.Models;
+﻿using PAS.PolicyValuation.Domain.Services.Models;
+using PAS.PolicyValuation.Domain.ValuationLedgerAggregate;
 
 namespace PAS.PolicyValuation.Domain.Services.Calculators;
 
 /// <summary>
-/// Provides scheduling logic to build a chronological sequence of valuation event dates 
+/// Provides scheduling logic to build a chronological sequence of valuation dates 
 /// and their associated policy operations over the considered period.
 /// </summary>
 internal static class ValuationEventScheduler
 {
     public static ErrorOr<IEnumerable<ScheduledValuationEvent>> Execute(
         PolicyValuationContext context,
-        Policy policy)
+        ValuationLedger ledger)
     {
-        var scheduleStartDate = policy.LatestEvent?.Date.AddDays(1) ?? context.Policy.EffectiveDate;
+        var scheduleStartDate = ledger.LatestEvent?.Date.AddDays(1) ?? context.Policy.EffectiveDate;
 
-        if (policy.Events.Any(x => x.Date < context.Policy.EffectiveDate))
+        if (ledger.Events.Any(x => x.Date < context.Policy.EffectiveDate))
             return ErrorInfo.Unprocessable("Invalid policy effective date.");
 
         // Handling single policy operations

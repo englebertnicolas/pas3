@@ -2,7 +2,7 @@
 using PAS.MarketData.Contracts;
 using PAS.PolicyValuation.Domain;
 using PAS.PolicyValuation.Domain.RetroactiveChangeAggregate;
-using PAS.PolicyValuation.Features.Policies.Valuation.RollForwardValuation;
+using PAS.PolicyValuation.Features.Policies.Valuations.RollForwardValuation;
 using PAS.PolicyValuation.Persistence.Write;
 using Rebus.Handlers;
 

@@ -12,8 +12,7 @@ public class FundEntityConfiguration : IEntityTypeConfiguration<Fund>
         builder.ToTable("Funds");
         builder.Ignore(e => e.DomainEvents);
 
-        builder.HasKey(e => e.Id)
-            .IsClustered(false); // To avoid fragmentation, since the Id is a Guid and not sequential
+        builder.HasKey(e => e.Id);
 
         builder.Property(e => e.Id).HasColumnOrder(0);
 

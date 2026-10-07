@@ -1,4 +1,4 @@
-﻿using PAS.PolicyValuation.Domain.PolicyAggregate;
+﻿using PAS.PolicyValuation.Domain.ValuationLedgerAggregate;
 
 namespace PAS.PolicyValuation.Domain.Services.Calculators;
 
@@ -10,24 +10,24 @@ internal static class ValuationEventCalculator
 {
     public static ErrorOr<ValuationEvent> Execute(
         PolicyValuationContext context,
-        Policy policy,
+        ValuationLedger ledger,
         ScheduledValuationEvent scheduledEvent)
     {
-        if (policy.Events.Any(v => v.Date == scheduledEvent.Date))
+        if (ledger.Events.Any(v => v.Date == scheduledEvent.Date))
             return ErrorInfo.Unprocessable($"Valuation for date {scheduledEvent.Date:dd/MM/yyyy} already exists.");
 
-        var seq = (policy.LatestEvent?.Seq ?? 0) + 1;
+        var index = (ledger.LatestEvent?.Index ?? 0) + 1;
 
-        var eoMovements = ValuationMovementsCalculator.Execute(context, policy, scheduledEvent);
+        var eoMovements = MovementsCalculator.Execute(context, ledger, scheduledEvent);
         if (eoMovements.IsFailure) return eoMovements.Errors;
         var movements = eoMovements.Value;
 
-        var eoReserves = ValuationReservesCalculator.Execute(context, policy, scheduledEvent.Date, movements);
+        var eoReserves = ReservesCalculator.Execute(context, ledger, scheduledEvent.Date, movements);
         if (eoReserves.IsFailure) return eoReserves.Errors;
         var reserves = eoReserves.Value;
 
-        var eoValuation = ValuationEvent.Create(null, policy.Id, seq, scheduledEvent.OperationId, scheduledEvent.Date, movements, reserves);
-        if (eoValuation.IsFailure) return eoValuation.Errors;
-        return eoValuation.Value;
+        var eoEvent = ValuationEvent.Create(ledger.Id, index, scheduledEvent.OperationId, scheduledEvent.Date, movements, reserves);
+        if (eoEvent.IsFailure) return eoEvent.Errors;
+        return eoEvent.Value;
     }
 }

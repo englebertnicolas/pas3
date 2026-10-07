@@ -10,10 +10,11 @@ public class ValuationReadDbContext(
 {
     public static string SchemaName => "PolicyValuation";
 
-    public DbSet<Policy> Policies => Set<Policy>();
-    public DbSet<ValuationEvent> ValuationEvents => Set<ValuationEvent>();
-    public DbSet<ValuationMovement> ValuationMovements => Set<ValuationMovement>();
-    public DbSet<ValuationReserve> ValuationReserves => Set<ValuationReserve>();
+    public DbSet<ValuationLedger> ValuationLedgers => Set<ValuationLedger>();
+    public DbSet<ValuationEvent> Events => Set<ValuationEvent>();
+    public DbSet<Movement> Movements => Set<Movement>();
+    public DbSet<Reserve> Reserves => Set<Reserve>();
+    public DbSet<RetroactiveChange> RetroactiveChanges => Set<RetroactiveChange>();
 
     /*
      * PAS.MarketData views

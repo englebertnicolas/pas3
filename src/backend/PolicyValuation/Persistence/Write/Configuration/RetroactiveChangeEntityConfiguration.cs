@@ -1,8 +1,8 @@
 ﻿using System.Text.Json;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using PAS.PolicyValuation.Domain.PolicyAggregate;
 using PAS.PolicyValuation.Domain.RetroactiveChangeAggregate;
+using PAS.PolicyValuation.Domain.ValuationLedgerAggregate;
 
 namespace PAS.PolicyValuation.Persistence.Write.Configuration;
 
@@ -27,7 +27,7 @@ internal class RetroactiveChangeEntityConfiguration : IEntityTypeConfiguration<R
             )
             .HasColumnType("nvarchar(max)");
 
-        builder.HasMany<Policy>()
+        builder.HasMany<ValuationLedger>()
            .WithOne()
            .HasForeignKey(e => e.LastHandledRetroactiveChangeId)
            .OnDelete(DeleteBehavior.Restrict);

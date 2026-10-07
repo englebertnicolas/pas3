@@ -38,6 +38,9 @@ namespace PAS.MarketData.Persistence.Migrations
                         .HasMaxLength(128)
                         .HasColumnType("nvarchar(128)");
 
+                    b.Property<int>("FxRateStalenessTolerance")
+                        .HasColumnType("int");
+
                     b.ComplexProperty(typeof(Dictionary<string, object>), "Symbol", "PAS.MarketData.Domain.CurrencyAggregate.Currency.Symbol#CurrencySymbol", b1 =>
                         {
                             b1.IsRequired();
@@ -113,8 +116,6 @@ namespace PAS.MarketData.Persistence.Migrations
                         });
 
                     b.HasKey("Id");
-
-                    SqlServerKeyBuilderExtensions.IsClustered(b.HasKey("Id"), false);
 
                     b.HasIndex("CurrencyId");
 

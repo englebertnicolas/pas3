@@ -4,7 +4,7 @@ namespace PAS.PolicyAdmin.Domain;
 
 public readonly record struct FundId(Guid Value) : IStronglyTypedId<Guid>
 {
-    public static FundId New() => new(Guid.NewGuid());
+    public static FundId New() => new(GuidGenerator.Create());
 
     public static explicit operator Guid(FundId id) => id.Value;
     public static explicit operator FundId(Guid value) => new(value);

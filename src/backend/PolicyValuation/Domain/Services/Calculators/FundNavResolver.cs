@@ -1,11 +1,10 @@
-﻿using PAS.PolicyValuation.Domain.PolicyAggregate;
-using PAS.PolicyValuation.Domain.Services.Models;
+﻿using PAS.PolicyValuation.Domain.Services.Models;
+using PAS.PolicyValuation.Domain.ValuationLedgerAggregate;
 
 namespace PAS.PolicyValuation.Domain.Services.Calculators;
 
 /// <summary>
-/// Lookup backward or forward for a valid NAV as of a given date applying a staleness 
-/// tolerance based on the fund's valuation frequency.
+/// Lookup backward or forward for a valid NAV as of a given date applying a staleness tolerance.
 /// </summary>
 internal static class FundNavResolver
 {

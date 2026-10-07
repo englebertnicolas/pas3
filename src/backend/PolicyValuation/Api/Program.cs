@@ -12,7 +12,7 @@ using PAS.Hosting;
 using PAS.Mediator;
 using PAS.PolicyAdmin.Client;
 using PAS.PolicyValuation;
-using PAS.PolicyValuation.Features.Policies.Valuation.RollForwardValuation;
+using PAS.PolicyValuation.Features.Policies.Valuations.RollForwardValuation;
 using PAS.PolicyValuation.Persistence.Read;
 using PAS.PolicyValuation.Persistence.Write;
 using PAS.Rebus;

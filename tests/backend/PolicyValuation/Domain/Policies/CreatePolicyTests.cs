@@ -1,6 +1,6 @@
 ﻿using FluentAssertions;
 using PAS.PolicyValuation.Domain;
-using PAS.PolicyValuation.Domain.PolicyAggregate;
+using PAS.PolicyValuation.Domain.ValuationLedgerAggregate;
 
 namespace PAS.PolicyValuation.Tests.Domain.Policies;
 
@@ -14,12 +14,12 @@ public class CreatePolicyTests : DomainTestBase
         var currency = new CurrencyId("EUR");
 
         // Act
-        var eoPolicy = Policy.Create(id, currency);
+        var eoLedger = ValuationLedger.Create(id, currency);
 
         // Assert
-        eoPolicy.Errors.Should().BeNullOrEmpty();
-        var policy = eoPolicy.Value;
-        policy.Id.Should().Be(id);
-        policy.CurrencyId.Should().Be(currency);
+        eoLedger.Errors.Should().BeNullOrEmpty();
+        var ledger = eoLedger.Value;
+        ledger.PolicyId.Should().Be(id);
+        ledger.CurrencyId.Should().Be(currency);
     }
 }

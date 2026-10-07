@@ -3,8 +3,8 @@ using PAS.Domain;
 using PAS.EntityFramework;
 using PAS.EntityFramework.Hints;
 using PAS.PolicyValuation.Domain;
-using PAS.PolicyValuation.Domain.PolicyAggregate;
 using PAS.PolicyValuation.Domain.RetroactiveChangeAggregate;
+using PAS.PolicyValuation.Domain.ValuationLedgerAggregate;
 using PAS.Rebus;
 
 namespace PAS.PolicyValuation.Persistence.Write;
@@ -23,7 +23,7 @@ public class ValuationDbContext : DbContextBaseWithRebusInbox, IHasSchemaName
     {
     }
 
-    public DbSet<Policy> Policies => Set<Policy>();
+    public DbSet<ValuationLedger> ValuationLedgers => Set<ValuationLedger>();
     public DbSet<RetroactiveChange> RetroactiveChanges => Set<RetroactiveChange>();
 
     /// <summary>
@@ -31,7 +31,7 @@ public class ValuationDbContext : DbContextBaseWithRebusInbox, IHasSchemaName
     /// Use the following code to catch the lock exception:
     /// <code>try { ... } catch (SqlException ex) when (ex.IsLockTimeout()) { ... }</code>
     /// </summary>
-    public async Task<Policy?> GetAndLockPolicyAsync(PolicyId id, bool includeLatestValuation = false, TimeSpan? lockTimeout = null, CancellationToken cancellationToken = default)
+    public async Task<ValuationLedger?> GetAndLockValuationLedgerAsync(PolicyId id, bool includeLatestValuation = false, TimeSpan? lockTimeout = null, CancellationToken cancellationToken = default)
     {
         if (lockTimeout.HasValue)
         {
@@ -39,17 +39,17 @@ public class ValuationDbContext : DbContextBaseWithRebusInbox, IHasSchemaName
             await Database.ExecuteSqlInterpolatedAsync($"SET LOCK_TIMEOUT {msLockTimeout};", cancellationToken);
         }
 
-        var result = await Policies
+        var result = await ValuationLedgers
             .AsTracking()
             .WithHint(SqlServerTableHint.UpdLock | SqlServerTableHint.RowLock)
-            .SingleOrDefaultAsync(p => p.Id == id, cancellationToken);
+            .SingleOrDefaultAsync(p => p.PolicyId == id, cancellationToken);
 
-        if (result != null && includeLatestValuation && result.LatestValuationEventId.HasValue)
+        if (result != null && includeLatestValuation && result.LatestEventId.HasValue)
         {
             await Entry(result)
                 .Collection(p => p.Events)
                 .Query()
-                .Where(v => v.Id == result.LatestValuationEventId.Value)
+                .Where(v => v.Id == result.LatestEventId.Value)
                 .LoadAsync(cancellationToken);
         }
 

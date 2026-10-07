@@ -1,7 +1,7 @@
 ﻿using FluentAssertions;
 using PAS.OperationResults;
-using PAS.PolicyValuation.Domain.PolicyAggregate;
 using PAS.PolicyValuation.Domain.Services;
+using PAS.PolicyValuation.Domain.ValuationLedgerAggregate;
 
 namespace PAS.PolicyValuation.Tests.Domain.Policies;
 
@@ -17,12 +17,12 @@ public class PolicyValuationTests : DomainTestBase
             .WithoutPolicyOperations();
 
         // Act
-        var eoPolicy = Policy.Create(context.Policy.Id, context.Policy.CurrencyId)
-            .Tap(policy => new PolicyValuationDomainService().PerformPolicyValuation(context, policy));
+        var eoLedger = ValuationLedger.Create(context.Policy.Id, context.Policy.CurrencyId)
+            .Tap(ledger => new PolicyValuationDomainService().PerformPolicyValuation(context, ledger));
 
         // Assert
-        eoPolicy.Errors.Should().BeNullOrEmpty();
-        eoPolicy.Value.WarningMessage.Should().Contain("At least one reserve is required");
+        eoLedger.Errors.Should().BeNullOrEmpty();
+        eoLedger.Value.WarningMessage.Should().Contain("At least one reserve is required");
     }
 
     [Fact]
@@ -35,12 +35,12 @@ public class PolicyValuationTests : DomainTestBase
             .WithFund(PolicyValuationContextFactory.CreateFund1(refDate.AddDays(-5)));
 
         // Act
-        var eoPolicy = Policy.Create(context.Policy.Id, context.Policy.CurrencyId)
-            .Tap(policy => new PolicyValuationDomainService().PerformPolicyValuation(context, policy));
+        var eoLedger = ValuationLedger.Create(context.Policy.Id, context.Policy.CurrencyId)
+            .Tap(ledger => new PolicyValuationDomainService().PerformPolicyValuation(context, ledger));
 
         // Assert
-        eoPolicy.Errors.Should().BeNullOrEmpty();
-        eoPolicy.Value.WarningMessage.Should().Contain("No valid NAV found for fund '00000000-0000-0000-0000-000000000001'");
+        eoLedger.Errors.Should().BeNullOrEmpty();
+        eoLedger.Value.WarningMessage.Should().Contain("No valid NAV found for fund '00000000-0000-0000-0000-000000000001'");
     }
 
     [Fact]
@@ -55,12 +55,12 @@ public class PolicyValuationTests : DomainTestBase
             .WithCurrency(PolicyValuationContextFactory.CreateCurrencyUsd(policyEffeciveDate.AddDays(-8)));
 
         // Act
-        var eoPolicy = Policy.Create(context.Policy.Id, context.Policy.CurrencyId)
-            .Tap(policy => new PolicyValuationDomainService().PerformPolicyValuation(context, policy));
+        var eoLedger = ValuationLedger.Create(context.Policy.Id, context.Policy.CurrencyId)
+            .Tap(ledger => new PolicyValuationDomainService().PerformPolicyValuation(context, ledger));
 
         // Assert
-        eoPolicy.Errors.Should().BeNullOrEmpty();
-        eoPolicy.Value.WarningMessage.Should().Contain("No valid currency exchange rate found for USD-EUR");
+        eoLedger.Errors.Should().BeNullOrEmpty();
+        eoLedger.Value.WarningMessage.Should().Contain("No valid currency exchange rate found for USD-EUR");
     }
 
     [Fact]
@@ -71,18 +71,18 @@ public class PolicyValuationTests : DomainTestBase
         var context = PolicyValuationContextFactory.CreateDefault1(-5, refDate);
 
         // Act
-        var eoPolicy = Policy.Create(context.Policy.Id, context.Policy.CurrencyId)
-            .Tap(policy => new PolicyValuationDomainService().PerformPolicyValuation(context, policy));
+        var eoLedger = ValuationLedger.Create(context.Policy.Id, context.Policy.CurrencyId)
+            .Tap(ledger => new PolicyValuationDomainService().PerformPolicyValuation(context, ledger));
 
         // Assert
-        eoPolicy.Errors.Should().BeNullOrEmpty();
-        var policy = eoPolicy.Value;
-        policy.WarningMessage.Should().BeNull();
-        policy.Events.Should().HaveCount(2);
+        eoLedger.Errors.Should().BeNullOrEmpty();
+        var ledger = eoLedger.Value;
+        ledger.WarningMessage.Should().BeNull();
+        ledger.Events.Should().HaveCount(2);
 
-        policy.LatestEvent.Should().NotBeNull();
-        policy.LatestEvent.Date.Should().Be(new DateOnly(2026, 8, 31));
-        policy.LatestEvent.TotalReservesInEur.Should().Be(100097.37M);
+        ledger.LatestEvent.Should().NotBeNull();
+        ledger.LatestEvent.Date.Should().Be(new DateOnly(2026, 8, 31));
+        ledger.LatestEvent.TotalReservesInEur.Should().Be(100097.37M);
     }
 
     [Fact]
@@ -96,18 +96,18 @@ public class PolicyValuationTests : DomainTestBase
             .WithPremiumsCurrency(new("USD"));
 
         // Act
-        var eoPolicy = Policy.Create(context.Policy.Id, context.Policy.CurrencyId)
-            .Tap(policy => new PolicyValuationDomainService().PerformPolicyValuation(context, policy));
+        var eoLedger = ValuationLedger.Create(context.Policy.Id, context.Policy.CurrencyId)
+            .Tap(ledger => new PolicyValuationDomainService().PerformPolicyValuation(context, ledger));
 
         // Assert
-        eoPolicy.Errors.Should().BeNullOrEmpty();
-        var policy = eoPolicy.Value;
-        policy.WarningMessage.Should().BeNull();
-        policy.Events.Should().HaveCount(2);
+        eoLedger.Errors.Should().BeNullOrEmpty();
+        var ledger = eoLedger.Value;
+        ledger.WarningMessage.Should().BeNull();
+        ledger.Events.Should().HaveCount(2);
 
-        policy.LatestEvent.Should().NotBeNull();
-        policy.LatestEvent.Date.Should().Be(new DateOnly(2026, 8, 31));
-        policy.LatestEvent.TotalReservesInPolicyCurrency.Should().Be(100097.37M);
-        policy.LatestEvent.TotalReservesInEur.Should().Be(88906.49M);
+        ledger.LatestEvent.Should().NotBeNull();
+        ledger.LatestEvent.Date.Should().Be(new DateOnly(2026, 8, 31));
+        ledger.LatestEvent.TotalReservesInPolicyCurrency.Should().Be(100097.37M);
+        ledger.LatestEvent.TotalReservesInEur.Should().Be(88906.49M);
     }
 }

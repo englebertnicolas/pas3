@@ -11,8 +11,7 @@ internal class PolicyEntityConfiguration : IEntityTypeConfiguration<Policy>
         builder.ToTable("Policies");
         builder.Ignore(e => e.DomainEvents);
 
-        builder.HasKey(e => e.Id)
-            .IsClustered(false); // To avoid fragmentation, since the Id is a Guid and not sequential
+        builder.HasKey(e => e.Id);
 
         builder.Property(e => e.ProposalNumber)
             .HasMaxLength(128);

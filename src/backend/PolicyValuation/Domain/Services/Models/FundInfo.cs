@@ -10,9 +10,7 @@ public record FundInfo(
 )
 {
     public FundNavInfo[] GetNavsBetween(DateOnly minDate, DateOnly maxDate)
-    {
-        return [.. Navs.Where(x => x.Date >= minDate && x.Date <= maxDate).OrderBy(x => x.Date)];
-    }
+        => [.. Navs.Where(x => x.Date >= minDate && x.Date <= maxDate).OrderBy(x => x.Date)];
 }
 
 public record FundNavInfo(DateOnly Date, decimal Value);
