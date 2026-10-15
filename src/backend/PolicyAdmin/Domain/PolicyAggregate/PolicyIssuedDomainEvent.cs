@@ -1,9 +1,10 @@
 ﻿using PAS.Domain;
+using PAS.Domain.Ids;
 
 namespace PAS.PolicyAdmin.Domain.PolicyAggregate;
 
 public record PolicyIssuedDomainEvent(
-    Guid PolicyId,
+    PolicyId PolicyId,
     DateOnly Date,
-    string CurrencyId
+    CurrencyId CurrencyId
 ) : IDomainEvent;

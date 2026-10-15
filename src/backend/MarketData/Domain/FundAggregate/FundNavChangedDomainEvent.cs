@@ -1,9 +1,10 @@
 ﻿using PAS.Domain;
+using PAS.Domain.Ids;
 
 namespace PAS.MarketData.Domain.FundAggregate;
 
 public record FundNavChangedDomainEvent(
-    Guid FundId,
+    FundId FundId,
     DateOnly Date,
     decimal? OldValue,
     decimal NewValue

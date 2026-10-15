@@ -1,11 +1,13 @@
-﻿using PAS.Domain;
+using System.Text.Json.Serialization;
+using PAS.Domain;
 
-namespace PAS.PolicyValuation.Domain;
+namespace PAS.Domain.Ids;
 
 public readonly record struct CurrencyId : IStronglyTypedId<string>
 {
     public string Value { get; }
 
+    [JsonConstructor]
     public CurrencyId(string value)
     {
         Value = value.ToUpper();

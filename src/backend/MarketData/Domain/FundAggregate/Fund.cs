@@ -1,5 +1,6 @@
 ﻿using System.Text.Json.Serialization;
 using PAS.Domain;
+using PAS.Domain.Ids;
 using PAS.MarketData.Domain.CurrencyAggregate;
 
 namespace PAS.MarketData.Domain.FundAggregate;

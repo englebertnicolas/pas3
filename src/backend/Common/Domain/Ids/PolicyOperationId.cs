@@ -1,6 +1,6 @@
-﻿using PAS.Domain;
+using PAS.Domain;
 
-namespace PAS.PolicyAdmin.Domain.PolicyAggregate;
+namespace PAS.Domain.Ids;
 
 public readonly record struct PolicyOperationId(Guid Value) : IStronglyTypedId<Guid>
 {

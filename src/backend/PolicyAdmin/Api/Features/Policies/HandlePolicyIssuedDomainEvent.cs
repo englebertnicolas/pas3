@@ -1,4 +1,5 @@
 ﻿using PAS.Domain;
+using PAS.Domain.Ids;
 using PAS.PolicyAdmin.Contracts;
 using PAS.PolicyAdmin.Domain.PolicyAggregate;
 using Rebus.Bus;

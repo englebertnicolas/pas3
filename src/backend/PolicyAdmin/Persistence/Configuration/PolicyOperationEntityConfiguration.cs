@@ -1,6 +1,7 @@
 ﻿using System.Text.Json;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using PAS.Domain.Ids;
 using PAS.PolicyAdmin.Domain.PolicyAggregate;
 
 namespace PAS.PolicyAdmin.Persistence.Configuration;

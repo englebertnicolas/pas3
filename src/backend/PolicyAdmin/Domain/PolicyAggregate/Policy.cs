@@ -1,5 +1,6 @@
 ﻿using System.Text.Json.Serialization;
 using PAS.Domain;
+using PAS.Domain.Ids;
 
 namespace PAS.PolicyAdmin.Domain.PolicyAggregate;
 
