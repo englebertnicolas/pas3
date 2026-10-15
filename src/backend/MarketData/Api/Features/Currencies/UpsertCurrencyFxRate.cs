@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using PAS.AspNetCore.Endpoints;
 using PAS.Domain;
+using PAS.Domain.Ids;
 using PAS.MarketData.Domain.CurrencyAggregate;
 using PAS.MarketData.Persistence;
 
@@ -44,7 +45,7 @@ public class UpsertCurrencyFxRate : IEndpoint
     {
         var currency = await dbContext.Currencies
             .Include(f => f.FxRates.Where(x => x.Date == command.FxRate.Date))
-            .SingleOrDefaultAsync(x => x.Id == (CurrencyId)command.Id, cancellationToken);
+            .SingleOrDefaultAsync(x => x.Id == new CurrencyId(command.Id), cancellationToken);
 
         if (currency == null)
             return ErrorInfo.NotFound($"Currency '{command.Id}' not found").ToHttpResult();

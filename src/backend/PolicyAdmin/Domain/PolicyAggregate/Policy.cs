@@ -94,7 +94,7 @@ public class Policy : Entity<PolicyId>, IAggregateRoot
         PolicyNumber = policyNumber;
         Status = PolicyStatus.Issued;
 
-        AddDomainEvent(new PolicyIssuedDomainEvent((Guid)Id, EffectiveDate, (string)CurrencyId));
+        AddDomainEvent(new PolicyIssuedDomainEvent(Id, EffectiveDate, CurrencyId));
 
         return Success.Value;
     }

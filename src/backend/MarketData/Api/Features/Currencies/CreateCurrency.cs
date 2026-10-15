@@ -1,6 +1,7 @@
 ﻿using FluentValidation;
 using Microsoft.EntityFrameworkCore;
 using PAS.AspNetCore.Endpoints;
+using PAS.Domain.Ids;
 using PAS.MarketData.Domain.CurrencyAggregate;
 using PAS.MarketData.Persistence;
 
@@ -40,7 +41,7 @@ public class CreateCurrency : IEndpoint
 
     private async Task<IResult> HandleAsync(Command command, MarketDbContext dbContext, CancellationToken cancellationToken)
     {
-        var eoCurrency = Currency.Create((CurrencyId)command.Id, command.EnglishName, command.Symbol, command.Decimals);
+        var eoCurrency = Currency.Create(new CurrencyId(command.Id), command.EnglishName, command.Symbol, command.Decimals);
         if (eoCurrency.IsFailure)
             return eoCurrency.Errors.ToHttpResult();
         var currency = eoCurrency.Value;

@@ -2,6 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using PAS.AspNetCore.Endpoints;
 using PAS.AspNetCore.Paging;
+using PAS.Domain.Ids;
 using PAS.MarketData.Domain.FundAggregate;
 using PAS.MarketData.Persistence;
 
@@ -37,7 +38,7 @@ public class GetFundNavList : IEndpoint
     {
         var items = await dbContext.Funds
             .AsNoTracking()
-            .Where(x => x.Id == (FundId)query.Id)
+            .Where(x => x.Id == new FundId(query.Id))
             .SelectMany(x => x.Navs)
             .WhereIf(query.StartDate.HasValue, x => x.Date >= query.StartDate)
             .OrderBy(query.OrderAsc, x => x.Date)

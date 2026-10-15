@@ -1,6 +1,7 @@
 ﻿using FluentValidation;
 using Microsoft.EntityFrameworkCore;
 using PAS.AspNetCore.Endpoints;
+using PAS.Domain.Ids;
 using PAS.MarketData.Domain.FundAggregate;
 using PAS.MarketData.Persistence;
 
@@ -38,7 +39,7 @@ public class GetFund : IEndpoint
     {
         var res = await dbContext.Funds
             .AsNoTracking()
-            .Where(x => x.Id == (FundId)query.Id)
+            .Where(x => x.Id == new FundId(query.Id))
             .Select(x => new Result(
                 x.Id.Value,
                 x.Name,

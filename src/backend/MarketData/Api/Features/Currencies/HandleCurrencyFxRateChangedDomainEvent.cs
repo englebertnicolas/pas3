@@ -1,4 +1,5 @@
 ﻿using PAS.Domain;
+using PAS.Domain.Ids;
 using PAS.MarketData.Contracts;
 using PAS.MarketData.Domain.CurrencyAggregate;
 using Rebus.Bus;
@@ -11,7 +12,7 @@ public class HandleCurrencyFxRateChangedDomainEvent(IBus bus) : IDomainEventHand
     {
         // Raise an integration event to the message broker
         return bus.Publish(new CurrencyFxRateChangedIntegrationEvent(
-           domainEvent.CurrencyId,
+           (string)domainEvent.CurrencyId,
            domainEvent.Date,
            domainEvent.OldRateToEur,
            domainEvent.NewRateToEur

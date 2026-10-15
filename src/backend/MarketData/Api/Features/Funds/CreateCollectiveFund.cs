@@ -1,6 +1,7 @@
 ﻿using FluentValidation;
 using Microsoft.EntityFrameworkCore;
 using PAS.AspNetCore.Endpoints;
+using PAS.Domain.Ids;
 using PAS.MarketData.Domain.CurrencyAggregate;
 using PAS.MarketData.Domain.FundAggregate;
 using PAS.MarketData.Persistence;
@@ -55,7 +56,7 @@ public class CreateCollectiveFund : IEndpoint
 
     private async Task<IResult> HandleAsync(Command command, MarketDbContext dbContext, CancellationToken cancellationToken)
     {
-        var eoNewFund = Fund.CreateCollectiveFund((FundId?)command.Id, FundStatus.Active, command.Name, command.Isin, (CurrencyId)command.CurrencyId, command.ValuationPeriodicity, command.UnitDecimals, command.NavDecimals, command.NavPricingLag, command.NavStalenessTolerance);
+        var eoNewFund = Fund.CreateCollectiveFund(command.Id != null ? new FundId(command.Id.Value) : null, FundStatus.Active, command.Name, command.Isin, new CurrencyId(command.CurrencyId), command.ValuationPeriodicity, command.UnitDecimals, command.NavDecimals, command.NavPricingLag, command.NavStalenessTolerance);
         if (eoNewFund.IsFailure) return eoNewFund.Errors.ToHttpResult();
         var newFund = eoNewFund.Value;
 

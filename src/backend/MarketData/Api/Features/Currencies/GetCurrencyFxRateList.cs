@@ -2,6 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using PAS.AspNetCore.Endpoints;
 using PAS.AspNetCore.Paging;
+using PAS.Domain.Ids;
 using PAS.MarketData.Domain.CurrencyAggregate;
 using PAS.MarketData.Persistence;
 
@@ -43,7 +44,7 @@ public class GetCurrencyFxRateList : IEndpoint
     {
         var items = await dbContext.Currencies
             .AsNoTracking()
-            .Where(x => x.Id == (CurrencyId)query.Id)
+            .Where(x => x.Id == new CurrencyId(query.Id))
             .SelectMany(x => x.FxRates)
             .WhereIf(query.StartDate.HasValue, x => x.Date >= query.StartDate)
             .OrderBy(query.OrderAsc, x => x.Date)

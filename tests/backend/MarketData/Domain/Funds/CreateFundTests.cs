@@ -1,4 +1,5 @@
 ﻿using FluentAssertions;
+using PAS.Domain.Ids;
 using PAS.MarketData.Domain.CurrencyAggregate;
 using PAS.MarketData.Domain.FundAggregate;
 

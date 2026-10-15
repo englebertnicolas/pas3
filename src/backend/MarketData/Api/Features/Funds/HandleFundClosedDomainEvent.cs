@@ -1,4 +1,5 @@
 ﻿using PAS.Domain;
+using PAS.Domain.Ids;
 using PAS.MarketData.Contracts;
 using PAS.MarketData.Domain.FundAggregate;
 using Rebus.Bus;
@@ -11,7 +12,7 @@ public class HandleFundClosedDomainEvent(IBus bus) : IDomainEventHandler<FundClo
     {
         // Raise an integration event to the message broker
         return bus.Publish(new FundClosedIntegrationEvent(
-           domainEvent.Id
+           (Guid)domainEvent.Id
         ));
     }
 }

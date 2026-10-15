@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using PAS.AspNetCore.Endpoints;
 using PAS.Domain;
+using PAS.Domain.Ids;
 using PAS.MarketData.Domain.FundAggregate;
 using PAS.MarketData.Persistence;
 
@@ -44,7 +45,7 @@ public class UpsertFundNav : IEndpoint
     {
         var fund = await dbContext.Funds
             .Include(f => f.Navs.Where(x => x.Date == command.Nav.Date))
-            .SingleOrDefaultAsync(x => x.Id == (FundId)command.Id, cancellationToken);
+            .SingleOrDefaultAsync(x => x.Id == new FundId(command.Id), cancellationToken);
 
         if (fund == null)
             return ErrorInfo.NotFound($"Fund '{command.Id}' not found").ToHttpResult();

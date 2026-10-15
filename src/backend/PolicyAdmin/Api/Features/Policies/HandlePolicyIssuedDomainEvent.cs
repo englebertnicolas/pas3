@@ -12,9 +12,9 @@ public class HandlePolicyIssuedDomainEvent(IBus bus) : IDomainEventHandler<Polic
     {
         // Raise an integration event to the message broker
         return bus.Publish(new PolicyIssuedIntegrationEvent(
-           domainEvent.PolicyId,
+           (Guid)domainEvent.PolicyId,
            domainEvent.Date,
-           domainEvent.CurrencyId
+           (string)domainEvent.CurrencyId
         ));
     }
 }

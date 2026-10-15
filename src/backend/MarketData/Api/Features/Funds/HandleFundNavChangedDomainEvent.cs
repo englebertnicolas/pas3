@@ -1,4 +1,5 @@
 ﻿using PAS.Domain;
+using PAS.Domain.Ids;
 using PAS.MarketData.Contracts;
 using PAS.MarketData.Domain.FundAggregate;
 using Rebus.Bus;
@@ -11,7 +12,7 @@ public class HandleFundNavChangedDomainEvent(IBus bus) : IDomainEventHandler<Fun
     {
         // Raise an integration event to the message broker
         return bus.Publish(new FundNavChangedIntegrationEvent(
-           domainEvent.FundId,
+           (Guid)domainEvent.FundId,
            domainEvent.Date,
            domainEvent.OldValue,
            domainEvent.NewValue

@@ -104,7 +104,7 @@ public class Fund : Entity<FundId>, IAggregateRoot
         }
 
         navs.Add(nav);
-        AddDomainEvent(new FundNavChangedDomainEvent(Id.Value, nav.Date, existingNav?.Value, nav.Value));
+        AddDomainEvent(new FundNavChangedDomainEvent(Id, nav.Date, existingNav?.Value, nav.Value));
         return existingNav == null ? UpsertResult.Created : UpsertResult.Updated;
     }
 
@@ -113,7 +113,7 @@ public class Fund : Entity<FundId>, IAggregateRoot
         if (Status == FundStatus.Closed)
             return ErrorInfo.Unprocessable($"Cannot change fund status from '{Status}' to '{FundStatus.Closed}'.");
 
-        AddDomainEvent(new FundClosedDomainEvent(Id.Value));
+        AddDomainEvent(new FundClosedDomainEvent(Id));
         return Success.Value;
     }
 }

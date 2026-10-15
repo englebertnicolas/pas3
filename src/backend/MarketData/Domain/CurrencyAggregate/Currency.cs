@@ -72,7 +72,7 @@ public class Currency : Entity<CurrencyId>, IAggregateRoot
         }
 
         fxRates.Add(fxRate);
-        AddDomainEvent(new CurrencyFxRateChangedDomainEvent(Id.Value, fxRate.Date, existingFxRate?.RateToEur, fxRate.RateToEur));
+        AddDomainEvent(new CurrencyFxRateChangedDomainEvent(Id, fxRate.Date, existingFxRate?.RateToEur, fxRate.RateToEur));
         return existingFxRate == null ? UpsertResult.Created : UpsertResult.Updated;
     }
 }
