@@ -1,10 +1,6 @@
-﻿using System.Text.Json.Serialization;
-using PAS.Domain;
+﻿using PAS.Domain;
 
 namespace PAS.PolicyValuation.Domain.RetroactiveChangeAggregate;
-
-[JsonConverter(typeof(JsonStringEnumConverter))]
-public enum RetroactiveChangeType { NavChange, CurrencyRateChange }
 
 public class RetroactiveChange : Entity<RetroactiveChangeId>, IAggregateRoot
 {
@@ -23,16 +19,10 @@ public class RetroactiveChange : Entity<RetroactiveChangeId>, IAggregateRoot
         CreationTime = DateTime.Now;
         EffectiveDate = effectiveDate;
         Details = details;
-
-        Type = details switch
-        {
-            NavChangeDetails => RetroactiveChangeType.NavChange,
-            CurrencyRateChangeDetails => RetroactiveChangeType.CurrencyRateChange,
-            _ => throw new NotSupportedException($"Unsupported retroactive change type '{details.GetType().Name}'.")
-        };
+        Type = details.GetRetroactiveChangeType();
     }
 
-    public static ErrorOr<RetroactiveChange> CreateNavChange(DateOnly effectiveDate, NavChangeDetails details)
+    public static ErrorOr<RetroactiveChange> CreateNavChange(DateOnly effectiveDate, FundNavChangeDetails details)
     {
         if (effectiveDate < new DateOnly(1900, 1, 1))
             return ErrorInfo.Unprocessable("Invalid retroactive change effective date.");

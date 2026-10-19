@@ -11,7 +11,7 @@ public class GetLatestValuation : IEndpoint
 
     public record Result
     {
-        public Guid Id { get; init; }
+        public Guid PolicyId { get; init; }
         public required string CurrencyId { get; init; }
         public DateOnly? LatestValuationDate { get; init; }
         public decimal? TotalReservesInPolicyCurrency { get; init; }
@@ -43,19 +43,29 @@ public class GetLatestValuation : IEndpoint
 
     private async Task<IResult> HandleAsync([AsParameters] Query query, ValuationReadDbContext dbContext, CancellationToken cancellationToken)
     {
-        var res = await dbContext.ValuationLedgers
+        // Loading the valuation ledger and its latest event for the given policy
+        var ledgerData = await dbContext.ValuationLedgers
             .AsNoTracking()
             .Where(x => x.PolicyId == query.Id)
-            .Include(x => x.LatestEvent)
-            .ThenInclude(x => x != null ? x.Reserves : null)
-            .Select(x => new Result
+            .Select(x => new
             {
-                Id = x.PolicyId,
-                CurrencyId = x.CurrencyId,
-                LatestValuationDate = x.LatestEvent == null ? null : x.LatestEvent.Date,
-                TotalReservesInPolicyCurrency = x.LatestEvent == null ? null : x.LatestEvent.TotalReservesInPolicyCurrency,
-                TotalReservesInEur = x.LatestEvent == null ? null : x.LatestEvent.TotalReservesInEur,
-                Reserves = x.LatestEvent == null ? null : x.LatestEvent.Reserves.Select(r => new Result.Reserve(
+                x.PolicyId,
+                x.CurrencyId,
+                x.WarningMessage,
+                LatestEvent = x.Events.FirstOrDefault(e => e.IsLatest)
+            })
+            .SingleOrDefaultAsync(cancellationToken);
+
+        if (ledgerData == null)
+            return ErrorInfo.NotFound($"Policy '{query.Id}' not found.").ToHttpResult();
+
+        // Loading the reserves of the latest event
+        var reserves = Array.Empty<Result.Reserve>();
+        if (ledgerData.LatestEvent != null)
+            reserves = await dbContext.Reserves
+                .AsNoTracking()
+                .Where(r => r.EventId == ledgerData.LatestEvent.Id)
+                .Select(r => new Result.Reserve(
                     r.FundId,
                     r.Fund.Isin,
                     r.Fund.Name,
@@ -63,14 +73,18 @@ public class GetLatestValuation : IEndpoint
                     r.Amount,
                     r.AmountInPolicyCurrency,
                     r.AmountInEur
-                )).ToArray(),
-                WarningMessage = x.WarningMessage
-            })
-            .SingleOrDefaultAsync(cancellationToken);
+                ))
+                .ToArrayAsync(cancellationToken);
 
-        if (res == null)
-            return ErrorInfo.NotFound($"Policy '{query.Id}' not found.").ToHttpResult();
-
-        return TypedResults.Ok(res);
+        return TypedResults.Ok(new Result
+        {
+            PolicyId = ledgerData.PolicyId,
+            CurrencyId = ledgerData.CurrencyId,
+            WarningMessage = ledgerData.WarningMessage,
+            LatestValuationDate = ledgerData.LatestEvent?.Date,
+            TotalReservesInPolicyCurrency = ledgerData.LatestEvent?.TotalReservesInPolicyCurrency,
+            TotalReservesInEur = ledgerData.LatestEvent?.TotalReservesInEur,
+            Reserves = reserves
+        });
     }
 }

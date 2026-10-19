@@ -27,5 +27,5 @@ public record Fund
     public int NavStalenessTolerance { get; init; }
 
     [SuppressMessage("Style", "IDE0028:Simplify collection initialization", Justification = "EF requires a mutable list")]
-    public IReadOnlyCollection<FundNav> Navs { get; init; } = new List<FundNav>();
+    public IReadOnlyList<FundNav> Navs { get; init; } = new List<FundNav>();
 }

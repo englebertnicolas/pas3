@@ -1,4 +1,4 @@
-﻿using System.Collections.ObjectModel;
+﻿using PAS.Domain.Ids;
 using PAS.PolicyValuation.Domain.RetroactiveChangeAggregate;
 using PAS.PolicyValuation.Domain.Services.Models;
 
@@ -23,16 +23,16 @@ public record PolicyValuationContext
 
     /// <inheritdoc cref="PolicyValuationContext" />
     public PolicyValuationContext(
-        DateOnly valuationDate, 
-        PolicyInfo policy, 
-        IEnumerable<CurrencyInfo> currencies, 
-        IEnumerable<FundInfo> funds,
+        DateOnly valuationDate,
+        PolicyInfo policy,
+        IEnumerable<CurrencyInfo>? currencies = null,
+        IEnumerable<FundInfo>? funds = null,
         IEnumerable<RetroactiveChangeInfo>? retroactiveChanges = null)
     {
         ValuationDate = valuationDate;
         Policy = policy;
-        Currencies = currencies.ToDictionary(x => x.Id);
-        Funds = funds.ToDictionary(x => x.Id);
+        Currencies = currencies?.ToOrderedDictionary(x => x.Id) ?? [];
+        Funds = funds?.ToOrderedDictionary(x => x.Id) ?? [];
         RetroactiveChanges = retroactiveChanges?.OrderBy(x => x.Id.Value).ToList() ?? [];
     }
 
@@ -50,10 +50,12 @@ public record PolicyValuationContext
         return fund;
     }
 
-    public RetroactiveChangeInfo[] GetPendingRetroactiveChanges(RetroactiveChangeId? minChangeId)
+    public RetroactiveChangeInfo[] GetRetroactiveChanges(RetroactiveChangeId? greaterThanChangeId, DateOnly? greaterOrEqualsToEffectiveDate = null, DateOnly? lessOrEqualsToEffectiveDate = null)
     {
-        if (RetroactiveChanges.Count == 0) return [];
-        if (minChangeId is null) return [.. RetroactiveChanges];
-        return [.. RetroactiveChanges.Where(x => x.Id >= minChangeId)];
+        return [.. RetroactiveChanges
+            .WhereIf(greaterThanChangeId != null, x => x.Id > greaterThanChangeId)
+            .WhereIf(greaterOrEqualsToEffectiveDate != null, x => x.EffectiveDate >= greaterOrEqualsToEffectiveDate)
+            .WhereIf(lessOrEqualsToEffectiveDate != null, x => x.EffectiveDate <= lessOrEqualsToEffectiveDate)
+            .OrderBy(x => x.Id)];
     }
 }

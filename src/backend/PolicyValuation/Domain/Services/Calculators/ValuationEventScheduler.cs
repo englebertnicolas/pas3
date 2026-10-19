@@ -1,4 +1,5 @@
-﻿using PAS.PolicyValuation.Domain.Services.Models;
+﻿using PAS.Domain.Ids;
+using PAS.PolicyValuation.Domain.Services.Models;
 using PAS.PolicyValuation.Domain.ValuationLedgerAggregate;
 
 namespace PAS.PolicyValuation.Domain.Services.Calculators;
@@ -10,8 +11,8 @@ namespace PAS.PolicyValuation.Domain.Services.Calculators;
 internal static class ValuationEventScheduler
 {
     public static ErrorOr<IEnumerable<ScheduledValuationEvent>> Execute(
-        PolicyValuationContext context,
-        ValuationLedger ledger)
+        ValuationLedger ledger,
+        PolicyValuationContext context)
     {
         var scheduleStartDate = ledger.LatestEvent?.Date.AddDays(1) ?? context.Policy.EffectiveDate;
 
@@ -19,7 +20,7 @@ internal static class ValuationEventScheduler
             return ErrorInfo.Unprocessable("Invalid policy effective date.");
 
         // Handling single policy operations
-        var operations = context.Policy.Operations
+        var res = context.Policy.Operations
             .OfType<IPolicySingleOperationInfo>()
             .Where(x => x.Date >= scheduleStartDate && x.Date <= context.ValuationDate)
             .Select(x => new ScheduledValuationEvent(x.Date, (PolicyOperationId?)x.Id))
@@ -31,11 +32,11 @@ internal static class ValuationEventScheduler
         var endOfMonths = GetMonthEndDatesBetween(scheduleStartDate, context.ValuationDate);
         foreach (var endOfMonth in endOfMonths)
         {
-            if (!operations.Any(x => x.Date == endOfMonth))
-                operations.Add(new(endOfMonth));
+            if (!res.Any(x => x.Date == endOfMonth))
+                res.Add(new(endOfMonth));
         }
 
-        return operations.OrderBy(x => x.Date).ToArray();
+        return res.OrderBy(x => x.Date).ToArray();
     }
 
     private static IEnumerable<DateOnly> GetMonthEndDatesBetween(DateOnly startDate, DateOnly endDate)

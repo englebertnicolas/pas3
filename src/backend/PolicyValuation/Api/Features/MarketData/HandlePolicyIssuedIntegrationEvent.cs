@@ -12,7 +12,7 @@ public class HandlePolicyIssuedIntegrationEvent(
     // Insert a new policy valuation ledger into the database.
     public async Task Handle(PolicyIssuedIntegrationEvent message)
     {
-        var newLedger = ValuationLedger.Create(new(message.Id), new(message.CurrencyId));
+        var newLedger = ValuationLedger.Create(null, new(message.Id), new(message.CurrencyId));
         dbContext.ValuationLedgers.Add(newLedger.Value);
         await dbContext.SaveChangesAsync();
     }

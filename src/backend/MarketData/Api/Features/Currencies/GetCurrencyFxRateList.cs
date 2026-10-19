@@ -2,7 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using PAS.AspNetCore.Endpoints;
 using PAS.AspNetCore.Paging;
-using PAS.MarketData.Domain.CurrencyAggregate;
+using PAS.Domain.Ids;
 using PAS.MarketData.Persistence;
 
 namespace PAS.MarketData.Features.Currencies;
@@ -24,7 +24,7 @@ public class GetCurrencyFxRateList : IEndpoint
         }
     }
 
-    public record Result(IReadOnlyCollection<Result.Item> Items, bool HasNextPage)
+    public record Result(IReadOnlyList<Result.Item> Items, bool HasNextPage)
     {
         public record Item(DateOnly Date, decimal RateToEur);
     }

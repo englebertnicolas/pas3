@@ -14,5 +14,13 @@ internal class ValuationEventEntityConfiguration : IEntityTypeConfiguration<Valu
         builder.HasOne(x => x.Ledger)
             .WithMany(x => x.Events)
             .HasForeignKey(x => x.LedgerId);
+
+        builder.HasOne<CalculationLayer>()
+           .WithMany()
+           .HasForeignKey(e => e.CalculationLayerId);
+
+        builder.HasOne<CalculationLayer>()
+           .WithMany()
+           .HasForeignKey(e => e.RolledbackByCalculationLayerId);
     }
 }

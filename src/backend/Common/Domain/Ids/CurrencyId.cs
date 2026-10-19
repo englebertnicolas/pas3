@@ -1,6 +1,4 @@
-﻿using PAS.Domain;
-
-namespace PAS.PolicyValuation.Domain;
+﻿namespace PAS.Domain.Ids;
 
 public readonly record struct CurrencyId : IStronglyTypedId<string>
 {
@@ -8,7 +6,7 @@ public readonly record struct CurrencyId : IStronglyTypedId<string>
 
     public CurrencyId(string value)
     {
-        Value = value.ToUpper();
+        Value = value.Trim().ToUpper();
     }
 
     public static explicit operator string(CurrencyId id) => id.Value;

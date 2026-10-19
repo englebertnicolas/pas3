@@ -10,15 +10,16 @@ public class GetValuationList : IEndpoint
 {
     public record Query(
         Guid Id,
+        Guid? CalculationLayerId,
         int PageNumber = 1,
         int PageSize = 100,
         bool SortAsc = false) : IPagedQuery;
 
     public class QueryValidator : PagedQueryValidator<Query>;
 
-    public record Result(IReadOnlyCollection<Result.Item> Items, bool HasNextPage)
+    public record Result(IReadOnlyList<Result.Item> Items, bool HasNextPage)
     {
-        public record Item(DateOnly Date, decimal AmountInPolicyCurrency, decimal AmountInEur);
+        public record Item(DateOnly Date, Guid CalculationLayerId, decimal AmountInPolicyCurrency, decimal AmountInEur);
     }
 
     public void MapEndpoint(IEndpointRouteBuilder app)
@@ -36,11 +37,15 @@ public class GetValuationList : IEndpoint
         var items = await dbContext.Events
             .AsNoTracking()
             .Where(x => x.Ledger.PolicyId == query.Id)
-            .OrderBy(query.SortAsc, x => x.Index)
+            .WhereIf(query.CalculationLayerId == null, x => x.RolledbackByCalculationLayerId == null)
+            .WhereIf(query.CalculationLayerId != null, x => x.CalculationLayerId <= query.CalculationLayerId
+                && (x.RolledbackByCalculationLayerId == null || x.RolledbackByCalculationLayerId > query.CalculationLayerId))
+            .OrderBy(query.SortAsc, x => x.Seq)
             .Skip((query.PageNumber - 1) * query.PageSize)
             .Take(query.PageSize + 1)
             .Select(x => new Result.Item(
                 x.Date,
+                x.CalculationLayerId,
                 x.TotalReservesInPolicyCurrency,
                 x.TotalReservesInEur
             ))

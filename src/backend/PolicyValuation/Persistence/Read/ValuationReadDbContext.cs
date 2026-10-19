@@ -14,6 +14,7 @@ public class ValuationReadDbContext(
     public DbSet<ValuationEvent> Events => Set<ValuationEvent>();
     public DbSet<Movement> Movements => Set<Movement>();
     public DbSet<Reserve> Reserves => Set<Reserve>();
+    public DbSet<CalculationLayer> CalculationLayers => Set<CalculationLayer>();
     public DbSet<RetroactiveChange> RetroactiveChanges => Set<RetroactiveChange>();
 
     /*

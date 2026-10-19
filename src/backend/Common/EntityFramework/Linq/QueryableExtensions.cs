@@ -89,15 +89,21 @@ public static class QueryableExtensions
     }
 
     /// <summary>
-    /// Filters the source IQueryable based on a condition. If the condition is true, 
-    /// applies the provided predicate; otherwise, returns the original source.
+    /// Filters the source sequence based on a condition, applying the <paramref name="thenPredicate"/> 
+    /// if the condition is true; otherwise, applying the <paramref name="elsePredicate"/> if provided, 
+    /// or returning the original source.
     /// </summary>
     public static IQueryable<TEntity> WhereIf<TEntity>(
         this IQueryable<TEntity> source,
         bool condition,
-        Expression<Func<TEntity, bool>> predicate)
+        Expression<Func<TEntity, bool>> thenPredicate,
+        Expression<Func<TEntity, bool>>? elsePredicate = null)
     {
-        return condition ? source.Where(predicate) : source;
+        return condition
+            ? source.Where(thenPredicate)
+            : elsePredicate != null
+            ? source.Where(elsePredicate)
+            : source;
     }
 
     /// <summary>

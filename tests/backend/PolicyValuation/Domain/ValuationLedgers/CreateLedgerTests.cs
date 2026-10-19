@@ -1,10 +1,9 @@
 ﻿using FluentAssertions;
-using PAS.PolicyValuation.Domain;
-using PAS.PolicyValuation.Domain.ValuationLedgerAggregate;
+using PAS.Domain.Ids;
 
-namespace PAS.PolicyValuation.Tests.Domain.Policies;
+namespace PAS.PolicyValuation.Tests.Domain.ValuationLedgers;
 
-public class CreatePolicyTests : DomainTestBase
+public class CreateLedgerTests : DomainTestBase
 {
     [Fact]
     public void Should_Success_When_Arguments_Are_Valid()
@@ -14,7 +13,7 @@ public class CreatePolicyTests : DomainTestBase
         var currency = new CurrencyId("EUR");
 
         // Act
-        var eoLedger = ValuationLedger.Create(id, currency);
+        var eoLedger = PolicyValuation.Domain.ValuationLedgerAggregate.ValuationLedger.Create(null, id, currency);
 
         // Assert
         eoLedger.Errors.Should().BeNullOrEmpty();

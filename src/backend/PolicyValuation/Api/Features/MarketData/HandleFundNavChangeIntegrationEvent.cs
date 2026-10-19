@@ -1,6 +1,6 @@
 ﻿using Microsoft.Extensions.Caching.Memory;
+using PAS.Domain.Ids;
 using PAS.MarketData.Contracts;
-using PAS.PolicyValuation.Domain;
 using PAS.PolicyValuation.Domain.RetroactiveChangeAggregate;
 using PAS.PolicyValuation.Features.Policies.Valuations.RollForwardValuation;
 using PAS.PolicyValuation.Persistence.Write;
@@ -15,15 +15,10 @@ public class HandleFundNavChangeIntegrationEvent(
 {
     public async Task Handle(FundNavChangedIntegrationEvent message)
     {
-        // Clear fund cache
-        memoryCache.Remove(MarketDataCache.FundKey((FundId)message.FundId));
-
         // Insert the retroactive change into the database.
-        // TODO: Valuation policy process should handle the retroactive change during the next calculation.
-        //       A worker should clean the records of the RetroactiveChanges table when all policies have take the change into account (-> Policy.LastHandledRetroactiveChangeId)
         var change = RetroactiveChange.CreateNavChange(
             message.Date,
-            new NavChangeDetails(
+            new FundNavChangeDetails(
                 (FundId)message.FundId,
                 message.NewValue
             )
@@ -31,5 +26,11 @@ public class HandleFundNavChangeIntegrationEvent(
 
         await dbContext.RetroactiveChanges.AddAsync(change);
         await dbContext.SaveChangesAsync();
+
+        // Clear fund cache
+        memoryCache.Remove(ValuationDataCache.FundKey((FundId)message.FundId));
+
+        // Clear retroactive change cache
+        memoryCache.Remove(ValuationDataCache.RetroactiveChangesKey());
     }
 }

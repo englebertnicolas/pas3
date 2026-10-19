@@ -23,6 +23,14 @@
             }
           },
           {
+            "name": "calculationLayerId",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
             "name": "pageNumber",
             "in": "query",
             "schema": {
@@ -284,7 +292,7 @@
         ],
         "type": "object",
         "properties": {
-          "id": {
+          "policyId": {
             "type": "string",
             "format": "uuid"
           },
@@ -384,6 +392,7 @@
       "GetValuationListResultItem": {
         "required": [
           "date",
+          "calculationLayerId",
           "amountInPolicyCurrency",
           "amountInEur"
         ],
@@ -392,6 +401,10 @@
           "date": {
             "type": "string",
             "format": "date"
+          },
+          "calculationLayerId": {
+            "type": "string",
+            "format": "uuid"
           },
           "amountInPolicyCurrency": {
             "type": "number",
@@ -438,6 +451,7 @@
       },
       "RollForwardValuationResult": {
         "required": [
+          "policyId",
           "generatedEvents",
           "warningMessage",
           "lastestValuationDate",
@@ -446,6 +460,10 @@
         ],
         "type": "object",
         "properties": {
+          "policyId": {
+            "type": "string",
+            "format": "uuid"
+          },
           "generatedEvents": {
             "type": "integer",
             "format": "int32"

@@ -1,6 +1,6 @@
 ﻿using System.Text.Json.Serialization;
 using PAS.Domain;
-using PAS.MarketData.Domain.CurrencyAggregate;
+using PAS.Domain.Ids;
 
 namespace PAS.MarketData.Domain.FundAggregate;
 
@@ -28,7 +28,7 @@ public class Fund : Entity<FundId>, IAggregateRoot
     public int NavStalenessTolerance { get; private set; }
 
     private readonly List<FundNav> navs = [];
-    public IReadOnlyCollection<FundNav> Navs => navs.AsReadOnly();
+    public IReadOnlyList<FundNav> Navs => navs.AsReadOnly();
 
     private Fund()
     {

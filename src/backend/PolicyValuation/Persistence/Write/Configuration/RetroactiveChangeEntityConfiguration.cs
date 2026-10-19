@@ -31,5 +31,10 @@ internal class RetroactiveChangeEntityConfiguration : IEntityTypeConfiguration<R
            .WithOne()
            .HasForeignKey(e => e.LastHandledRetroactiveChangeId)
            .OnDelete(DeleteBehavior.Restrict);
+
+        builder.HasMany<CalculationLayer>()
+           .WithOne()
+           .HasForeignKey(e => e.RetroactiveChangeId)
+           .OnDelete(DeleteBehavior.Restrict);
     }
 }

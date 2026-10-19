@@ -1,6 +1,7 @@
 ﻿using System.Net.Http.Json;
 using FluentAssertions;
 using Microsoft.EntityFrameworkCore;
+using PAS.Domain.Ids;
 using PAS.MarketData.Domain.CurrencyAggregate;
 using PAS.MarketData.Domain.FundAggregate;
 using PAS.MarketData.Features.Funds;

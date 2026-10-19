@@ -6,12 +6,12 @@ namespace PAS.PolicyValuation;
 
 public static class Extensions
 {
-    public static IServiceCollection AddPolicyValuationDomainService(this IServiceCollection services)
+    public static IServiceCollection AddPolicyValuationDomainServices(this IServiceCollection services)
     {
         return services
             .AddMemoryCache()
             .AddSingleton(typeof(AsyncKeyedLocker<>))
-            .AddScoped<MarketDataCache>()
+            .AddScoped<ValuationDataCache>()
             .AddScoped<PolicyValuationDomainService>()
             .AddScoped<PolicyValuationContextLoader>();
     }

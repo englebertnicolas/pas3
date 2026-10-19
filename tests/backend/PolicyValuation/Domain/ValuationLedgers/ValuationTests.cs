@@ -3,9 +3,9 @@ using PAS.OperationResults;
 using PAS.PolicyValuation.Domain.Services;
 using PAS.PolicyValuation.Domain.ValuationLedgerAggregate;
 
-namespace PAS.PolicyValuation.Tests.Domain.Policies;
+namespace PAS.PolicyValuation.Tests.Domain.ValuationLedgers;
 
-public class PolicyValuationTests : DomainTestBase
+public class ValuationTests : DomainTestBase
 {
     [Fact]
     public void Should_Fail_When_No_Investment()
@@ -17,8 +17,8 @@ public class PolicyValuationTests : DomainTestBase
             .WithoutPolicyOperations();
 
         // Act
-        var eoLedger = ValuationLedger.Create(context.Policy.Id, context.Policy.CurrencyId)
-            .Tap(ledger => new PolicyValuationDomainService().PerformPolicyValuation(context, ledger));
+        var eoLedger = ValuationLedger.Create(null, context.Policy.Id, context.Policy.CurrencyId)
+            .Tap(ledger => new PolicyValuationDomainService().PerformValuation(ledger, context));
 
         // Assert
         eoLedger.Errors.Should().BeNullOrEmpty();
@@ -35,8 +35,8 @@ public class PolicyValuationTests : DomainTestBase
             .WithFund(PolicyValuationContextFactory.CreateFund1(refDate.AddDays(-5)));
 
         // Act
-        var eoLedger = ValuationLedger.Create(context.Policy.Id, context.Policy.CurrencyId)
-            .Tap(ledger => new PolicyValuationDomainService().PerformPolicyValuation(context, ledger));
+        var eoLedger = ValuationLedger.Create(null, context.Policy.Id, context.Policy.CurrencyId)
+            .Tap(ledger => new PolicyValuationDomainService().PerformValuation(ledger, context));
 
         // Assert
         eoLedger.Errors.Should().BeNullOrEmpty();
@@ -55,8 +55,8 @@ public class PolicyValuationTests : DomainTestBase
             .WithCurrency(PolicyValuationContextFactory.CreateCurrencyUsd(policyEffeciveDate.AddDays(-8)));
 
         // Act
-        var eoLedger = ValuationLedger.Create(context.Policy.Id, context.Policy.CurrencyId)
-            .Tap(ledger => new PolicyValuationDomainService().PerformPolicyValuation(context, ledger));
+        var eoLedger = ValuationLedger.Create(null, context.Policy.Id, context.Policy.CurrencyId)
+            .Tap(ledger => new PolicyValuationDomainService().PerformValuation(ledger, context));
 
         // Assert
         eoLedger.Errors.Should().BeNullOrEmpty();
@@ -71,8 +71,8 @@ public class PolicyValuationTests : DomainTestBase
         var context = PolicyValuationContextFactory.CreateDefault1(-5, refDate);
 
         // Act
-        var eoLedger = ValuationLedger.Create(context.Policy.Id, context.Policy.CurrencyId)
-            .Tap(ledger => new PolicyValuationDomainService().PerformPolicyValuation(context, ledger));
+        var eoLedger = ValuationLedger.Create(null, context.Policy.Id, context.Policy.CurrencyId)
+            .Tap(ledger => new PolicyValuationDomainService().PerformValuation(ledger, context));
 
         // Assert
         eoLedger.Errors.Should().BeNullOrEmpty();
@@ -96,8 +96,8 @@ public class PolicyValuationTests : DomainTestBase
             .WithPremiumsCurrency(new("USD"));
 
         // Act
-        var eoLedger = ValuationLedger.Create(context.Policy.Id, context.Policy.CurrencyId)
-            .Tap(ledger => new PolicyValuationDomainService().PerformPolicyValuation(context, ledger));
+        var eoLedger = ValuationLedger.Create(null, context.Policy.Id, context.Policy.CurrencyId)
+            .Tap(ledger => new PolicyValuationDomainService().PerformValuation(ledger, context));
 
         // Assert
         eoLedger.Errors.Should().BeNullOrEmpty();

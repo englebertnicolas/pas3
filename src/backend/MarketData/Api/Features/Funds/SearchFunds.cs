@@ -16,7 +16,7 @@ public class SearchFunds : IEndpoint
 
     public class QueryValidator : PagedQueryValidator<Query>;
 
-    public record Result(IReadOnlyCollection<Result.Item> Items, bool HasNextPage)
+    public record Result(IReadOnlyList<Result.Item> Items, bool HasNextPage)
     {
         public record Item(
             Guid Id,

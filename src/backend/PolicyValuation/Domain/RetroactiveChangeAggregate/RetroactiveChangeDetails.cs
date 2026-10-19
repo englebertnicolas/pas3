@@ -1,13 +1,25 @@
 ﻿using System.Text.Json.Serialization;
+using PAS.Domain.Ids;
 
 namespace PAS.PolicyValuation.Domain.RetroactiveChangeAggregate;
 
-[JsonPolymorphic]
-[JsonDerivedType(typeof(NavChangeDetails), nameof(NavChangeDetails))]
-[JsonDerivedType(typeof(CurrencyRateChangeDetails), nameof(CurrencyRateChangeDetails))]
-public abstract record RetroactiveChangeDetails;
+[JsonConverter(typeof(JsonStringEnumConverter))]
+public enum RetroactiveChangeType { FundNavChange, CurrencyRateChange }
 
-public record NavChangeDetails(
+[JsonPolymorphic]
+[JsonDerivedType(typeof(FundNavChangeDetails), nameof(FundNavChangeDetails))]
+[JsonDerivedType(typeof(CurrencyRateChangeDetails), nameof(CurrencyRateChangeDetails))]
+public abstract record RetroactiveChangeDetails
+{
+    public RetroactiveChangeType GetRetroactiveChangeType() => this switch
+    {
+        FundNavChangeDetails => RetroactiveChangeType.FundNavChange,
+        CurrencyRateChangeDetails => RetroactiveChangeType.CurrencyRateChange,
+        _ => throw new NotSupportedException($"Unsupported retroactive change type '{GetType().Name}'.")
+    };
+}
+
+public record FundNavChangeDetails(
     FundId FundId,
     decimal Value
 ) : RetroactiveChangeDetails;

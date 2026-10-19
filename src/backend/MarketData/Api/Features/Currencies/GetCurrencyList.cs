@@ -14,7 +14,7 @@ public class GetCurrencyList : IEndpoint
 
     public class QueryValidator : PagedQueryValidator<Query>;
 
-    public record Result(IReadOnlyCollection<Result.Item> Items, bool HasNextPage)
+    public record Result(IReadOnlyList<Result.Item> Items, bool HasNextPage)
     {
         public record Item(string Id, string EnglishName, string Symbol, int Decimals);
     }

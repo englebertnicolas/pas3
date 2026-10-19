@@ -1,4 +1,5 @@
 ﻿using PAS.Domain;
+using PAS.Domain.Ids;
 using PAS.PolicyValuation.Domain.RetroactiveChangeAggregate;
 
 namespace PAS.PolicyValuation.Domain.ValuationLedgerAggregate;
@@ -8,42 +9,58 @@ public class ValuationLedger : Entity<ValuationLedgerId>, IAggregateRoot
     public PolicyId PolicyId { get; private set; }
     public CurrencyId CurrencyId { get; private set; }
     public bool IsSealed { get; private set; }
-    public ValuationEventId? LatestEventId { get; private set; }
     public string? WarningMessage { get; private set; }
 
     public RetroactiveChangeId? LastHandledRetroactiveChangeId { get; private set; }
 
     private readonly List<ValuationEvent> events = [];
-    public IReadOnlyCollection<ValuationEvent> Events => events.AsReadOnly();
+    public IReadOnlyList<ValuationEvent> Events => events.AsReadOnly();
+
+    private readonly List<CalculationLayer> calculationLayers = [];
+    public IReadOnlyList<CalculationLayer> CalculationLayers => calculationLayers.AsReadOnly();
 
     private ValuationLedger()
     {
         // For EF hydration
     }
 
-    private ValuationLedger(PolicyId id, CurrencyId currencyId, bool isSealed)
+    private ValuationLedger(ValuationLedgerId id, PolicyId policyId, CurrencyId currencyId, CalculationLayer calculationLayer, bool isSealed)
     {
-        PolicyId = id;
+        Id = id;
+        PolicyId = policyId;
         CurrencyId = currencyId;
+        calculationLayers.Add(calculationLayer);
         IsSealed = isSealed;
     }
 
-    public static ErrorOr<ValuationLedger> Create(PolicyId id, CurrencyId currencyId)
+    public static ErrorOr<ValuationLedger> Create(ValuationLedgerId? id, PolicyId policyId, CurrencyId currencyId)
     {
-        if (id.Value == Guid.Empty)
+        if (policyId.Value == Guid.Empty)
             return ErrorInfo.Unprocessable("Invalid policy ID.");
 
-        return new ValuationLedger(id, currencyId, false);
+        id ??= ValuationLedgerId.New();
+        var eoCalcLayer = CalculationLayer.Create(null, id.Value, 1);
+        if (eoCalcLayer.IsFailure) return eoCalcLayer.Errors;
+        var calcLayer = eoCalcLayer.Value;
+
+        return new ValuationLedger(id.Value, policyId, currencyId, calcLayer, false);
     }
 
     public ValuationEvent? LatestEvent
     {
         get
         {
-            var lastEvent = Events.FirstOrDefault(x => x.Id == LatestEventId);
-            if (lastEvent == null && LatestEventId != null)
-                throw new InvalidOperationException("Policy latest valuation event not found or not loaded.");
-            return lastEvent;
+            return Events.FirstOrDefault(x => x.IsLatest);
+        }
+    }
+
+    public CalculationLayer CurrentCalculationLayer
+    {
+        get
+        {
+            var calcLayer = CalculationLayers.SingleOrDefault(x => x.IsCurrent)
+                ?? throw new InvalidOperationException("Policy current calculation layer not found or not loaded.");
+            return calcLayer;
         }
     }
 
@@ -55,9 +72,35 @@ public class ValuationLedger : Entity<ValuationLedgerId>, IAggregateRoot
         if (LatestEvent != null && newEvent.Date < LatestEvent.Date)
             return ErrorInfo.Unprocessable("Invalid valuation date (policy was already valuated before the new validation date).");
 
+        foreach (var e in Events)
+        {
+            var eoUnsetResult = e.UnsetIsLatest();
+            if (eoUnsetResult.IsFailure) return eoUnsetResult.Errors;
+        }
+
         events.Add(newEvent);
-        LatestEventId = newEvent.Id;
         WarningMessage = null;
+        return Success.Value;
+    }
+
+    public ErrorOr<Success> AppendCalculationLayer(CalculationLayer newCalculationLayer)
+    {
+        if (IsSealed)
+            return ErrorInfo.Unprocessable("Cannot add calculation layer on a sealed policy.");
+
+        foreach (var layer in CalculationLayers)
+        {
+            var eoUnsetResult = layer.UnsetIsCurrent();
+            if (eoUnsetResult.IsFailure) return eoUnsetResult.Errors;
+        }
+
+        calculationLayers.Add(newCalculationLayer);
+        return Success.Value;
+    }
+
+    public ErrorOr<Success> SetLastHandledRetroactiveChangeId(RetroactiveChangeId changeId)
+    {
+        LastHandledRetroactiveChangeId = changeId;
         return Success.Value;
     }
 

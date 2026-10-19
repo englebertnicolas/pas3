@@ -18,5 +18,14 @@ internal class RetroactiveChangeEntityConfiguration : IEntityTypeConfiguration<R
                 v => JsonSerializer.Serialize(v, JsonOptions.DatabaseDefault),
                 v => JsonSerializer.Deserialize<Domain.RetroactiveChangeAggregate.RetroactiveChangeDetails>(v, JsonOptions.DatabaseDefault)!
             );
+
+        builder.HasMany<ValuationLedger>()
+           .WithOne()
+           .HasForeignKey(e => e.LastHandledRetroactiveChangeId);
+
+        builder.HasMany<CalculationLayer>()
+           .WithOne()
+           .HasForeignKey(e => e.RetroactiveChangeId);
+
     }
 }

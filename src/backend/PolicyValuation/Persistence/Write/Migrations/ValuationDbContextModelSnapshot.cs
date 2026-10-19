@@ -51,22 +51,62 @@ namespace PAS.PolicyValuation.Persistence.Write.Migrations
                     b.ToTable("RetroactiveChanges", "PolicyValuation");
                 });
 
+            modelBuilder.Entity("PAS.PolicyValuation.Domain.ValuationLedgerAggregate.CalculationLayer", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<bool>("IsCurrent")
+                        .HasColumnType("bit");
+
+                    b.Property<Guid>("LedgerId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<long?>("RetroactiveChangeId")
+                        .HasColumnType("bigint");
+
+                    b.Property<int>("Seq")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("LedgerId")
+                        .IsUnique()
+                        .HasFilter("[IsCurrent] = 1");
+
+                    b.HasIndex("RetroactiveChangeId");
+
+                    b.HasIndex("LedgerId", "Seq")
+                        .IsUnique();
+
+                    b.ToTable("CalculationLayers", "PolicyValuation");
+                });
+
             modelBuilder.Entity("PAS.PolicyValuation.Domain.ValuationLedgerAggregate.ValuationEvent", b =>
                 {
                     b.Property<Guid>("Id")
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<Guid>("CalculationLayerId")
+                        .HasColumnType("uniqueidentifier");
+
                     b.Property<DateOnly>("Date")
                         .HasColumnType("date");
 
-                    b.Property<int>("Index")
-                        .HasColumnType("int");
+                    b.Property<bool>("IsLatest")
+                        .HasColumnType("bit");
 
-                    b.Property<long>("LedgerId")
-                        .HasColumnType("bigint");
+                    b.Property<Guid>("LedgerId")
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<Guid?>("OperationId")
                         .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid?>("RolledbackByCalculationLayerId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<int>("Seq")
+                        .HasColumnType("int");
 
                     b.Property<decimal>("TotalReservesInEur")
                         .HasPrecision(18, 4)
@@ -78,7 +118,11 @@ namespace PAS.PolicyValuation.Persistence.Write.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("LedgerId", "Date", "OperationId")
+                    b.HasIndex("CalculationLayerId");
+
+                    b.HasIndex("RolledbackByCalculationLayerId");
+
+                    b.HasIndex("LedgerId", "CalculationLayerId", "Date", "OperationId")
                         .IsUnique()
                         .HasFilter("[OperationId] IS NOT NULL");
 
@@ -87,8 +131,8 @@ namespace PAS.PolicyValuation.Persistence.Write.Migrations
 
             modelBuilder.Entity("PAS.PolicyValuation.Domain.ValuationLedgerAggregate.ValuationLedger", b =>
                 {
-                    b.Property<long>("Id")
-                        .HasColumnType("bigint");
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("CurrencyId")
                         .IsRequired()
@@ -101,9 +145,6 @@ namespace PAS.PolicyValuation.Persistence.Write.Migrations
                     b.Property<long?>("LastHandledRetroactiveChangeId")
                         .HasColumnType("bigint");
 
-                    b.Property<Guid?>("LatestEventId")
-                        .HasColumnType("uniqueidentifier");
-
                     b.Property<Guid>("PolicyId")
                         .HasColumnType("uniqueidentifier");
 
@@ -114,7 +155,8 @@ namespace PAS.PolicyValuation.Persistence.Write.Migrations
 
                     b.HasIndex("LastHandledRetroactiveChangeId");
 
-                    b.HasIndex("LatestEventId");
+                    b.HasIndex("PolicyId")
+                        .IsUnique();
 
                     b.ToTable("ValuationLedgers", "PolicyValuation");
                 });
@@ -140,13 +182,38 @@ namespace PAS.PolicyValuation.Persistence.Write.Migrations
                     b.ToTable("__RebusInbox", "PolicyValuation");
                 });
 
+            modelBuilder.Entity("PAS.PolicyValuation.Domain.ValuationLedgerAggregate.CalculationLayer", b =>
+                {
+                    b.HasOne("PAS.PolicyValuation.Domain.ValuationLedgerAggregate.ValuationLedger", null)
+                        .WithMany("CalculationLayers")
+                        .HasForeignKey("LedgerId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("PAS.PolicyValuation.Domain.RetroactiveChangeAggregate.RetroactiveChange", null)
+                        .WithMany()
+                        .HasForeignKey("RetroactiveChangeId")
+                        .OnDelete(DeleteBehavior.Restrict);
+                });
+
             modelBuilder.Entity("PAS.PolicyValuation.Domain.ValuationLedgerAggregate.ValuationEvent", b =>
                 {
+                    b.HasOne("PAS.PolicyValuation.Domain.ValuationLedgerAggregate.CalculationLayer", null)
+                        .WithMany()
+                        .HasForeignKey("CalculationLayerId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
                     b.HasOne("PAS.PolicyValuation.Domain.ValuationLedgerAggregate.ValuationLedger", null)
                         .WithMany("Events")
                         .HasForeignKey("LedgerId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.HasOne("PAS.PolicyValuation.Domain.ValuationLedgerAggregate.CalculationLayer", null)
+                        .WithMany()
+                        .HasForeignKey("RolledbackByCalculationLayerId")
+                        .OnDelete(DeleteBehavior.Restrict);
 
                     b.OwnsMany("PAS.PolicyValuation.Domain.ValuationLedgerAggregate.Movement", "Movements", b1 =>
                         {
@@ -295,15 +362,12 @@ namespace PAS.PolicyValuation.Persistence.Write.Migrations
                         .WithMany()
                         .HasForeignKey("LastHandledRetroactiveChangeId")
                         .OnDelete(DeleteBehavior.Restrict);
-
-                    b.HasOne("PAS.PolicyValuation.Domain.ValuationLedgerAggregate.ValuationEvent", null)
-                        .WithMany()
-                        .HasForeignKey("LatestEventId")
-                        .OnDelete(DeleteBehavior.Restrict);
                 });
 
             modelBuilder.Entity("PAS.PolicyValuation.Domain.ValuationLedgerAggregate.ValuationLedger", b =>
                 {
+                    b.Navigation("CalculationLayers");
+
                     b.Navigation("Events");
                 });
 #pragma warning restore 612, 618

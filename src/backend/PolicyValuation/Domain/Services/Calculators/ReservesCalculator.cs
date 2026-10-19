@@ -9,10 +9,10 @@ namespace PAS.PolicyValuation.Domain.Services.Calculators;
 internal static class ReservesCalculator
 {
     public static ErrorOr<IReadOnlyList<Reserve>> Execute(
-        PolicyValuationContext context,
         ValuationLedger ledger,
         DateOnly date,
-        IEnumerable<Movement> movements)
+        IEnumerable<Movement> movements,
+        PolicyValuationContext context)
     {
         // Get EUR currency
         var eoEurCurrency = context.GetCurrency(new("EUR"));
@@ -25,7 +25,7 @@ internal static class ReservesCalculator
         var policyCurrency = eoPolicyCurrency.Value;
 
         // Lookup policy currency exchange rate
-        var eoPolicyFxRate = CurrencyFxRateResolver.Execute(policyCurrency, date);
+        var eoPolicyFxRate = CurrencyFxRateResolver.Resolve(policyCurrency, date);
         if (eoPolicyFxRate.IsFailure) return eoPolicyFxRate.Errors;
         var policyFxRate = eoPolicyFxRate.Value;
 
@@ -48,7 +48,7 @@ internal static class ReservesCalculator
             var fund = eoFund.Value;
 
             // Lookup fund NAV
-            var eoNav = FundNavResolver.Execute(fund, date, NavValuationMode.Backward);
+            var eoNav = FundNavResolver.Resolve(fund, date, NavValuationMode.Backward);
             if (eoNav.IsFailure) return eoNav.Errors;
             var nav = eoNav.Value;
 
@@ -58,7 +58,7 @@ internal static class ReservesCalculator
             var fundCurrency = eoFundCurrency.Value;
 
             // Lookup fund currency exchange rate
-            var eoFundFxRate = CurrencyFxRateResolver.Execute(fundCurrency, date);
+            var eoFundFxRate = CurrencyFxRateResolver.Resolve(fundCurrency, date);
             if (eoFundFxRate.IsFailure) return eoFundFxRate.Errors;
             var fundFxRate = eoFundFxRate.Value;
 

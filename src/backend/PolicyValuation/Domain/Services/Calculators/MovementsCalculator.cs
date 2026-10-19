@@ -1,4 +1,5 @@
-﻿using PAS.PolicyValuation.Domain.Services.Models;
+﻿using PAS.Domain.Ids;
+using PAS.PolicyValuation.Domain.Services.Models;
 using PAS.PolicyValuation.Domain.ValuationLedgerAggregate;
 
 namespace PAS.PolicyValuation.Domain.Services.Calculators;
@@ -9,9 +10,9 @@ namespace PAS.PolicyValuation.Domain.Services.Calculators;
 internal static class MovementsCalculator
 {
     public static ErrorOr<IEnumerable<Movement>> Execute(
-        PolicyValuationContext context,
         ValuationLedger ledger,
-        ScheduledValuationEvent scheduledEvent)
+        ScheduledValuationEvent scheduledEvent,
+        PolicyValuationContext context)
     {
         if (scheduledEvent.OperationId == null)
             return Array.Empty<Movement>();
@@ -70,7 +71,7 @@ internal static class MovementsCalculator
 
         // Lookup fund NAV
         var navValuationMode = NavValuationMode.Forward;
-        var eoNav = FundNavResolver.Execute(fund, date, navValuationMode);
+        var eoNav = FundNavResolver.Resolve(fund, date, navValuationMode);
         if (eoNav.IsFailure) return eoNav.Errors;
         var nav = eoNav.Value;
 
@@ -85,7 +86,7 @@ internal static class MovementsCalculator
         var originalCurrency = eoOriginalCurrency.Value;
 
         // Lookup original currency exchange rate
-        var eoOriginalFxRate = CurrencyFxRateResolver.Execute(originalCurrency, date);
+        var eoOriginalFxRate = CurrencyFxRateResolver.Resolve(originalCurrency, date);
         if (eoOriginalFxRate.IsFailure) return eoOriginalFxRate.Errors;
         var originalFxRate = eoOriginalFxRate.Value;
 
@@ -95,7 +96,7 @@ internal static class MovementsCalculator
         var policyCurrency = eoPolicyCurrency.Value;
 
         // Lookup policy currency exchange rate
-        var eoPolicyFxRate = CurrencyFxRateResolver.Execute(policyCurrency, date);
+        var eoPolicyFxRate = CurrencyFxRateResolver.Resolve(policyCurrency, date);
         if (eoPolicyFxRate.IsFailure) return eoPolicyFxRate.Errors;
         var policyFxRate = eoPolicyFxRate.Value;
 
@@ -105,7 +106,7 @@ internal static class MovementsCalculator
         var fundCurrency = eoFundCurrency.Value;
 
         // Lookup fund currency exchange rate
-        var eoFundFxRate = CurrencyFxRateResolver.Execute(fundCurrency, date);
+        var eoFundFxRate = CurrencyFxRateResolver.Resolve(fundCurrency, date);
         if (eoFundFxRate.IsFailure) return eoFundFxRate.Errors;
         var fundFxRate = eoFundFxRate.Value;
 

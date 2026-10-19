@@ -1,11 +1,14 @@
-﻿using PAS.PolicyValuation.Domain;
+﻿using PAS.Domain.Ids;
+using PAS.PolicyValuation.Domain.RetroactiveChangeAggregate;
 using PAS.PolicyValuation.Domain.Services;
 using PAS.PolicyValuation.Domain.Services.Models;
 
-namespace PAS.PolicyValuation.Tests.Domain.Policies;
+namespace PAS.PolicyValuation.Tests.Domain.ValuationLedgers;
 
 public static class PolicyValuationContextFactory
 {
+    static long retroActiveChangeIdSeq = 0;
+
     public static PolicyValuationContext CreateDefault1(int policyEffectiveDay = -5, DateOnly? refDate = null)
     {
         refDate ??= DateOnly.FromDateTime(DateTime.Now);
@@ -123,5 +126,10 @@ public static class PolicyValuationContextFactory
             UnitDecimals: 6,
             NavPricingLag: 2,
             NavStalenessTolerance: 10);
+    }
+
+    public static RetroactiveChangeInfo CreateFundNavRetroactiveChange(DateOnly date, FundId fundId, decimal nav)
+    {
+        return new RetroactiveChangeInfo(new(++retroActiveChangeIdSeq), DateTime.Now, date, new FundNavChangeDetails(fundId, nav));
     }
 }

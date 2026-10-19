@@ -1,9 +1,6 @@
 # Remove the line below if you want to inherit .editorconfig settings from higher directories
 root = true
 
-[**/Migrations/*.cs]
-dotnet_analyzer_diagnostic.severity = none
-
 # C# files
 [*.cs]
 
@@ -15,6 +12,7 @@ indent_style = space
 tab_width = 4
 
 # New line preferences
+charset = utf-8-bom
 end_of_line = crlf
 insert_final_newline = true
 
@@ -242,3 +240,9 @@ tab_width = 4
 indent_size = 4
 end_of_line = crlf
 dotnet_style_coalesce_expression = true:suggestion
+
+[**/Migrations/*.cs]
+dotnet_analyzer_diagnostic.severity = none
+
+# Désactivation globale de la règle CA1826 (Use property instead of Linq)
+dotnet_diagnostic.CA1826.severity = none

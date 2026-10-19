@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using PAS.AspNetCore.Endpoints;
 using PAS.Domain;
-using PAS.MarketData.Domain.FundAggregate;
+using PAS.Domain.Ids;
 using PAS.MarketData.Persistence;
 
 namespace PAS.MarketData.Features.Funds;

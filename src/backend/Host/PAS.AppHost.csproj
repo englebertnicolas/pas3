@@ -1,4 +1,4 @@
-﻿<Project Sdk="Aspire.AppHost.Sdk/13.5.4">
+﻿<Project Sdk="Aspire.AppHost.Sdk/13.6.1">
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
@@ -11,10 +11,15 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Aspire.Hosting.Keycloak" Version="13.5.4-preview.1.26464.4" />
-    <PackageReference Include="Aspire.Hosting.RabbitMQ" Version="13.5.4" />
-    <PackageReference Include="Aspire.Hosting.SqlServer" Version="13.5.4" />
-    <PackageReference Include="CommunityToolkit.Aspire.Hosting.SqlServer.Extensions" Version="13.5.0" />
+    <PackageReference Include="Aspire.Hosting.Keycloak" Version="13.6.1-preview.1.26506.6" />
+    <PackageReference Include="Aspire.Hosting.RabbitMQ" Version="13.6.1" />
+    <PackageReference Include="Aspire.Hosting.SqlServer" Version="13.6.1" />
+    <PackageReference Include="CommunityToolkit.Aspire.Hosting.SqlServer.Extensions" Version="13.6.0" />
+
+    <!-- Temporary override to resolve a transitive vulnerability until a future release of Aspire updates MessagePack -->
+    <PackageReference Include="MessagePack" Version="2.5.307" />
+    <!-- Temporary override to resolve a transitive vulnerability until a future release of CommunityToolkit.Aspire.Hosting.SqlServer.Extensions updates its dependencies -->
+    <PackageReference Include="System.Security.Cryptography.Pkcs" Version="10.0.13" />
   </ItemGroup>
 
   <ItemGroup>

@@ -1,6 +1,7 @@
 ﻿using FluentValidation;
 using Microsoft.EntityFrameworkCore;
 using PAS.AspNetCore.Endpoints;
+using PAS.Domain.Ids;
 using PAS.MarketData.Domain.CurrencyAggregate;
 using PAS.MarketData.Persistence;
 

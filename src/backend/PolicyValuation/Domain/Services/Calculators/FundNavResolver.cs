@@ -1,4 +1,5 @@
-﻿using PAS.PolicyValuation.Domain.Services.Models;
+﻿using PAS.Domain.Ids;
+using PAS.PolicyValuation.Domain.Services.Models;
 using PAS.PolicyValuation.Domain.ValuationLedgerAggregate;
 
 namespace PAS.PolicyValuation.Domain.Services.Calculators;
@@ -8,18 +9,18 @@ namespace PAS.PolicyValuation.Domain.Services.Calculators;
 /// </summary>
 internal static class FundNavResolver
 {
-    public static ErrorOr<FundNav> Execute(
-        PolicyValuationContext context,
+    public static ErrorOr<FundNav> Resolve(
         FundId fundId,
         DateOnly date,
-        NavValuationMode mode)
+        NavValuationMode mode,
+        PolicyValuationContext context)
     {
         var eoFund = context.GetFund(fundId);
         if (eoFund.IsFailure) return eoFund.Errors;
-        return Execute(eoFund.Value, date, mode);
+        return Resolve(eoFund.Value, date, mode);
     }
 
-    public static ErrorOr<FundNav> Execute(FundInfo fund, DateOnly date, NavValuationMode mode)
+    public static ErrorOr<FundNav> Resolve(FundInfo fund, DateOnly date, NavValuationMode mode)
     {
         FundNavInfo? navInfo;
         if (mode == NavValuationMode.Forward)

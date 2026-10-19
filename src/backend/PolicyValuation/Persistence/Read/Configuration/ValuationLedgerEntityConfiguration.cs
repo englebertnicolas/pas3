@@ -10,9 +10,5 @@ internal class ValuationLedgerEntityConfiguration : IEntityTypeConfiguration<Val
     {
         builder.ToView("ValuationLedgers");
         builder.HasKey(x => x.Id);
-
-        builder.HasOne(x => x.LatestEvent)
-           .WithOne()
-           .HasForeignKey<ValuationLedger>(e => e.LatestEventId);
     }
 }

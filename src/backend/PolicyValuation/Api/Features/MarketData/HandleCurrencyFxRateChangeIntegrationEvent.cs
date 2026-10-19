@@ -1,6 +1,6 @@
 ﻿using Microsoft.Extensions.Caching.Memory;
+using PAS.Domain.Ids;
 using PAS.MarketData.Contracts;
-using PAS.PolicyValuation.Domain;
 using PAS.PolicyValuation.Domain.RetroactiveChangeAggregate;
 using PAS.PolicyValuation.Features.Policies.Valuations.RollForwardValuation;
 using PAS.PolicyValuation.Persistence.Write;
@@ -15,9 +15,6 @@ public class HandleCurrencyFxRateChangeIntegrationEvent(
 {
     public async Task Handle(CurrencyFxRateChangedIntegrationEvent message)
     {
-        // Clear currency cache
-        memoryCache.Remove(MarketDataCache.CurrencyKey((CurrencyId)message.CurrencyId));
-
         // Insert the retroactive change into the database.
         var change = RetroactiveChange.CreateCurrencyRateChange(
             message.Date,
@@ -29,5 +26,11 @@ public class HandleCurrencyFxRateChangeIntegrationEvent(
 
         await dbContext.RetroactiveChanges.AddAsync(change);
         await dbContext.SaveChangesAsync();
+
+        // Clear currency cache
+        memoryCache.Remove(ValuationDataCache.CurrencyKey((CurrencyId)message.CurrencyId));
+
+        // Clear retroactive change cache
+        memoryCache.Remove(ValuationDataCache.RetroactiveChangesKey());
     }
 }

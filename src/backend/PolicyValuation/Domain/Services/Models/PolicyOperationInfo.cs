@@ -1,4 +1,6 @@
-﻿namespace PAS.PolicyValuation.Domain.Services.Models;
+﻿using PAS.Domain.Ids;
+
+namespace PAS.PolicyValuation.Domain.Services.Models;
 
 public interface IPolicySingleOperationInfo
 {

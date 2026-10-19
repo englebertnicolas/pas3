@@ -1,5 +1,5 @@
-﻿using PAS.PolicyAdmin.Client;
-using PAS.PolicyValuation.Domain;
+﻿using PAS.Domain.Ids;
+using PAS.PolicyAdmin.Client;
 using PAS.PolicyValuation.Domain.Services;
 using PAS.PolicyValuation.Domain.Services.Models;
 using PAS.PolicyValuation.Domain.ValuationLedgerAggregate;
@@ -9,7 +9,7 @@ namespace PAS.PolicyValuation.Features.Policies.Valuations.RollForwardValuation;
 
 public class PolicyValuationContextLoader(
     PolicyAdminApiClient policyAdminApiClient,
-    MarketDataCache valuationCache)
+    ValuationDataCache valuationCache)
 {
     public async Task<ErrorOr<PolicyValuationContext>> LoadAsync(ValuationLedger ledger, DateOnly? valuationDate = null, CancellationToken cancellationToken = default)
     {
@@ -27,11 +27,22 @@ public class PolicyValuationContextLoader(
         if (eoGetResult.IsFailure) return eoGetResult.Errors;
         var policyInfo = eoGetResult.Value.MapToDomain();
 
-        var loadMarketDataFrom = ledger.LatestEvent?.Date ?? policyInfo.EffectiveDate;
+        // Loading retroactive changes
+        var eoChangesInfo = await valuationCache.GetRetroactiveChangesAsync(ledger.LastHandledRetroactiveChangeId, policyInfo.EffectiveDate, cancellationToken: cancellationToken);
+        if (eoChangesInfo.IsFailure) return eoChangesInfo.Errors;
+        var changesInfo = eoChangesInfo.Value;
 
+        return await AddMarketDataFromAsync(
+            new PolicyValuationContext(valuationDate.Value, policyInfo, null, null, changesInfo),
+            ledger.LatestEvent?.Date ?? policyInfo.EffectiveDate,
+            cancellationToken);
+    }
+
+    public async Task<ErrorOr<PolicyValuationContext>> AddMarketDataFromAsync(PolicyValuationContext context, DateOnly loadMarketDataFrom, CancellationToken cancellationToken = default)
+    {
         // Loading funds
         var fundInfos = new List<FundInfo>();
-        foreach (var fundId in policyInfo.GetOperationFundIds())
+        foreach (var fundId in context.Policy.GetOperationFundIds())
         {
             var eoFundInfo = await valuationCache.GetFundAsync(fundId, loadMarketDataFrom, cancellationToken: cancellationToken);
             if (eoFundInfo.IsFailure) return eoFundInfo.Errors.Map(ErrorType.NotFound, ErrorType.Unprocessable);
@@ -40,19 +51,18 @@ public class PolicyValuationContextLoader(
 
         // Loading currencies
         var currencyInfos = new List<CurrencyInfo>();
-        foreach (var currencyId in GetDistinctCurrencyIds(policyInfo, fundInfos))
+        foreach (var currencyId in GetDistinctCurrencyIds(context.Policy, fundInfos))
         {
             var eoCurrencyInfo = await valuationCache.GetCurrencyAsync(currencyId, loadMarketDataFrom, cancellationToken: cancellationToken);
             if (eoCurrencyInfo.IsFailure) return eoCurrencyInfo.Errors.Map(ErrorType.NotFound, ErrorType.Unprocessable);
             currencyInfos.Add(eoCurrencyInfo.Value);
         }
 
-        // Loading retroactive changes
-        var eoChangesInfo = await valuationCache.GetRetroactiveChangesAsync(ledger.LastHandledRetroactiveChangeId, policyInfo.EffectiveDate, cancellationToken: cancellationToken );
-        if (eoChangesInfo.IsFailure) return eoChangesInfo.Errors;
-        var changesInfo = eoChangesInfo.Value;
-
-        return new PolicyValuationContext(valuationDate.Value, policyInfo, currencyInfos, fundInfos, changesInfo);
+        return context with
+        {
+            Funds = fundInfos.ToOrderedDictionary(x => x.Id),
+            Currencies = currencyInfos.ToOrderedDictionary(x => x.Id)
+        };
     }
 
     private static List<CurrencyId> GetDistinctCurrencyIds(PolicyInfo policy, IEnumerable<FundInfo> funds)

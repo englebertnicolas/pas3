@@ -11,5 +11,5 @@ public record Currency
     public int FxRateStalenessTolerance { get; init; }
 
     [SuppressMessage("Style", "IDE0028:Simplify collection initialization", Justification = "EF requires a mutable list")]
-    public IReadOnlyCollection<CurrencyFxRate> FxRates { get; init; } = new List<CurrencyFxRate>();
+    public IReadOnlyList<CurrencyFxRate> FxRates { get; init; } = new List<CurrencyFxRate>();
 }

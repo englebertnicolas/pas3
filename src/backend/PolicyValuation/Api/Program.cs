@@ -46,7 +46,7 @@ builder
         options.HandlerAssemblies = [thisAssembly];
     })
     .AddDbContext<ValuationReadDbContext>(options => options.UseSqlServer(dbCnc))
-    .AddPolicyValuationDomainService()
+    .AddPolicyValuationDomainServices()
     .AddPolicyAdminApiClient()
     .AddKeycloakAccessTokenProvider(KeycloakTokenProviderType.Default)
     .AddHostedService<PolicyValuationWorker>();

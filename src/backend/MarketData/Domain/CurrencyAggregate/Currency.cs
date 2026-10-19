@@ -1,4 +1,5 @@
 ﻿using PAS.Domain;
+using PAS.Domain.Ids;
 
 namespace PAS.MarketData.Domain.CurrencyAggregate;
 
@@ -10,7 +11,7 @@ public class Currency : Entity<CurrencyId>, IAggregateRoot
     public int FxRateStalenessTolerance { get; private set; }
 
     private readonly List<CurrencyFxRate> fxRates = [];
-    public IReadOnlyCollection<CurrencyFxRate> FxRates => fxRates.AsReadOnly();
+    public IReadOnlyList<CurrencyFxRate> FxRates => fxRates.AsReadOnly();
 
     private Currency()
     {

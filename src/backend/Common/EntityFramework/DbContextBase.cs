@@ -37,7 +37,7 @@ public abstract class DbContextBase(
     protected override void ConfigureConventions(ModelConfigurationBuilder configurationBuilder)
     {
         base.ConfigureConventions(configurationBuilder);
-        configurationBuilder.RegisterStronglyTypedIdConverters(domainAssembly);
+        configurationBuilder.RegisterStronglyTypedIdConverters(domainAssembly, typeof(IStronglyTypedId<>).Assembly);
     }
 
     public override int SaveChanges()

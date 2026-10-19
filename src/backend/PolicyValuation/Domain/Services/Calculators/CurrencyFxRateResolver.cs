@@ -1,4 +1,5 @@
-﻿using PAS.PolicyValuation.Domain.Services.Models;
+﻿using PAS.Domain.Ids;
+using PAS.PolicyValuation.Domain.Services.Models;
 using PAS.PolicyValuation.Domain.ValuationLedgerAggregate;
 
 namespace PAS.PolicyValuation.Domain.Services.Calculators;
@@ -9,17 +10,17 @@ namespace PAS.PolicyValuation.Domain.Services.Calculators;
 /// </summary>
 internal static class CurrencyFxRateResolver
 {
-    public static ErrorOr<CurrencyFxRate?> Execute(
-        PolicyValuationContext context,
+    public static ErrorOr<CurrencyFxRate?> Resolve(
         CurrencyId currencyId,
-        DateOnly date)
+        DateOnly date,
+        PolicyValuationContext context)
     {
         var eoCurrency = context.GetCurrency(currencyId);
         if (eoCurrency.IsFailure) return eoCurrency.Errors;
-        return Execute(eoCurrency.Value, date);
+        return Resolve(eoCurrency.Value, date);
     }
 
-    public static ErrorOr<CurrencyFxRate?> Execute(CurrencyInfo currency, DateOnly date)
+    public static ErrorOr<CurrencyFxRate?> Resolve(CurrencyInfo currency, DateOnly date)
     {
         if (currency.Id.Value == "EUR")
             return (CurrencyFxRate?)null;

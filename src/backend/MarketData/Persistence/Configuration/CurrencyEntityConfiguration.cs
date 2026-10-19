@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using PAS.Domain.Ids;
 using PAS.MarketData.Domain.CurrencyAggregate;
 
 namespace PAS.MarketData.Persistence.Configuration;

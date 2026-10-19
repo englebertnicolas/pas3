@@ -1,4 +1,6 @@
-﻿namespace PAS.PolicyValuation.Domain.ValuationLedgerAggregate;
+﻿using PAS.Domain.Ids;
+
+namespace PAS.PolicyValuation.Domain.ValuationLedgerAggregate;
 
 public record Reserve
 {

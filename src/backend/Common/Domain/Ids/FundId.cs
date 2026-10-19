@@ -1,6 +1,4 @@
-﻿using PAS.Domain;
-
-namespace PAS.PolicyAdmin.Domain;
+﻿namespace PAS.Domain.Ids;
 
 public readonly record struct FundId(Guid Value) : IStronglyTypedId<Guid>
 {

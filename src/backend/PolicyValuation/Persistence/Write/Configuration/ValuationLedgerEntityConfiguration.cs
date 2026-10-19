@@ -17,9 +17,6 @@ internal class ValuationLedgerEntityConfiguration : IEntityTypeConfiguration<Val
             .HasMaxLength(3)
             .IsRequired();
 
-        builder.HasOne<ValuationEvent>()
-           .WithMany()
-           .HasForeignKey(e => e.LatestEventId)
-           .OnDelete(DeleteBehavior.Restrict);
+        builder.HasIndex(x => x.PolicyId).IsUnique();
     }
 }

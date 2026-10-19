@@ -22,6 +22,16 @@ internal class ValuationEventEntityConfiguration : IEntityTypeConfiguration<Valu
            .HasForeignKey(e => e.LedgerId)
            .OnDelete(DeleteBehavior.Cascade);
 
+        builder.HasOne<CalculationLayer>()
+           .WithMany()
+           .HasForeignKey(e => e.CalculationLayerId)
+           .OnDelete(DeleteBehavior.Restrict);
+
+        builder.HasOne<CalculationLayer>()
+           .WithMany()
+           .HasForeignKey(e => e.RolledbackByCalculationLayerId)
+           .OnDelete(DeleteBehavior.Restrict);
+
         builder.OwnsMany(e => e.Movements, mvtsBuilder =>
         {
             mvtsBuilder.ToTable("Movements");
@@ -82,6 +92,6 @@ internal class ValuationEventEntityConfiguration : IEntityTypeConfiguration<Valu
                 .HasColumnType("nvarchar(max)");
         });
 
-        builder.HasIndex(x => new { x.LedgerId, x.Date, x.OperationId }).IsUnique();
+        builder.HasIndex(x => new { x.LedgerId, x.CalculationLayerId, x.Date, x.OperationId }).IsUnique();
     }
 }

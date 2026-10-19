@@ -2,7 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using PAS.AspNetCore.Endpoints;
-using PAS.PolicyAdmin.Domain.PolicyAggregate;
+using PAS.Domain.Ids;
 using PAS.PolicyAdmin.Persistence;
 
 namespace PAS.PolicyAdmin.Features.Policies;

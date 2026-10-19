@@ -1,5 +1,5 @@
 ﻿using FluentAssertions;
-using PAS.MarketData.Domain.CurrencyAggregate;
+using PAS.Domain.Ids;
 using PAS.MarketData.Domain.FundAggregate;
 
 namespace PAS.MarketData.Tests.Domain.Funds;

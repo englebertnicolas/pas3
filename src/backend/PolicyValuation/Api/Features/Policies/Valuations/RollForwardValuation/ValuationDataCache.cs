@@ -1,14 +1,14 @@
 ﻿using AsyncKeyedLock;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Memory;
-using PAS.PolicyValuation.Domain;
+using PAS.Domain.Ids;
 using PAS.PolicyValuation.Domain.RetroactiveChangeAggregate;
 using PAS.PolicyValuation.Domain.Services.Models;
 using PAS.PolicyValuation.Persistence.Read;
 
 namespace PAS.PolicyValuation.Features.Policies.Valuations.RollForwardValuation;
 
-public class MarketDataCache(ValuationReadDbContext dbContext, IMemoryCache memoryCache, AsyncKeyedLocker<string> lockManager)
+public class ValuationDataCache(ValuationReadDbContext dbContext, IMemoryCache memoryCache, AsyncKeyedLocker<string> lockManager)
 {
     private readonly TimeSpan CacheExpiration = TimeSpan.FromMinutes(10);
 
@@ -137,7 +137,7 @@ public class MarketDataCache(ValuationReadDbContext dbContext, IMemoryCache memo
         var key = RetroactiveChangesKey();
 
         if (memoryCache.TryGetValue(key, out RetroactiveChangesCacheItem? cachedItem) && cachedItem != null)
-            if ((cachedItem.MinId == null || cachedItem.MinId <= minId) && cachedItem.MinEffectiveDate <= minEffectiveDate) 
+            if ((cachedItem.MinId == null || cachedItem.MinId <= minId) && cachedItem.MinEffectiveDate <= minEffectiveDate)
                 return cachedItem.Changes;
 
         using (await lockManager.LockAsync(key, cancellationToken))
@@ -168,7 +168,7 @@ public class MarketDataCache(ValuationReadDbContext dbContext, IMemoryCache memo
         return await dbContext.RetroactiveChanges.AsNoTracking()
             .WhereIf(minId != null, x => x.Id >= minId!.Value.Value)
             .Where(x => x.EffectiveDate >= minEffectiveDate)
-            .Select(x => new RetroactiveChangeInfo(new(x.Id), x.Type, x.CreationTime, x.EffectiveDate, x.Details))
+            .Select(x => new RetroactiveChangeInfo(new(x.Id), x.CreationTime, x.EffectiveDate, x.Details))
             .ToArrayAsync(cancellationToken);
     }
 

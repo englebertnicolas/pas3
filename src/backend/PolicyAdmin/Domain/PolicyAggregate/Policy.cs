@@ -1,5 +1,6 @@
 ﻿using System.Text.Json.Serialization;
 using PAS.Domain;
+using PAS.Domain.Ids;
 
 namespace PAS.PolicyAdmin.Domain.PolicyAggregate;
 
@@ -15,7 +16,7 @@ public class Policy : Entity<PolicyId>, IAggregateRoot
     public DateOnly EffectiveDate { get; private set; }
 
     private readonly List<PolicyOperation> operations = [];
-    public IReadOnlyCollection<PolicyOperation> Operations => operations.AsReadOnly();
+    public IReadOnlyList<PolicyOperation> Operations => operations.AsReadOnly();
 
     private Policy()
     {
