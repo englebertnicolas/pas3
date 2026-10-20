@@ -33,12 +33,12 @@ public class GetLatestValuation : IEndpoint
     public void MapEndpoint(IEndpointRouteBuilder app)
     {
         app
-            .MapGet("/policies/{id:Guid}/valuations/lastest", HandleAsync)
+            .MapGet("/policies/{id:Guid}/valuations/latest", HandleAsync)
             .Produces<Result>()
             .ProducesProblem(StatusCodes.Status404NotFound)
             .WithTags("Policies")
-            .WithName("GetLastestValuation")
-            .WithDescription("Get the lastest valuation of the insurance policy identified by 'id'.");
+            .WithName("GetLatestValuation")
+            .WithDescription("Get the latest valuation of the insurance policy identified by 'id'.");
     }
 
     private async Task<IResult> HandleAsync([AsParameters] Query query, ValuationReadDbContext dbContext, CancellationToken cancellationToken)

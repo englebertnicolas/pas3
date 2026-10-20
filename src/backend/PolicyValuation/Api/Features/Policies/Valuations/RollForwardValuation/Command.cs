@@ -8,7 +8,7 @@ public record Result(
     Guid PolicyId,
     int GeneratedEvents,
     string? WarningMessage,
-    DateOnly? LastestValuationDate,
+    DateOnly? LatestValuationDate,
     decimal? TotalReservesInPolicyCurrency,
     decimal? TotalReservesInEur
 );

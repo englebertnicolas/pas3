@@ -1,0 +1,19 @@
+# Vibe hooks (https://docs.mistral.ai/vibe/code/overview)
+# Loaded from this trusted project folder. Reload after edits: /reload
+
+# Pre-tool gate: never let the agent hand-edit the Kiota-generated Client projects.
+[[hooks]]
+name = "protect-generated-clients"
+type = "pre_tool"
+match = "re:(edit|write_file)"
+command = "powershell -NoProfile -ExecutionPolicy Bypass -File .vibe/hooks/protect-generated-clients.ps1"
+description = "Deny edits to src/backend/*/Client (Kiota-generated)"
+
+# Post-agent gate: verify the solution still compiles at the end of each turn.
+# Comment this block out if it slows the workflow too much.
+#[[hooks]]
+#name = "build-check"
+#type = "post_agent"
+#command = "powershell -NoProfile -ExecutionPolicy Bypass -File .vibe/hooks/build-check.ps1"
+#timeout = 300.0
+#description = "dotnet build after each turn, retry on failure"

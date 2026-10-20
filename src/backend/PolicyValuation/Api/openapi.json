@@ -201,13 +201,13 @@
         }
       }
     },
-    "/policies/{id}/valuations/lastest": {
+    "/policies/{id}/valuations/latest": {
       "get": {
         "tags": [
           "Policies"
         ],
-        "description": "Get the lastest valuation of the insurance policy identified by 'id'.",
-        "operationId": "GetLastestValuation",
+        "description": "Get the latest valuation of the insurance policy identified by 'id'.",
+        "operationId": "GetLatestValuation",
         "parameters": [
           {
             "name": "id",
@@ -454,7 +454,7 @@
           "policyId",
           "generatedEvents",
           "warningMessage",
-          "lastestValuationDate",
+          "latestValuationDate",
           "totalReservesInPolicyCurrency",
           "totalReservesInEur"
         ],
@@ -474,7 +474,7 @@
               "string"
             ]
           },
-          "lastestValuationDate": {
+          "latestValuationDate": {
             "type": [
               "null",
               "string"

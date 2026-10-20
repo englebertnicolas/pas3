@@ -73,7 +73,7 @@ public class Fund : Entity<FundId>, IAggregateRoot
         if (navStalenessTolerance < 0)
             return ErrorInfo.Unprocessable("Invalid NAV staleness tolerance.");
 
-        return new Fund(id ?? FundId.New(), FundType.Collective, status, name, eoIsin.Value, currencyId, valuationPeriodicity, navDecimals, navDecimals, navPricingLag, navStalenessTolerance);
+        return new Fund(id ?? FundId.New(), FundType.Collective, status, name, eoIsin.Value, currencyId, valuationPeriodicity, unitDecimals, navDecimals, navPricingLag, navStalenessTolerance);
     }
 
     public static ErrorOr<Fund> CreateDedicatedFund(Guid? id, FundStatus status, string name, string isin, string currencyId,
@@ -112,6 +112,7 @@ public class Fund : Entity<FundId>, IAggregateRoot
         if (Status == FundStatus.Closed)
             return ErrorInfo.Unprocessable($"Cannot change fund status from '{Status}' to '{FundStatus.Closed}'.");
 
+        Status = FundStatus.Closed;
         AddDomainEvent(new FundClosedDomainEvent(Id.Value));
         return Success.Value;
     }

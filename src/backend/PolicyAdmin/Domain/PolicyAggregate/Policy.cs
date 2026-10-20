@@ -70,7 +70,7 @@ public class Policy : Entity<PolicyId>, IAggregateRoot
     public ErrorOr<Success> Issue(string policyNumber, DateOnly? effectiveDate = null)
     {
         if (Status != PolicyStatus.Pending)
-            return ErrorInfo.Unprocessable($"Cannot issue the police, unexpected status '{Status}'.");
+            return ErrorInfo.Unprocessable($"Cannot issue the policy, unexpected status '{Status}'.");
 
         if (string.IsNullOrWhiteSpace(policyNumber))
             return ErrorInfo.Unprocessable("Invalid policy number.");
@@ -81,7 +81,7 @@ public class Policy : Entity<PolicyId>, IAggregateRoot
             .FirstOrDefault();
 
         if (firstPremiumOpe == null)
-            return ErrorInfo.Unprocessable("Cannot issue the police, first premium not found");
+            return ErrorInfo.Unprocessable("Cannot issue the policy, first premium not found");
 
         if (effectiveDate != null)
         {

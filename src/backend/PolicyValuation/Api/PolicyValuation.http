@@ -13,7 +13,7 @@ GET {{Api_HostAddress}}/openapi/v1.json
 POST {{Api_HostAddress}}/policies/00000000-0000-0000-0010-000000000001/valuations
 
 ### Get policy latest valuation
-GET {{Api_HostAddress}}/policies/00000000-0000-0000-0010-000000000001/valuations/lastest
+GET {{Api_HostAddress}}/policies/00000000-0000-0000-0010-000000000001/valuations/latest
 
 ### Get policy valuation history
 GET {{Api_HostAddress}}/policies/00000000-0000-0000-0010-000000000001/valuations
