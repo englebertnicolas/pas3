@@ -48,4 +48,72 @@ internal static class ValuationRollbackEvaluator
 
         return false;
     }
+
+    /// <summary>
+    /// Checks if the retroactive change actually impacts any valuation event of the ledger,
+    /// by re-resolving the market data each event consumed and comparing it with the stored references.
+    /// The candidate window (IsRollbackRequired) is an exact superset of the real impact:
+    /// if every re-resolved reference matches the stored one, recomputing the events
+    /// would produce identical results and the rollback (and its new calculation layer) is unnecessary.
+    /// </summary>
+    public static bool IsActuallyImpacted(RetroactiveChangeInfo change, ValuationLedger ledger, PolicyValuationContext context)
+    {
+        switch (change.Details)
+        {
+            case CurrencyRateChangeDetails currencyRateChange:
+                return ledger.Events.Any(e => !e.RolledbackByCalculationLayerId.HasValue && IsEventImpactedByFxChange(e, currencyRateChange, context));
+
+            case FundNavChangeDetails fundNavChange:
+                return ledger.Events.Any(e => !e.RolledbackByCalculationLayerId.HasValue && IsEventImpactedByNavChange(e, fundNavChange, context));
+
+            default:
+                return true;
+        }
+    }
+
+    private static bool IsEventImpactedByNavChange(ValuationEvent valuationEvent, FundNavChangeDetails fundNavChange, PolicyValuationContext context)
+    {
+        var eoFund = context.GetFund(fundNavChange.FundId);
+        if (eoFund.IsFailure) return false;
+        var fund = eoFund.Value;
+
+        foreach (var reserve in valuationEvent.Reserves.Where(x => x.FundId == fundNavChange.FundId))
+        {
+            var eoNav = FundNavResolver.Resolve(fund, valuationEvent.Date, NavValuationMode.Backward);
+            if (eoNav.IsFailure) return true;
+            if (eoNav.Value.Date != reserve.Details.Nav.Date || eoNav.Value.Value != reserve.Details.Nav.Value)
+                return true;
+        }
+
+        foreach (var movement in valuationEvent.Movements.Where(x => x.FundId == fundNavChange.FundId))
+        {
+            var eoNav = FundNavResolver.Resolve(fund, valuationEvent.Date, movement.Details.NavValuationMode);
+            if (eoNav.IsFailure) return true;
+            if (eoNav.Value.Date != movement.Details.Nav.Date || eoNav.Value.Value != movement.Details.Nav.Value)
+                return true;
+        }
+
+        return false;
+    }
+
+    private static bool IsEventImpactedByFxChange(ValuationEvent valuationEvent, CurrencyRateChangeDetails currencyRateChange, PolicyValuationContext context)
+    {
+        var eoCurrency = context.GetCurrency(currencyRateChange.CurrencyId);
+        if (eoCurrency.IsFailure) return false;
+        var currency = eoCurrency.Value;
+
+        var storedFxRates = valuationEvent.Reserves.SelectMany(x => x.Details.CurrencyFxRates)
+            .Concat(valuationEvent.Movements.SelectMany(x => x.Details.CurrencyFxRates))
+            .Where(x => x.CurrencyId == currencyRateChange.CurrencyId)
+            .Distinct()
+            .ToArray();
+
+        // The event did not use that currency: not impacted
+        if (storedFxRates.Length == 0) return false;
+
+        var eoFxRate = CurrencyFxRateResolver.Resolve(currency, valuationEvent.Date);
+        if (eoFxRate.IsFailure) return true;
+        if (eoFxRate.Value == null) return true;
+        return storedFxRates.Any(stored => stored.Date != eoFxRate.Value.Date || stored.RateToEur != eoFxRate.Value.RateToEur);
+    }
 }

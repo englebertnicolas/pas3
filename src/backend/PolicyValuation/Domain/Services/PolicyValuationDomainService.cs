@@ -85,7 +85,8 @@ public class PolicyValuationDomainService
         if (ledger.IsSealed)
             return ErrorInfo.Unprocessable("Cannot apply retroactive change on a sealed valuation ledger.");
 
-        if (ValuationRollbackEvaluator.IsRollbackRequired(change, ledger, context, out var rollbackDate))
+        if (ValuationRollbackEvaluator.IsRollbackRequired(change, ledger, context, out var rollbackDate)
+            && ValuationRollbackEvaluator.IsActuallyImpacted(change, ledger, context))
         {
             // Create new calculation layer
             var eoNewLayer = CalculationLayer.Create(CalculationLayerId.New(), ledger.Id, ledger.CurrentCalculationLayer.Seq + 1, change.Id);
