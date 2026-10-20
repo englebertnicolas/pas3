@@ -9,6 +9,31 @@ namespace PAS.PolicyValuation.Domain.Services;
 public class PolicyValuationDomainService
 {
     /// <summary>
+    /// Checks if any pending retroactive change falls inside the candidate rollback window of the ledger.
+    /// Cheap check based on the latest event only.
+    /// </summary>
+    public bool IsRollbackCandidate(ValuationLedger ledger, PolicyValuationContext context)
+    {
+        var changes = context.GetRetroactiveChanges(ledger.LastHandledRetroactiveChangeId, context.Policy.EffectiveDate, ledger.LatestEvent?.Date);
+        foreach (var change in changes)
+            if (ValuationRollbackEvaluator.IsRollbackCandidate(change, ledger, context)) return true;
+
+        return false;
+    }
+
+    /// <inheritdoc cref="IsRollbackCandidate(ValuationLedger, PolicyValuationContext)" />
+    public bool IsRollbackCandidate(ValuationLedger ledger, PolicyValuationContext context, out DateOnly rollbackDate)
+    {
+        rollbackDate = DateOnly.MinValue;
+        var changes = context.GetRetroactiveChanges(ledger.LastHandledRetroactiveChangeId, context.Policy.EffectiveDate, ledger.LatestEvent?.Date);
+        foreach (var change in changes)
+            if (ValuationRollbackEvaluator.IsRollbackCandidate(change, ledger, context, out var d))
+                if (rollbackDate == DateOnly.MinValue || d < rollbackDate) rollbackDate = d;
+
+        return rollbackDate > DateOnly.MinValue;
+    }
+
+    /// <summary>
     /// Calculate policy valuations until the given date.
     /// Applies first any pending retroactive changes if necessary.
     /// </summary>
@@ -51,36 +76,6 @@ public class PolicyValuationDomainService
         // TODO: Update the policy property Sealed if policy computation is sealed
 
         return createdEvents;
-    }
-
-    /// <summary>
-    /// Checks if any pending retroactive change falls inside the candidate rollback window of the ledger,
-    /// i.e. if a rollback could be required. Cheap check based on the latest event only: callers use it
-    /// to decide whether the full ledger event history must be loaded from the database.
-    /// </summary>
-    public bool IsRollbackCandidate(ValuationLedger ledger, PolicyValuationContext context)
-    {
-        var changes = context.GetRetroactiveChanges(ledger.LastHandledRetroactiveChangeId, context.Policy.EffectiveDate, ledger.LatestEvent?.Date);
-        foreach (var change in changes)
-            if (ValuationRollbackEvaluator.IsRollbackCandidate(change, ledger, context)) return true;
-
-        return false;
-    }
-
-    /// <summary>
-    /// Checks if any pending retroactive change falls inside the candidate rollback window of the ledger.
-    /// Cheap check based on the latest event only: callers use it to decide whether the full ledger event
-    /// history must be loaded from the database.
-    /// </summary>
-    public bool IsRollbackCandidate(ValuationLedger ledger, PolicyValuationContext context, out DateOnly rollbackDate)
-    {
-        rollbackDate = DateOnly.MinValue;
-        var changes = context.GetRetroactiveChanges(ledger.LastHandledRetroactiveChangeId, context.Policy.EffectiveDate, ledger.LatestEvent?.Date);
-        foreach (var change in changes)
-            if (ValuationRollbackEvaluator.IsRollbackCandidate(change, ledger, context, out var d))
-                if (rollbackDate == DateOnly.MinValue || d < rollbackDate) rollbackDate = d;
-
-        return rollbackDate > DateOnly.MinValue;
     }
 
     private ErrorOr<int> ApplyRetroactiveChange(RetroactiveChangeInfo change, ValuationLedger ledger, PolicyValuationContext context)

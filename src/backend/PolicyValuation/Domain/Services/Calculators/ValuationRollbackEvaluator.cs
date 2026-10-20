@@ -7,29 +7,8 @@ namespace PAS.PolicyValuation.Domain.Services.Calculators;
 internal static class ValuationRollbackEvaluator
 {
     /// <summary>
-    /// Checks if the retroactive change requires a rollback.
-    /// The ledger events must be loaded: the check re-resolves the market data each event
-    /// consumed and compares it with the stored references. The candidate window check alone
-    /// is an exact superset of the real impact: if every re-resolved reference matches the
-    /// stored one, recomputing the events would produce identical results and the rollback
-    /// (and its new calculation layer) is unnecessary.
-    /// </summary>
-    public static bool IsRollbackRequired(RetroactiveChangeInfo change, ValuationLedger ledger, PolicyValuationContext context)
-        => IsRollbackRequired(change, ledger, context, out var _);
-
-    /// <inheritdoc cref="IsRollbackRequired(RetroactiveChangeInfo, ValuationLedger, PolicyValuationContext)" />
-    public static bool IsRollbackRequired(RetroactiveChangeInfo change, ValuationLedger ledger, PolicyValuationContext context, out DateOnly rollbackDate)
-    {
-        if (!IsRollbackCandidate(change, ledger, context, out rollbackDate))
-            return false;
-
-        return IsActuallyImpacted(change, ledger, context);
-    }
-
-    /// <summary>
     /// Checks if the retroactive change falls inside the candidate rollback window of the ledger,
     /// i.e. if the change could impact any event (cheap check, requires only the latest event).
-    /// Callers use it to decide whether the full event history must be loaded from the database.
     /// </summary>
     public static bool IsRollbackCandidate(RetroactiveChangeInfo change, ValuationLedger ledger, PolicyValuationContext context)
         => IsRollbackCandidate(change, ledger, context, out var _);
@@ -69,19 +48,27 @@ internal static class ValuationRollbackEvaluator
         return false;
     }
 
-    private static bool IsActuallyImpacted(RetroactiveChangeInfo change, ValuationLedger ledger, PolicyValuationContext context)
+    /// <summary>
+    /// Checks if the retroactive change requires a rollback.
+    /// The ledger events must be loaded.
+    /// </summary>
+    public static bool IsRollbackRequired(RetroactiveChangeInfo change, ValuationLedger ledger, PolicyValuationContext context)
+        => IsRollbackRequired(change, ledger, context, out var _);
+
+    /// <inheritdoc cref="IsRollbackRequired(RetroactiveChangeInfo, ValuationLedger, PolicyValuationContext)" />
+    public static bool IsRollbackRequired(RetroactiveChangeInfo change, ValuationLedger ledger, PolicyValuationContext context, out DateOnly rollbackDate)
     {
-        switch (change.Details)
+        if (!IsRollbackCandidate(change, ledger, context, out rollbackDate))
+            return false;
+
+        return change.Details switch
         {
-            case CurrencyRateChangeDetails currencyRateChange:
-                return ledger.Events.Any(e => !e.RolledbackByCalculationLayerId.HasValue && IsEventImpactedByFxChange(e, currencyRateChange, context));
-
-            case FundNavChangeDetails fundNavChange:
-                return ledger.Events.Any(e => !e.RolledbackByCalculationLayerId.HasValue && IsEventImpactedByNavChange(e, fundNavChange, context));
-
-            default:
-                return true;
-        }
+            CurrencyRateChangeDetails currencyRateChange => ledger.Events.Any(e => e.RolledbackByCalculationLayerId is null
+                && IsEventImpactedByFxChange(e, currencyRateChange, context)),
+            FundNavChangeDetails fundNavChange => ledger.Events.Any(e => e.RolledbackByCalculationLayerId is null
+                && IsEventImpactedByNavChange(e, fundNavChange, context)),
+            _ => true,
+        };
     }
 
     private static bool IsEventImpactedByNavChange(ValuationEvent valuationEvent, FundNavChangeDetails fundNavChange, PolicyValuationContext context)
