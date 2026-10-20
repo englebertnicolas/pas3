@@ -179,4 +179,35 @@ public class RollbackTests : DomainTestBase
         var reserveChangeRate = (finalReserveInPolicyCurrency / originalReserveInPolicyCurrency) - 1m;
         reserveChangeRate.Should().BeApproximately(-rateChangeRate / (1m + rateChangeRate), 0.000001m);
     }
+
+    [Fact]
+    public void Should_Not_Rollback_When_Change_Is_Before_Policy_Effective_Date()
+    {
+        // Arrange
+        // A retroactive change effective before the policy inception cannot impact the ledger:
+        // it must not trigger a rollback nor create an additional calculation layer.
+        var refDate = new DateOnly(2026, 9, 2);
+        var context1 = PolicyValuationContextFactory.CreateDefault1(-5, refDate);
+        var fundIdToChange = context1.Funds.First().Key;
+        // Change effective 10 days before the policy effective date
+        var context2 = context1
+            .WithFundNavChange(context1.Policy.EffectiveDate.AddDays(-10), fundIdToChange, 0.1m);
+
+        // Act
+        var eoLedger = ValuationLedger.Create(null, context1.Policy.Id, context1.Policy.CurrencyId)
+            .Tap(ledger => new PolicyValuationDomainService().PerformValuation(ledger, context1))
+            .Tap(ledger => new PolicyValuationDomainService().PerformValuation(ledger, context2));
+
+        // Assert
+        eoLedger.Errors.Should().BeNullOrEmpty();
+        var ledger = eoLedger.Value;
+        ledger.WarningMessage.Should().BeNull();
+
+        // No event rolled back, no additional layer
+        ledger.Events.Should().SatisfyRespectively(
+            e0 => e0.RolledbackByCalculationLayerId.Should().BeNull(),
+            e1 => e1.RolledbackByCalculationLayerId.Should().BeNull()
+        );
+        ledger.CalculationLayers.Should().HaveCount(1);
+    }
 }

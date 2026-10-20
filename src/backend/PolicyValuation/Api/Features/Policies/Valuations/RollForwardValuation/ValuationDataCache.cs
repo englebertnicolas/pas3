@@ -138,14 +138,16 @@ public class ValuationDataCache(ValuationReadDbContext dbContext, IMemoryCache m
 
         if (memoryCache.TryGetValue(key, out RetroactiveChangesCacheItem? cachedItem) && cachedItem != null)
             if ((cachedItem.MinId == null || cachedItem.MinId <= minId) && cachedItem.MinEffectiveDate <= minEffectiveDate)
-                return cachedItem.Changes;
+                // The cached entry is a superset: re-apply the caller's filters to the cached changes
+                return FilterChanges(cachedItem.Changes, minId, minEffectiveDate);
 
         using (await lockManager.LockAsync(key, cancellationToken))
         {
             // A previous thread could have change the cache during the lock
             if (memoryCache.TryGetValue(key, out cachedItem) && cachedItem != null)
                 if ((cachedItem.MinId == null || cachedItem.MinId <= minId) && cachedItem.MinEffectiveDate <= minEffectiveDate)
-                    return cachedItem.Changes;
+                    // The cached entry is a superset: re-apply the caller's filters to the cached changes
+                    return FilterChanges(cachedItem.Changes, minId, minEffectiveDate);
 
             var eoChangesInfo = await LoadRetroactiveChangesAsync(minId, minEffectiveDate, cancellationToken);
             if (eoChangesInfo.IsFailure) return eoChangesInfo.Errors;
@@ -163,10 +165,16 @@ public class ValuationDataCache(ValuationReadDbContext dbContext, IMemoryCache m
         }
     }
 
+    private static RetroactiveChangeInfo[] FilterChanges(RetroactiveChangeInfo[] changes, RetroactiveChangeId? minId, DateOnly minEffectiveDate)
+        => [.. changes
+            .WhereIf(minId != null, x => x.Id > minId)
+            .Where(x => x.EffectiveDate >= minEffectiveDate)
+            .OrderBy(x => x.Id)];
+
     private async Task<ErrorOr<RetroactiveChangeInfo[]>> LoadRetroactiveChangesAsync(RetroactiveChangeId? minId, DateOnly minEffectiveDate, CancellationToken cancellationToken)
     {
         return await dbContext.RetroactiveChanges.AsNoTracking()
-            .WhereIf(minId != null, x => x.Id >= minId!.Value.Value)
+            .WhereIf(minId != null, x => x.Id > minId!.Value.Value)
             .Where(x => x.EffectiveDate >= minEffectiveDate)
             .Select(x => new RetroactiveChangeInfo(new(x.Id), x.CreationTime, x.EffectiveDate, x.Details))
             .ToArrayAsync(cancellationToken);

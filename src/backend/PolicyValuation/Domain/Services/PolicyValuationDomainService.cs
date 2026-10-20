@@ -22,7 +22,8 @@ public class PolicyValuationDomainService
             return ErrorInfo.Unprocessable("Cannot perform valuation on a sealed valuation ledger.");
 
         // Apply pending retroactive changes first
-        foreach (var change in context.GetRetroactiveChanges(ledger.LastHandledRetroactiveChangeId))
+        // (changes effective before the policy inception cannot impact the ledger)
+        foreach (var change in context.GetRetroactiveChanges(ledger.LastHandledRetroactiveChangeId, context.Policy.EffectiveDate))
             ApplyRetroactiveChange(change, ledger, context);
 
         // Calculate the scheduled valuation events that need to be performed
