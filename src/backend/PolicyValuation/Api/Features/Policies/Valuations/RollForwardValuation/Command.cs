@@ -1,4 +1,4 @@
-﻿using PAS.Mediator;
+using PAS.Mediator;
 
 namespace PAS.PolicyValuation.Features.Policies.Valuations.RollForwardValuation;
 

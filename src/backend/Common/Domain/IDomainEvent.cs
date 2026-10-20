@@ -1,4 +1,4 @@
-﻿namespace PAS.Domain;
+namespace PAS.Domain;
 
 public interface IDomainEvent
 {

@@ -1,4 +1,4 @@
-﻿namespace PAS.Mediator;
+namespace PAS.Mediator;
 
 public interface IRequest;
 

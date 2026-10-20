@@ -1,4 +1,4 @@
-﻿using FluentValidation;
+using FluentValidation;
 using PAS.AspNetCore.Endpoints;
 using PAS.AspNetCore.Paging;
 using PAS.MarketData.Persistence;

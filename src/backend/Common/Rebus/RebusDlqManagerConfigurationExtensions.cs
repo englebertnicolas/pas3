@@ -1,4 +1,4 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection;
 using PAS.Rebus.Dlq;
 
 namespace PAS.Rebus;

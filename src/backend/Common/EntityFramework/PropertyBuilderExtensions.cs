@@ -1,4 +1,4 @@
-﻿/*
+/*
  * Not necessary since we are now registring the converters in the DbContext ConfigureConventions method.
  */
 

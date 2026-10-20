@@ -1,4 +1,4 @@
-﻿using PAS.PolicyValuation.Domain.ValuationLedgerAggregate;
+using PAS.PolicyValuation.Domain.ValuationLedgerAggregate;
 
 namespace PAS.PolicyValuation.Domain.Services.Calculators;
 

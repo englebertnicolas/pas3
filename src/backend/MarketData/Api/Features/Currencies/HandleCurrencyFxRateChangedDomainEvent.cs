@@ -1,4 +1,4 @@
-﻿using PAS.Domain;
+using PAS.Domain;
 using PAS.MarketData.Contracts;
 using PAS.MarketData.Domain.CurrencyAggregate;
 using Rebus.Bus;

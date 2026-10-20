@@ -1,4 +1,4 @@
-﻿namespace PAS.Core;
+namespace PAS.Core;
 
 public static class CollectionExtensions
 {

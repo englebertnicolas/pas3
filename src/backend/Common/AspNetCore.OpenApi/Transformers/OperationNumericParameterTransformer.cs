@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.OpenApi;
+using Microsoft.AspNetCore.OpenApi;
 using Microsoft.OpenApi;
 
 namespace PAS.AspNetCore.OpenApi.Transformers;

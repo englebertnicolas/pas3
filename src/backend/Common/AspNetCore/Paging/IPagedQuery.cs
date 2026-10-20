@@ -1,4 +1,4 @@
-﻿namespace PAS.AspNetCore.Paging;
+namespace PAS.AspNetCore.Paging;
 
 public interface IPagedQuery
 {

@@ -1,4 +1,4 @@
-﻿namespace PAS.OperationResults;
+namespace PAS.OperationResults;
 
 public readonly record struct ErrorInfo(ErrorType Type, string Message, string? Code = null)
 {

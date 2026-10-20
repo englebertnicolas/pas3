@@ -1,4 +1,4 @@
-﻿namespace PAS.OperationResults;
+namespace PAS.OperationResults;
 
 public static class ErrorOrExtensions
 {

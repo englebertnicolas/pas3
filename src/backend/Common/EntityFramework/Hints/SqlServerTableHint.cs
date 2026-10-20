@@ -1,4 +1,4 @@
-﻿namespace PAS.EntityFramework.Hints;
+namespace PAS.EntityFramework.Hints;
 
 [Flags]
 public enum SqlServerTableHint

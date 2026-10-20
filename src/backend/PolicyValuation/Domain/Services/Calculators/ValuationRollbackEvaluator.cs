@@ -1,4 +1,4 @@
-﻿using PAS.PolicyValuation.Domain.RetroactiveChangeAggregate;
+using PAS.PolicyValuation.Domain.RetroactiveChangeAggregate;
 using PAS.PolicyValuation.Domain.Services.Models;
 using PAS.PolicyValuation.Domain.ValuationLedgerAggregate;
 

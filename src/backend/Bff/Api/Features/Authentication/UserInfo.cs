@@ -1,4 +1,4 @@
-﻿using FluentValidation;
+using FluentValidation;
 using PAS.AspNetCore.Endpoints;
 
 namespace PAS.Bff.Features.Authentication;

@@ -1,4 +1,4 @@
-﻿using Rebus.Bus;
+using Rebus.Bus;
 using Rebus.Exceptions;
 using Rebus.Handlers;
 using Rebus.Messages;

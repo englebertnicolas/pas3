@@ -1,4 +1,4 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection;
 using PAS.EntityFramework;
 using PAS.Rebus.Inbox;
 using Rebus.Handlers;

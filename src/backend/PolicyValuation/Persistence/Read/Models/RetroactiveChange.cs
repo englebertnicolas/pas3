@@ -1,4 +1,4 @@
-﻿using PAS.PolicyValuation.Domain.RetroactiveChangeAggregate;
+using PAS.PolicyValuation.Domain.RetroactiveChangeAggregate;
 
 namespace PAS.PolicyValuation.Persistence.Read.Models;
 

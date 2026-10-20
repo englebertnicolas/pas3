@@ -1,3 +1,3 @@
-﻿namespace PAS.MarketData.Contracts;
+namespace PAS.MarketData.Contracts;
 
 public interface IMarketDataContractsMarker;

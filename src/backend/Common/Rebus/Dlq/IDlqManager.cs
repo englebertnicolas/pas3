@@ -1,4 +1,4 @@
-﻿namespace PAS.Rebus.Dlq;
+namespace PAS.Rebus.Dlq;
 
 public interface IDlqManager
 {

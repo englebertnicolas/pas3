@@ -1,4 +1,4 @@
-﻿namespace PAS.OperationResults;
+namespace PAS.OperationResults;
 
 /// <summary>
 /// Represent the result of an operation that can either succeed with a value of type T or fail with one or more errors.

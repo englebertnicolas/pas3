@@ -1,4 +1,4 @@
-﻿namespace PAS.PolicyValuation;
+namespace PAS.PolicyValuation;
 
 public record PolicyValuationOptions
 {

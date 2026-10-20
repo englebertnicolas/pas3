@@ -1,3 +1,3 @@
-﻿namespace PAS.PolicyAdmin.Domain;
+namespace PAS.PolicyAdmin.Domain;
 
 public interface IPolicyAdminDomainMarker;

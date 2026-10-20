@@ -1,4 +1,4 @@
-﻿using FluentValidation;
+using FluentValidation;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using PAS.AspNetCore.Endpoints;
 

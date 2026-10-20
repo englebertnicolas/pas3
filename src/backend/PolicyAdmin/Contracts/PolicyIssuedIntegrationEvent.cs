@@ -1,4 +1,4 @@
-﻿using PAS.Core.Amqp;
+using PAS.Core.Amqp;
 
 namespace PAS.PolicyAdmin.Contracts;
 

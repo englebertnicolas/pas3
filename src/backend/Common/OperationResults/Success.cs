@@ -1,4 +1,4 @@
-﻿namespace PAS.OperationResults;
+namespace PAS.OperationResults;
 
 /// <summary>
 /// Represent a successful operation without a return value.

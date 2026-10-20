@@ -1,4 +1,4 @@
-﻿namespace PAS.Domain.Ids;
+namespace PAS.Domain.Ids;
 
 public readonly record struct CurrencyId : IStronglyTypedId<string>
 {

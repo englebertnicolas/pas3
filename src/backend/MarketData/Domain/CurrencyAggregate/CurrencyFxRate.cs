@@ -1,4 +1,4 @@
-﻿namespace PAS.MarketData.Domain.CurrencyAggregate;
+namespace PAS.MarketData.Domain.CurrencyAggregate;
 
 public record CurrencyFxRate
 {

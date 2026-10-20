@@ -1,4 +1,4 @@
-﻿namespace PAS.EntityFramework;
+namespace PAS.EntityFramework;
 
 public interface IHasSchemaName
 {

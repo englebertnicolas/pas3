@@ -1,4 +1,4 @@
-﻿using PAS.MarketData.Persistence;
+using PAS.MarketData.Persistence;
 
 namespace PAS.MarketData.Tests.Features;
 

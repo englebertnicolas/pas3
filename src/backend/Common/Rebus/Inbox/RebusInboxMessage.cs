@@ -1,4 +1,4 @@
-﻿namespace PAS.Rebus.Inbox;
+namespace PAS.Rebus.Inbox;
 
 public class RebusInboxMessage
 {

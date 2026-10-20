@@ -1,4 +1,4 @@
-﻿using PAS.PolicyValuation.Domain.Services.Models;
+using PAS.PolicyValuation.Domain.Services.Models;
 using ApiClient = PAS.PolicyAdmin.Client.Models;
 
 namespace PAS.PolicyValuation.Shared;

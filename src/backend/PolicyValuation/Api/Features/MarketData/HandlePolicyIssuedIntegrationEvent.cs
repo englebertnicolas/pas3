@@ -1,4 +1,4 @@
-﻿using PAS.PolicyAdmin.Contracts;
+using PAS.PolicyAdmin.Contracts;
 using PAS.PolicyValuation.Domain.ValuationLedgerAggregate;
 using PAS.PolicyValuation.Persistence.Write;
 using Rebus.Handlers;

@@ -1,4 +1,4 @@
-﻿namespace PAS.Bff;
+namespace PAS.Bff;
 
 public record BffOptions
 {

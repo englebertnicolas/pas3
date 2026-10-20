@@ -1,4 +1,4 @@
-﻿using PAS.Domain;
+using PAS.Domain;
 
 namespace PAS.MarketData.Domain.FundAggregate;
 

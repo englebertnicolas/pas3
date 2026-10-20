@@ -1,4 +1,4 @@
-﻿using FluentAssertions;
+using FluentAssertions;
 using PAS.Domain.Ids;
 
 namespace PAS.PolicyValuation.Tests.Domain.ValuationLedgers;

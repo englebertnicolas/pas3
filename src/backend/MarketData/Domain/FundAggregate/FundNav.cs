@@ -1,4 +1,4 @@
-﻿namespace PAS.MarketData.Domain.FundAggregate;
+namespace PAS.MarketData.Domain.FundAggregate;
 
 public record FundNav
 {

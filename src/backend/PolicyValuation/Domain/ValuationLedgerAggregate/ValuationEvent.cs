@@ -1,4 +1,4 @@
-﻿using PAS.Domain;
+using PAS.Domain;
 using PAS.Domain.Ids;
 
 namespace PAS.PolicyValuation.Domain.ValuationLedgerAggregate;

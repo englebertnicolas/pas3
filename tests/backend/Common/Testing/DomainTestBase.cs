@@ -1,4 +1,4 @@
-﻿namespace PAS.Testing;
+namespace PAS.Testing;
 
 public abstract class DomainTestBase
 {

@@ -1,4 +1,4 @@
-﻿using Rebus.Extensions;
+using Rebus.Extensions;
 using Rebus.Retry;
 
 namespace PAS.Rebus.Internal;

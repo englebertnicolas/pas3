@@ -1,4 +1,4 @@
-﻿namespace PAS.Core.Amqp;
+namespace PAS.Core.Amqp;
 
 /// <summary>
 /// Specifies the custom AMQP routing key (topic name) associated with an integration event.

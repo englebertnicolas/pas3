@@ -1,4 +1,4 @@
-﻿/*
+/*
  * Using a dedicated secrets vault could be considered over-engineered for the scope of a .NET solution.
  * For simplicity and security, production secrets can be stored in 'appsettings.Production.json'. Access to 
  * this file on the server should be strictly limited to read-only for the application service account

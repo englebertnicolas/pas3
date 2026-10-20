@@ -1,4 +1,4 @@
-﻿namespace PAS.PolicyValuation.Persistence.Read.Models;
+namespace PAS.PolicyValuation.Persistence.Read.Models;
 
 public record CurrencyFxRate
 {

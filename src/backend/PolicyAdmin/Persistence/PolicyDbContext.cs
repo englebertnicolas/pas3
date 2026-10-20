@@ -1,4 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using PAS.Domain;
 using PAS.EntityFramework;
 using PAS.PolicyAdmin.Domain;

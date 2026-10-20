@@ -1,4 +1,4 @@
-﻿using PAS.Domain;
+using PAS.Domain;
 using PAS.PolicyValuation.Domain.RetroactiveChangeAggregate;
 
 namespace PAS.PolicyValuation.Domain.ValuationLedgerAggregate;

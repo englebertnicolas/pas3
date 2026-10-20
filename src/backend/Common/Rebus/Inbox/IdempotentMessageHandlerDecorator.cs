@@ -1,4 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using Rebus.Handlers;
 using Rebus.Messages;
 using Rebus.Pipeline;

@@ -1,4 +1,4 @@
-﻿using System.Text.Json.Serialization;
+using System.Text.Json.Serialization;
 using PAS.Domain.Ids;
 
 namespace PAS.PolicyValuation.Domain.RetroactiveChangeAggregate;

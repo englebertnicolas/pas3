@@ -1,4 +1,4 @@
-﻿using FluentAssertions;
+using FluentAssertions;
 using PAS.OperationResults;
 using PAS.PolicyValuation.Domain.Services;
 using PAS.PolicyValuation.Domain.ValuationLedgerAggregate;

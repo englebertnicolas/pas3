@@ -1,4 +1,4 @@
-﻿namespace PAS.AspNetCore.Authentication.Keycloak;
+namespace PAS.AspNetCore.Authentication.Keycloak;
 
 public record KeycloakOptions
 {

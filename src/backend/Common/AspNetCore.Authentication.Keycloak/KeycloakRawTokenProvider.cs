@@ -1,4 +1,4 @@
-﻿using Microsoft.Kiota.Abstractions.Authentication;
+using Microsoft.Kiota.Abstractions.Authentication;
 
 namespace PAS.AspNetCore.Authentication.Keycloak;
 

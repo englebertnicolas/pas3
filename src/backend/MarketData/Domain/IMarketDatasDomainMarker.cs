@@ -1,3 +1,3 @@
-﻿namespace PAS.MarketData.Domain;
+namespace PAS.MarketData.Domain;
 
 public interface IMarketDatasDomainMarker;

@@ -1,3 +1,3 @@
-﻿namespace PAS.Core;
+namespace PAS.Core;
 
 public interface IIntegrationEvent;

@@ -1,4 +1,4 @@
-﻿using AsyncKeyedLock;
+using AsyncKeyedLock;
 using PAS.PolicyValuation.Domain.Services;
 using PAS.PolicyValuation.Features.Policies.Valuations.RollForwardValuation;
 

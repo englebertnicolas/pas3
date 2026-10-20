@@ -1,4 +1,4 @@
-﻿using PAS.AspNetCore.Endpoints;
+using PAS.AspNetCore.Endpoints;
 
 namespace PAS.MarketData.Features.Funds;
 

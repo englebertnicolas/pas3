@@ -1,4 +1,4 @@
-﻿using PAS.Domain.Ids;
+using PAS.Domain.Ids;
 
 namespace PAS.PolicyValuation.Domain.Services.Models;
 

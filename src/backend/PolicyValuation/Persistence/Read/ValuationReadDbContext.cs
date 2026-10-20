@@ -1,4 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using PAS.EntityFramework;
 using PAS.PolicyValuation.Persistence.Read.Models;
 
