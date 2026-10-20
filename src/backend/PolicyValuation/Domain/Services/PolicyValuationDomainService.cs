@@ -54,26 +54,30 @@ public class PolicyValuationDomainService
     }
 
     /// <summary>
-    /// Checks if a rollback is required for the given ledger.
+    /// Checks if any pending retroactive change falls inside the candidate rollback window of the ledger,
+    /// i.e. if a rollback could be required. Cheap check based on the latest event only: callers use it
+    /// to decide whether the full ledger event history must be loaded from the database.
     /// </summary>
-    public bool IsRollbackRequired(ValuationLedger ledger, PolicyValuationContext context)
+    public bool IsRollbackCandidate(ValuationLedger ledger, PolicyValuationContext context)
     {
         var changes = context.GetRetroactiveChanges(ledger.LastHandledRetroactiveChangeId, context.Policy.EffectiveDate, ledger.LatestEvent?.Date);
         foreach (var change in changes)
-            if (ValuationRollbackEvaluator.IsRollbackRequired(change, ledger, context)) return true;
+            if (ValuationRollbackEvaluator.IsRollbackCandidate(change, ledger, context)) return true;
 
         return false;
     }
 
     /// <summary>
-    /// Checks if a rollback is required for the given ledger.
+    /// Checks if any pending retroactive change falls inside the candidate rollback window of the ledger.
+    /// Cheap check based on the latest event only: callers use it to decide whether the full ledger event
+    /// history must be loaded from the database.
     /// </summary>
-    public bool IsRollbackRequired(ValuationLedger ledger, PolicyValuationContext context, out DateOnly rollbackDate)
+    public bool IsRollbackCandidate(ValuationLedger ledger, PolicyValuationContext context, out DateOnly rollbackDate)
     {
         rollbackDate = DateOnly.MinValue;
         var changes = context.GetRetroactiveChanges(ledger.LastHandledRetroactiveChangeId, context.Policy.EffectiveDate, ledger.LatestEvent?.Date);
         foreach (var change in changes)
-            if (ValuationRollbackEvaluator.IsRollbackRequired(change, ledger, context, out var d))
+            if (ValuationRollbackEvaluator.IsRollbackCandidate(change, ledger, context, out var d))
                 if (rollbackDate == DateOnly.MinValue || d < rollbackDate) rollbackDate = d;
 
         return rollbackDate > DateOnly.MinValue;
@@ -85,8 +89,7 @@ public class PolicyValuationDomainService
         if (ledger.IsSealed)
             return ErrorInfo.Unprocessable("Cannot apply retroactive change on a sealed valuation ledger.");
 
-        if (ValuationRollbackEvaluator.IsRollbackRequired(change, ledger, context, out var rollbackDate)
-            && ValuationRollbackEvaluator.IsActuallyImpacted(change, ledger, context))
+        if (ValuationRollbackEvaluator.IsRollbackRequired(change, ledger, context, out var rollbackDate))
         {
             // Create new calculation layer
             var eoNewLayer = CalculationLayer.Create(CalculationLayerId.New(), ledger.Id, ledger.CurrentCalculationLayer.Seq + 1, change.Id);

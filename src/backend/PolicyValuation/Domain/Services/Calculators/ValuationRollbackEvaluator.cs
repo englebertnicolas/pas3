@@ -8,14 +8,34 @@ internal static class ValuationRollbackEvaluator
 {
     /// <summary>
     /// Checks if the retroactive change requires a rollback.
+    /// The ledger events must be loaded: the check re-resolves the market data each event
+    /// consumed and compares it with the stored references. The candidate window check alone
+    /// is an exact superset of the real impact: if every re-resolved reference matches the
+    /// stored one, recomputing the events would produce identical results and the rollback
+    /// (and its new calculation layer) is unnecessary.
     /// </summary>
     public static bool IsRollbackRequired(RetroactiveChangeInfo change, ValuationLedger ledger, PolicyValuationContext context)
         => IsRollbackRequired(change, ledger, context, out var _);
 
-    /// <summary>
-    /// Checks if the retroactive change requires a rollback.
-    /// </summary>
+    /// <inheritdoc cref="IsRollbackRequired(RetroactiveChangeInfo, ValuationLedger, PolicyValuationContext)" />
     public static bool IsRollbackRequired(RetroactiveChangeInfo change, ValuationLedger ledger, PolicyValuationContext context, out DateOnly rollbackDate)
+    {
+        if (!IsRollbackCandidate(change, ledger, context, out rollbackDate))
+            return false;
+
+        return IsActuallyImpacted(change, ledger, context);
+    }
+
+    /// <summary>
+    /// Checks if the retroactive change falls inside the candidate rollback window of the ledger,
+    /// i.e. if the change could impact any event (cheap check, requires only the latest event).
+    /// Callers use it to decide whether the full event history must be loaded from the database.
+    /// </summary>
+    public static bool IsRollbackCandidate(RetroactiveChangeInfo change, ValuationLedger ledger, PolicyValuationContext context)
+        => IsRollbackCandidate(change, ledger, context, out var _);
+
+    /// <inheritdoc cref="IsRollbackCandidate(RetroactiveChangeInfo, ValuationLedger, PolicyValuationContext)" />
+    public static bool IsRollbackCandidate(RetroactiveChangeInfo change, ValuationLedger ledger, PolicyValuationContext context, out DateOnly rollbackDate)
     {
         rollbackDate = DateOnly.MinValue;
         if (ledger.LatestEvent == null) return false;
@@ -49,14 +69,7 @@ internal static class ValuationRollbackEvaluator
         return false;
     }
 
-    /// <summary>
-    /// Checks if the retroactive change actually impacts any valuation event of the ledger,
-    /// by re-resolving the market data each event consumed and comparing it with the stored references.
-    /// The candidate window (IsRollbackRequired) is an exact superset of the real impact:
-    /// if every re-resolved reference matches the stored one, recomputing the events
-    /// would produce identical results and the rollback (and its new calculation layer) is unnecessary.
-    /// </summary>
-    public static bool IsActuallyImpacted(RetroactiveChangeInfo change, ValuationLedger ledger, PolicyValuationContext context)
+    private static bool IsActuallyImpacted(RetroactiveChangeInfo change, ValuationLedger ledger, PolicyValuationContext context)
     {
         switch (change.Details)
         {

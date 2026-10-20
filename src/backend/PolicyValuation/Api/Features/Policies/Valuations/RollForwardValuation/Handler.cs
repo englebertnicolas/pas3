@@ -27,7 +27,7 @@ public class Handler(
         var context = eoContext.Value;
 
         // Load additional data if a retroactive change needs to be applied
-        if (valuationService.IsRollbackRequired(ledger, context, out var rollbackDate))
+        if (valuationService.IsRollbackCandidate(ledger, context, out var rollbackDate))
         {
             // Update context: load market data since the rollback date
             eoContext = await valuationContextLoader.AddMarketDataFromAsync(context, rollbackDate, cancellationToken);
