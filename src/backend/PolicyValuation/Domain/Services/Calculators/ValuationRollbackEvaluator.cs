@@ -24,8 +24,11 @@ internal static class ValuationRollbackEvaluator
             case CurrencyRateChangeDetails currencyRateChange:
                 if (context.Currencies.ContainsKey(currencyRateChange.CurrencyId))
                 {
+                    // FX rates are looked up backward: an event on date E uses rates in [E - tolerance, E].
+                    // A restated rate on the effective date impacts events from that date onwards (inclusive),
+                    // so the boundary date itself must trigger a rollback.
                     rollbackDate = change.EffectiveDate;
-                    if (rollbackDate < ledger.LatestEvent.Date)
+                    if (rollbackDate <= ledger.LatestEvent.Date)
                         return true;
 
                 }
@@ -37,9 +40,10 @@ internal static class ValuationRollbackEvaluator
                     var fund = context.GetFund(fundNavChange.FundId).Value;
                     // Reserves look up NAVs backward: an event on date E uses NAVs in [E - tolerance, E].
                     // Movements (premiums) look up NAVs forward: an operation on date P uses NAVs in [P + lag, P + lag + tolerance].
-                    // A restated NAV on the effective date impacts events from (effective date - lag - tolerance) onwards.
+                    // A restated NAV on the effective date impacts events from (effective date - lag - tolerance) onwards,
+                    // including an event exactly on that boundary date (premium forward window ending on the effective date).
                     rollbackDate = change.EffectiveDate.AddDays(-(fund.NavPricingLag + fund.NavStalenessTolerance));
-                    if (rollbackDate < ledger.LatestEvent.Date)
+                    if (rollbackDate <= ledger.LatestEvent.Date)
                         return true;
                 }
                 break;

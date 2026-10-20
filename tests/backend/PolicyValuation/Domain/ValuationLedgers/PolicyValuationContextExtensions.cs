@@ -69,4 +69,24 @@ public static class PolicyValuationContextExtensions
             RetroactiveChanges = [PolicyValuationContextFactory.CreateFundNavRetroactiveChange(date, fundId, newNavValue)]
         };
     }
+
+    public static PolicyValuationContext WithCurrencyFxRateChange(this PolicyValuationContext context, DateOnly date, CurrencyId currencyId, decimal rateChangeRate)
+    {
+        var newRateValue = (context.Currencies[currencyId].FxRates.LastOrDefault(x => x.Date <= date)?.RateToEur
+            ?? context.Currencies[currencyId].FxRates.FirstOrDefault(x => x.Date > date)?.RateToEur
+            ?? 1m) * (1m + rateChangeRate);
+        var newCurrencyDictionary = context.Currencies.ToDictionary();
+        newCurrencyDictionary[currencyId] = context.Currencies[currencyId] with
+        {
+            FxRates = [.. context.Currencies[currencyId].FxRates
+                .Where(x => x.Date != date)
+                .Append(new CurrencyFxRateInfo(date, newRateValue))
+                .OrderBy(x => x.Date)]
+        };
+        return context with
+        {
+            Currencies = newCurrencyDictionary,
+            RetroactiveChanges = [PolicyValuationContextFactory.CreateCurrencyRateRetroactiveChange(date, currencyId, newRateValue)]
+        };
+    }
 }

@@ -132,4 +132,51 @@ public class RollbackTests : DomainTestBase
         var unitsChangeRate = (finalUnits / originalUnits) - 1m;
         unitsChangeRate.Should().BeApproximately(-navChangeRate / (1m + navChangeRate), 0.000001m);
     }
+
+    [Theory]
+    [InlineData(0.1)]
+    [InlineData(-0.1)]
+    public void Should_Rollback_When_Fx_Rate_Changed_On_Latest_Event_Date(decimal rateChangeRate)
+    {
+        // Arrange
+        // The latest event (end of month on refDate - 2) is exactly on the effective date
+        // of the restated USD rate: it consumed that rate and must be rolled back.
+        var refDate = new DateOnly(2026, 9, 2);
+        var context1 = PolicyValuationContextFactory.CreateDefault1(-5, refDate)
+            .WithPolicyCurrency(new("USD"));
+        var context2 = context1
+            .WithCurrencyFxRateChange(refDate.AddDays(-2), new("USD"), rateChangeRate);
+
+        // Act
+        var eoLedger = ValuationLedger.Create(null, context1.Policy.Id, context1.Policy.CurrencyId)
+            .Tap(ledger => new PolicyValuationDomainService().PerformValuation(ledger, context1))
+            .Tap(ledger => new PolicyValuationDomainService().PerformValuation(ledger, context2));
+
+        // Assert
+        eoLedger.Errors.Should().BeNullOrEmpty();
+        var ledger = eoLedger.Value;
+        ledger.WarningMessage.Should().BeNull();
+
+        // The event on the effective date (refDate - 2) must be rolled back and recomputed
+        ledger.Events.Should().SatisfyRespectively(
+            e0 => e0.RolledbackByCalculationLayerId.Should().BeNull(),
+            e1 => // e1: event on the restated rate effective date, rolled back
+            {
+                e1.RolledbackByCalculationLayerId.Should().NotBeNull();
+                e1.Date.Should().Be(refDate.AddDays(-2));
+            },
+            e2 => // e2: recomputed event with the restated rate
+            {
+                e2.RolledbackByCalculationLayerId.Should().BeNull();
+                e2.Date.Should().Be(refDate.AddDays(-2));
+            }
+        );
+
+        // The recomputed reserves must reflect the restated USD rate in policy currency
+        // (the fund is EUR-denominated, so the EUR amount is invariant to the USD rate)
+        var originalReserveInPolicyCurrency = ledger.Events[1].Reserves.First().Amount.InPolicyCurrency;
+        var finalReserveInPolicyCurrency = ledger.Events[2].Reserves.First().Amount.InPolicyCurrency;
+        var reserveChangeRate = (finalReserveInPolicyCurrency / originalReserveInPolicyCurrency) - 1m;
+        reserveChangeRate.Should().BeApproximately(-rateChangeRate / (1m + rateChangeRate), 0.000001m);
+    }
 }
