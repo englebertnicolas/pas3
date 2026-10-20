@@ -132,4 +132,9 @@ public static class PolicyValuationContextFactory
     {
         return new RetroactiveChangeInfo(new(++retroActiveChangeIdSeq), DateTime.Now, date, new FundNavChangeDetails(fundId, nav));
     }
+
+    public static RetroactiveChangeInfo CreateCurrencyRateRetroactiveChange(DateOnly date, CurrencyId currencyId, decimal rateToEur)
+    {
+        return new RetroactiveChangeInfo(new(++retroActiveChangeIdSeq), DateTime.Now, date, new CurrencyRateChangeDetails(currencyId, rateToEur));
+    }
 }

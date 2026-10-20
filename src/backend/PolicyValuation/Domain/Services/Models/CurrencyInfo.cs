@@ -12,6 +12,9 @@ public record CurrencyInfo(
 
     public CurrencyFxRateInfo[] GetFxRatesBetween(DateOnly minDate, DateOnly maxDate)
         => [.. FxRates.Where(x => x.Date >= minDate && x.Date <= maxDate).OrderBy(x => x.Date)];
+
+    public CurrencyFxRateInfo? GetFxRateAsOf(DateOnly maxDate)
+        => FxRates.Where(x => x.Date <= maxDate).OrderBy(x => x.Date).LastOrDefault();
 }
 
 public record CurrencyFxRateInfo(DateOnly Date, decimal RateToEur);

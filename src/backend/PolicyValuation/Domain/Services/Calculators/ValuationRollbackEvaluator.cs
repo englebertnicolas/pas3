@@ -25,7 +25,7 @@ internal static class ValuationRollbackEvaluator
                 if (context.Currencies.ContainsKey(currencyRateChange.CurrencyId))
                 {
                     rollbackDate = change.EffectiveDate;
-                    if (rollbackDate < ledger.LatestEvent.Date)
+                    if (rollbackDate <= ledger.LatestEvent.Date)
                         return true;
 
                 }
@@ -34,9 +34,9 @@ internal static class ValuationRollbackEvaluator
             case FundNavChangeDetails fundNavChange:
                 if (context.Funds.ContainsKey(fundNavChange.FundId))
                 {
-                    var toleranceDays = context.GetFund(fundNavChange.FundId).Value.NavStalenessTolerance;
-                    rollbackDate = change.EffectiveDate.AddDays(-toleranceDays);
-                    if (rollbackDate < ledger.LatestEvent.Date)
+                    var fund = context.GetFund(fundNavChange.FundId).Value;
+                    rollbackDate = change.EffectiveDate.AddDays(-(fund.NavPricingLag + fund.NavStalenessTolerance));
+                    if (rollbackDate <= ledger.LatestEvent.Date)
                         return true;
                 }
                 break;

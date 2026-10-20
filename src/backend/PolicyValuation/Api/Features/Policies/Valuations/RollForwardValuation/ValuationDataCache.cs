@@ -138,14 +138,14 @@ public class ValuationDataCache(ValuationReadDbContext dbContext, IMemoryCache m
 
         if (memoryCache.TryGetValue(key, out RetroactiveChangesCacheItem? cachedItem) && cachedItem != null)
             if ((cachedItem.MinId == null || cachedItem.MinId <= minId) && cachedItem.MinEffectiveDate <= minEffectiveDate)
-                return cachedItem.Changes;
+                return FilterChanges(cachedItem.Changes, minId, minEffectiveDate);
 
         using (await lockManager.LockAsync(key, cancellationToken))
         {
             // A previous thread could have change the cache during the lock
             if (memoryCache.TryGetValue(key, out cachedItem) && cachedItem != null)
                 if ((cachedItem.MinId == null || cachedItem.MinId <= minId) && cachedItem.MinEffectiveDate <= minEffectiveDate)
-                    return cachedItem.Changes;
+                    return FilterChanges(cachedItem.Changes, minId, minEffectiveDate);
 
             var eoChangesInfo = await LoadRetroactiveChangesAsync(minId, minEffectiveDate, cancellationToken);
             if (eoChangesInfo.IsFailure) return eoChangesInfo.Errors;
@@ -170,6 +170,14 @@ public class ValuationDataCache(ValuationReadDbContext dbContext, IMemoryCache m
             .Where(x => x.EffectiveDate >= minEffectiveDate)
             .Select(x => new RetroactiveChangeInfo(new(x.Id), x.CreationTime, x.EffectiveDate, x.Details))
             .ToArrayAsync(cancellationToken);
+    }
+
+    private static RetroactiveChangeInfo[] FilterChanges(RetroactiveChangeInfo[] changes, RetroactiveChangeId? minId, DateOnly minEffectiveDate)
+    {
+        return [.. changes
+            .WhereIf(minId != null, x => x.Id > minId)
+            .Where(x => x.EffectiveDate >= minEffectiveDate)
+            .OrderBy(x => x.Id)];
     }
 
     private record RetroactiveChangesCacheItem(RetroactiveChangeInfo[] Changes, RetroactiveChangeId? MinId, DateOnly MinEffectiveDate);
