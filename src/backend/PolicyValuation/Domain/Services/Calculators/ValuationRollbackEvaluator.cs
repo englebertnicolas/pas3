@@ -34,8 +34,11 @@ internal static class ValuationRollbackEvaluator
             case FundNavChangeDetails fundNavChange:
                 if (context.Funds.ContainsKey(fundNavChange.FundId))
                 {
-                    var toleranceDays = context.GetFund(fundNavChange.FundId).Value.NavStalenessTolerance;
-                    rollbackDate = change.EffectiveDate.AddDays(-toleranceDays);
+                    var fund = context.GetFund(fundNavChange.FundId).Value;
+                    // Reserves look up NAVs backward: an event on date E uses NAVs in [E - tolerance, E].
+                    // Movements (premiums) look up NAVs forward: an operation on date P uses NAVs in [P + lag, P + lag + tolerance].
+                    // A restated NAV on the effective date impacts events from (effective date - lag - tolerance) onwards.
+                    rollbackDate = change.EffectiveDate.AddDays(-(fund.NavPricingLag + fund.NavStalenessTolerance));
                     if (rollbackDate < ledger.LatestEvent.Date)
                         return true;
                 }
